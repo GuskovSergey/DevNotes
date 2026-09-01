@@ -1,5 +1,5 @@
 const { Op } = require('sequelize');
-const { Post, Category, Comment, Tag, User } = require('../models');
+const { Post, Category, Comment, Tag, User, PostLike } = require('../models');
 const PostDto = require('../dtos/postDto');
 const { PAGINATION_LIMIT } = require('../config/constants');
 
@@ -13,6 +13,7 @@ class PostService {
       { model: Category, as: 'category' },
       { model: Tag, as: 'tags', through: { attributes: [] } },
       { model: User, as: 'author', attributes: ['id', 'username', 'displayName'] },
+      { model: PostLike, as: 'likes', attributes: ['id', 'userId'] },
     ];
 
     if (categorySlug) {
@@ -47,6 +48,7 @@ class PostService {
         { model: Category, as: 'category' },
         { model: Tag, as: 'tags', through: { attributes: [] } },
         { model: User, as: 'author', attributes: ['id', 'username', 'displayName'] },
+        { model: PostLike, as: 'likes', attributes: ['id', 'userId'] },
         {
           model: Comment,
           as: 'comments',

@@ -1,4 +1,5 @@
 const authService = require('../services/authService');
+const categoryService = require('../services/categoryService');
 const logger = require('../config/logger');
 
 // Strict Admin-only Middleware
@@ -61,7 +62,7 @@ const userAuthMiddleware = async (req, res, next) => {
   }
 };
 
-// Soft/Optional Authentication Middleware (attaches currentUser to locals if logged in)
+// Soft/Optional Authentication Middleware (attaches currentUser & categories to locals)
 const optionalAuthMiddleware = async (req, res, next) => {
   const token = req.cookies ? req.cookies.token : null;
 
@@ -81,6 +82,12 @@ const optionalAuthMiddleware = async (req, res, next) => {
 
   if (!res.locals.currentUser) {
     res.locals.currentUser = null;
+  }
+
+  try {
+    res.locals.categories = await categoryService.getAllCategories();
+  } catch (err) {
+    res.locals.categories = [];
   }
 
   next();

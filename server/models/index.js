@@ -7,6 +7,7 @@ const Tag = require('./Tag');
 const PostTag = require('./PostTag');
 
 const Bookmark = require('./Bookmark');
+const PostLike = require('./PostLike');
 
 // User <-> Post
 User.hasMany(Post, { foreignKey: 'userId', as: 'posts' });
@@ -32,6 +33,14 @@ Bookmark.belongsTo(User, { foreignKey: 'userId', as: 'user' });
 Post.hasMany(Bookmark, { foreignKey: 'postId', as: 'bookmarks' });
 Bookmark.belongsTo(Post, { foreignKey: 'postId', as: 'post' });
 
+// User <-> PostLike
+User.hasMany(PostLike, { foreignKey: 'userId', as: 'likes' });
+PostLike.belongsTo(User, { foreignKey: 'userId', as: 'user' });
+
+// Post <-> PostLike
+Post.hasMany(PostLike, { foreignKey: 'postId', as: 'likes' });
+PostLike.belongsTo(Post, { foreignKey: 'postId', as: 'post' });
+
 // Post <-> Tag (Many-to-Many through PostTag)
 Post.belongsToMany(Tag, { through: PostTag, foreignKey: 'postId', as: 'tags' });
 Tag.belongsToMany(Post, { through: PostTag, foreignKey: 'tagId', as: 'posts' });
@@ -45,4 +54,5 @@ module.exports = {
   Tag,
   PostTag,
   Bookmark,
+  PostLike,
 };

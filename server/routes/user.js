@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const userController = require('../controllers/userController');
-const { userAuthMiddleware } = require('../middlewares/authMiddleware');
+const { userAuthMiddleware, optionalAuthMiddleware } = require('../middlewares/authMiddleware');
 const upload = require('../middlewares/uploadMiddleware');
 const {
   validateAuth,
@@ -31,8 +31,12 @@ router.get('/my/posts/new', userAuthMiddleware, userController.getCreatePostPage
 router.post('/my/posts', userAuthMiddleware, upload.single('featuredImage'), validatePost, doubleCsrfProtection, userController.handleCreatePost);
 router.get('/my/posts/:id/edit', userAuthMiddleware, userController.getEditMyPostPage);
 router.put('/my/posts/:id', userAuthMiddleware, upload.single('featuredImage'), validatePost, doubleCsrfProtection, userController.handleUpdateMyPost);
-// Protected User Bookmarks routes
+// Protected User Bookmarks & Likes routes
 router.get('/my/bookmarks', userAuthMiddleware, userController.getBookmarksPage);
 router.post('/my/bookmarks/toggle/:postId', userAuthMiddleware, doubleCsrfProtection, userController.handleToggleBookmark);
+router.post('/my/likes/toggle/:postId', userAuthMiddleware, doubleCsrfProtection, userController.handleToggleLike);
+
+// Public Author Profile route
+router.get('/user/:username', optionalAuthMiddleware, userController.getPublicProfilePage);
 
 module.exports = router;

@@ -29,6 +29,7 @@ class PostDto {
 
     this.featuredImage = post.featuredImage ? `/uploads/${post.featuredImage}` : null;
     this.viewsCount = post.viewsCount || 0;
+    this.likesCount = post.likes ? post.likes.length : 0;
     this.createdAtFormatted = new Date(post.createdAt).toDateString();
     this.createdAt = new Date(post.createdAt);
     this.updatedAt = new Date(post.updatedAt);

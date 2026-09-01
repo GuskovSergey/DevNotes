@@ -3,6 +3,7 @@ const categoryService = require('../services/categoryService');
 const commentService = require('../services/commentService');
 const tagService = require('../services/tagService');
 const bookmarkService = require('../services/bookmarkService');
+const likeService = require('../services/likeService');
 const catchAsync = require('../utils/catchAsync');
 const logger = require('../config/logger');
 
@@ -43,6 +44,10 @@ class MainController {
       ? await bookmarkService.isBookmarked(res.locals.currentUser.id, id)
       : false;
 
+    const isLiked = res.locals.currentUser
+      ? await likeService.isLiked(res.locals.currentUser.id, id)
+      : false;
+
     const locals = {
       title: data.title,
       description: 'Simple Blog created with NodeJs, Express & SQLite.',
@@ -52,6 +57,7 @@ class MainController {
       locals,
       data,
       isBookmarked,
+      isLiked,
       currentRoute: `/post/${id}`,
       successMessage: req.query.commentAdded ? 'Thank you! Your comment has been submitted and is pending moderation.' : null,
     });

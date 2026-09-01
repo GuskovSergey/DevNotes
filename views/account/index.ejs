@@ -94,41 +94,53 @@
   </div>
 
   <!-- Cabinet Stats Grid -->
-  <div class="stats-grid">
-    <div class="stat-card">
-      <div class="stat-card__icon">
+  <div class="stats-grid" style="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));">
+    <a href="/my/posts" class="stat-card" style="text-decoration: none;">
+      <div class="stat-card__icon" style="background: rgba(79, 70, 229, 0.15); color: var(--primary-indigo);">
         <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+          <polyline points="14 2 14 8 20 8"></polyline>
         </svg>
       </div>
       <div>
-        <div class="stat-card__number"><%= comments.length %></div>
-        <div class="stat-card__label">Total Comments</div>
+        <div class="stat-card__number"><%= typeof stats !== 'undefined' ? stats.postsCount : 0 %></div>
+        <div class="stat-card__label">My Articles</div>
       </div>
-    </div>
+    </a>
 
-    <div class="stat-card">
+    <a href="/my/bookmarks" class="stat-card" style="text-decoration: none;">
       <div class="stat-card__icon" style="background: rgba(16, 185, 129, 0.15); color: #10b981;">
         <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <polyline points="20 6 9 17 4 12"></polyline>
+          <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path>
         </svg>
       </div>
       <div>
-        <div class="stat-card__number"><%= comments.filter(c => c.isApproved).length %></div>
-        <div class="stat-card__label">Published Comments</div>
+        <div class="stat-card__number"><%= typeof stats !== 'undefined' ? stats.bookmarksCount : 0 %></div>
+        <div class="stat-card__label">Saved Bookmarks</div>
+      </div>
+    </a>
+
+    <div class="stat-card">
+      <div class="stat-card__icon" style="background: rgba(239, 68, 68, 0.15); color: #dc2626;">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+        </svg>
+      </div>
+      <div>
+        <div class="stat-card__number"><%= typeof stats !== 'undefined' ? stats.likesCount : 0 %></div>
+        <div class="stat-card__label">Liked Posts</div>
       </div>
     </div>
 
     <div class="stat-card">
       <div class="stat-card__icon" style="background: rgba(245, 158, 11, 0.15); color: #f59e0b;">
         <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <circle cx="12" cy="12" r="10"></circle>
-          <polyline points="12 6 12 12 16 14"></polyline>
+          <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
         </svg>
       </div>
       <div>
-        <div class="stat-card__number"><%= comments.filter(c => !c.isApproved).length %></div>
-        <div class="stat-card__label">In Moderation</div>
+        <div class="stat-card__number"><%= comments.length %></div>
+        <div class="stat-card__label">Comments</div>
       </div>
     </div>
   </div>

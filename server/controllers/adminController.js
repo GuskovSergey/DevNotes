@@ -41,11 +41,20 @@ class AdminController {
       return res.status(401).render('admin/index', {
         locals: { title: 'Admin Login' },
         layout: adminLayout,
-        errorMessage: 'Invalid credentials',
+        errorMessage: 'Invalid username or password.',
       });
     }
 
-    const token = authService.generateToken(user.id);
+    if (user.role !== 'admin') {
+      logger.warn({ username }, 'Non-admin user attempted admin login');
+      return res.status(403).render('admin/index', {
+        locals: { title: 'Admin Login' },
+        layout: adminLayout,
+        errorMessage: 'Access denied: Administrator privileges required.',
+      });
+    }
+
+    const token = authService.generateToken(user);
     res.cookie('token', token, {
       httpOnly: true,
       maxAge: COOKIE_MAX_AGE,

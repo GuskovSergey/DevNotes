@@ -27,7 +27,7 @@ class AuthService {
     return user;
   }
 
-  async registerUser({ username, email, password, displayName }) {
+  async registerUser({ username, email, password, displayName, role = 'user' }) {
     const existingUser = await User.findOne({
       where: {
         [Op.or]: [
@@ -50,7 +50,7 @@ class AuthService {
       email,
       password: hashedPassword,
       displayName: displayName || username,
-      role: 'user',
+      role,
     });
 
     return user;

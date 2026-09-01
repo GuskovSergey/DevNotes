@@ -2,9 +2,10 @@ const postService = require('../services/postService');
 const categoryService = require('../services/categoryService');
 const tagService = require('../services/tagService');
 const bookmarkService = require('../services/bookmarkService');
+const likeService = require('../services/likeService');
 const authService = require('../services/authService');
 const commentService = require('../services/commentService');
-const { Comment, Post } = require('../models');
+const { User, Post, Comment } = require('../models');
 const catchAsync = require('../utils/catchAsync');
 const logger = require('../config/logger');
 const { COOKIE_MAX_AGE } = require('../config/constants');
@@ -114,6 +115,10 @@ class UserController {
       order: [['createdAt', 'DESC']],
     });
 
+    const userPosts = await postService.getUserPosts(req.userId);
+    const userBookmarks = await bookmarkService.getUserBookmarks(req.userId);
+    const userLikes = await likeService.getUserLikedPosts(req.userId);
+
     const locals = {
       title: 'My Profile & Account',
       description: 'Manage your user profile and view your activity.',
@@ -123,6 +128,12 @@ class UserController {
       locals,
       user,
       comments,
+      stats: {
+        postsCount: userPosts.length,
+        bookmarksCount: userBookmarks.length,
+        likesCount: userLikes.length,
+        commentsCount: comments.length,
+      },
       errorMessage: null,
       successMessage: req.query.success || null,
     });
@@ -365,6 +376,50 @@ class UserController {
       locals,
       user,
       posts: bookmarks,
+    });
+  });
+
+  handleToggleLike = catchAsync(async (req, res) => {
+    const { postId } = req.params;
+    const result = await likeService.toggleLike(req.userId, postId);
+
+    if (req.xhr || (req.headers.accept && req.headers.accept.includes('application/json'))) {
+      return res.json({ success: true, ...result });
+    }
+
+    const backUrl = req.get('Referrer') || `/post/${postId}`;
+    return res.redirect(backUrl);
+  });
+
+  getPublicProfilePage = catchAsync(async (req, res, next) => {
+    const { username } = req.params;
+    const profileUser = await User.findOne({ where: { username } });
+
+    if (!profileUser) {
+      const error = new Error('Author not found');
+      error.statusCode = 404;
+      return next(error);
+    }
+
+    const posts = await postService.getUserPosts(profileUser.id);
+    const publishedPosts = posts.filter(p => p.status === 'published');
+    const totalViews = publishedPosts.reduce((acc, p) => acc + (p.viewsCount || 0), 0);
+    const totalComments = await Comment.count({ where: { userId: profileUser.id, isApproved: true } });
+
+    const locals = {
+      title: `${profileUser.displayName || profileUser.username} (@${profileUser.username})`,
+      description: profileUser.bio || `Developer profile of ${profileUser.displayName || profileUser.username} on DevHub.`,
+    };
+
+    res.render('profile', {
+      locals,
+      profileUser,
+      posts: publishedPosts,
+      stats: {
+        totalArticles: publishedPosts.length,
+        totalViews,
+        totalComments,
+      },
     });
   });
 
