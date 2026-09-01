@@ -32,6 +32,20 @@ const Post = sequelize.define('Post', {
     defaultValue: 'published',
     allowNull: false,
   },
+  seriesId: {
+    type: DataTypes.INTEGER,
+    allowNull: true,
+  },
+  seriesOrder: {
+    type: DataTypes.INTEGER,
+    allowNull: true,
+    defaultValue: 1,
+  },
+  difficultyLevel: {
+    type: DataTypes.ENUM('Beginner', 'Intermediate', 'Advanced'),
+    defaultValue: 'Intermediate',
+    allowNull: false,
+  },
 }, {
   tableName: 'posts',
   timestamps: true,

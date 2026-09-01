@@ -1,5 +1,5 @@
 const { Op } = require('sequelize');
-const { Post, Category, Comment, Tag, User, PostLike } = require('../models');
+const { Post, Category, Comment, Tag, User, PostLike, Series } = require('../models');
 const PostDto = require('../dtos/postDto');
 const { PAGINATION_LIMIT } = require('../config/constants');
 
@@ -14,6 +14,7 @@ class PostService {
       { model: Tag, as: 'tags', through: { attributes: [] } },
       { model: User, as: 'author', attributes: ['id', 'username', 'displayName'] },
       { model: PostLike, as: 'likes', attributes: ['id', 'userId'] },
+      { model: Series, as: 'series' },
     ];
 
     if (categorySlug) {
@@ -27,6 +28,7 @@ class PostService {
       where: whereClause,
       include: includeClause,
       order: [['createdAt', 'DESC']],
+      distinct: true,
       limit,
       offset,
     });
@@ -50,11 +52,33 @@ class PostService {
         { model: User, as: 'author', attributes: ['id', 'username', 'displayName'] },
         { model: PostLike, as: 'likes', attributes: ['id', 'userId'] },
         {
+          model: Series,
+          as: 'series',
+          include: [
+            {
+              model: Post,
+              as: 'posts',
+              attributes: ['id', 'title', 'seriesOrder', 'status'],
+              where: { status: 'published' },
+              required: false,
+            },
+          ],
+        },
+        {
           model: Comment,
           as: 'comments',
-          where: { isApproved: true },
+          where: { isApproved: true, parentId: null },
           required: false,
-          include: [{ model: User, as: 'user', attributes: ['id', 'username', 'displayName'] }],
+          include: [
+            { model: User, as: 'user', attributes: ['id', 'username', 'displayName'] },
+            {
+              model: Comment,
+              as: 'replies',
+              where: { isApproved: true },
+              required: false,
+              include: [{ model: User, as: 'user', attributes: ['id', 'username', 'displayName'] }],
+            },
+          ],
         },
       ],
     });
@@ -72,14 +96,18 @@ class PostService {
   }
 
   async searchPosts(searchTerm = '') {
-    const sanitizedSearch = searchTerm.replace(/[^a-zA-Z0-9а-яА-ЯёЁ ]/g, '');
+    const trimmed = searchTerm ? searchTerm.trim() : '';
+    if (!trimmed) return [];
+
+    // Escape SQL LIKE wildcards % and _ so they are matched literally
+    const escaped = trimmed.replace(/[%_]/g, '\\$&');
 
     const posts = await Post.findAll({
       where: {
         status: 'published',
         [Op.or]: [
-          { title: { [Op.like]: `%${sanitizedSearch}%` } },
-          { body: { [Op.like]: `%${sanitizedSearch}%` } },
+          { title: { [Op.like]: `%${escaped}%` } },
+          { body: { [Op.like]: `%${escaped}%` } },
         ],
       },
       include: [

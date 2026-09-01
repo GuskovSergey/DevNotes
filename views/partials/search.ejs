@@ -1,14 +1,42 @@
-<div class="searchBar">
-  <div class="container">
-    <form action="/search" method="POST" class="search__form" role="search">
+<div class="searchBar" id="searchModalOverlay">
+  <div class="search-modal-card">
+    
+    <!-- Command Palette Header Input Bar -->
+    <form action="/search" method="GET" class="search-modal-input-area" id="searchPaletteForm">
+      <svg class="search-input-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="11" cy="11" r="8"></circle>
+        <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+      </svg>
       <input 
         type="search"
-        aria-label="Seach"
         id="searchInput"
-        name="searchTerm"
-        placeholder="Seach the site..."
+        name="q"
+        placeholder="Type to search articles, tutorials, topics..."
+        autocomplete="off"
+        aria-label="Search articles"
       >
+      <button type="button" id="searchClose" class="search-modal-close-btn" aria-label="Close Search">
+        <kbd>ESC</kbd>
+      </button>
     </form>
-    <div id="searchClose">Close</div>
+
+    <!-- Live Results & Quick Suggest Container -->
+    <div class="search-live-results" id="searchLiveResults">
+      <div class="search-suggestions-header">Quick Suggestions</div>
+      <div class="search-quick-tags">
+        <button type="button" class="quick-suggest-chip" data-query="Array.prototype">Array.prototype</button>
+        <button type="button" class="quick-suggest-chip" data-query="JavaScript">JavaScript</button>
+        <button type="button" class="quick-suggest-chip" data-query="Express">Express</button>
+        <button type="button" class="quick-suggest-chip" data-query="Sequelize">Sequelize</button>
+      </div>
+    </div>
+
+    <!-- Command Palette Footer Navigation Hints -->
+    <div class="search-modal-footer">
+      <div class="search-hint"><kbd>↑</kbd> <kbd>↓</kbd> <span>Navigate</span></div>
+      <div class="search-hint"><kbd>↵</kbd> <span>Select</span></div>
+      <div class="search-hint"><kbd>ESC</kbd> <span>Close</span></div>
+    </div>
+
   </div>
 </div>

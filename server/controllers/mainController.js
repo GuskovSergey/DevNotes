@@ -65,7 +65,7 @@ class MainController {
 
   addComment = catchAsync(async (req, res, next) => {
     const { id } = req.params;
-    const { content } = req.body;
+    const { content, parentId } = req.body;
     const currentUser = res.locals.currentUser;
 
     let authorName = req.body.authorName;
@@ -89,25 +89,61 @@ class MainController {
       authorEmail: authorEmail.trim(),
       content: content.trim(),
       userId,
+      parentId: parentId ? parseInt(parentId, 10) : null,
     });
 
-    logger.info({ postId: id, userId }, 'New comment submitted for moderation');
+    logger.info({ postId: id, userId, parentId }, 'New comment submitted for moderation');
     return res.redirect(`/post/${id}?commentAdded=1`);
   });
 
   searchPosts = catchAsync(async (req, res) => {
+    const searchTerm = req.query.q || req.query.searchTerm || req.body.searchTerm || '';
+
     const locals = {
-      title: 'Search',
-      description: 'Simple Blog created with NodeJs, Express & SQLite.',
+      title: searchTerm ? `Search: "${searchTerm}"` : 'Search Articles',
+      description: 'Search articles, tutorials and guides on DevHub.',
     };
 
-    const searchTerm = req.body.searchTerm || '';
-    const data = await postService.searchPosts(searchTerm);
+    const data = searchTerm.trim() ? await postService.searchPosts(searchTerm) : [];
 
     res.render('search', {
       data,
+      searchTerm,
       locals,
-      currentRoute: '/',
+      currentRoute: '/search',
+    });
+  });
+
+  apiSearchPosts = catchAsync(async (req, res) => {
+    const searchTerm = req.query.q || req.query.searchTerm || '';
+    if (!searchTerm.trim()) {
+      return res.json({ results: [], query: '', total: 0 });
+    }
+
+    const posts = await postService.searchPosts(searchTerm);
+    const results = posts.map(post => ({
+      id: post._id,
+      title: post.title,
+      snippet: post.body ? post.body.replace(/[#*`_]/g, '').substring(0, 110) + '...' : '',
+      category: post.category ? post.category.name : null,
+      readTime: post.readingTime || '3 min read',
+      date: post.createdAt ? new Date(post.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : '',
+    }));
+
+    return res.json({ results, query: searchTerm, total: results.length });
+  });
+
+  apiGetPosts = catchAsync(async (req, res) => {
+    const categorySlug = req.query.category || null;
+    const page = req.query.page || 1;
+    const { data, current, nextPage, count } = await postService.getPaginatedPosts(page, 10, categorySlug);
+
+    return res.json({
+      posts: data,
+      current,
+      nextPage,
+      totalCount: count,
+      activeCategory: categorySlug,
     });
   });
 
@@ -144,6 +180,58 @@ class MainController {
       nextPage,
       currentRoute: `/tag/${slug}`,
     });
+  });
+
+  getRssFeed = catchAsync(async (req, res) => {
+    const { data: posts } = await postService.getPaginatedPosts(1, 30);
+    const host = req.get('host') || 'localhost:5000';
+    const protocol = req.protocol || 'http';
+    const baseUrl = `${protocol}://${host}`;
+
+    let xml = `<?xml version="1.0" encoding="UTF-8" ?>\n`;
+    xml += `<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">\n`;
+    xml += `<channel>\n`;
+    xml += `  <title>DevHub — Backend Architecture &amp; Tech Articles</title>\n`;
+    xml += `  <link>${baseUrl}</link>\n`;
+    xml += `  <description>Technical articles, guides, and practical tutorials for backend developers.</description>\n`;
+    xml += `  <language>en</language>\n`;
+    xml += `  <atom:link href="${baseUrl}/feed.xml" rel="self" type="application/rss+xml" />\n`;
+
+    posts.forEach(post => {
+      xml += `  <item>\n`;
+      xml += `    <title><![CDATA[${post.title}]]></title>\n`;
+      xml += `    <link>${baseUrl}/post/${post._id}</link>\n`;
+      xml += `    <guid isPermaLink="true">${baseUrl}/post/${post._id}</guid>\n`;
+      xml += `    <pubDate>${new Date(post.createdAt).toUTCString()}</pubDate>\n`;
+      if (post.category) {
+        xml += `    <category><![CDATA[${post.category.name}]]></category>\n`;
+      }
+      xml += `    <description><![CDATA[${post.excerpt || post.body}]]></description>\n`;
+      xml += `  </item>\n`;
+    });
+
+    xml += `</channel>\n`;
+    xml += `</rss>`;
+
+    res.set('Content-Type', 'text/xml');
+    return res.send(xml);
+  });
+
+  exportPostMarkdown = catchAsync(async (req, res, next) => {
+    const { id } = req.params;
+    const post = await postService.getPostById(id);
+    if (!post) {
+      const error = new Error('Post not found');
+      error.statusCode = 404;
+      return next(error);
+    }
+
+    const filename = `${post.title.toLowerCase().replace(/[^a-z0-9]+/g, '-')}.md`;
+    const markdownContent = `# ${post.title}\n\n*Author: ${post.author ? (post.author.displayName || post.author.username) : 'DevHub'}*\n*Date: ${post.createdAtFormatted}*\n*Category: ${post.category ? post.category.name : 'General'}*\n\n---\n\n${post.body}\n`;
+
+    res.setHeader('Content-Type', 'text/markdown; charset=utf-8');
+    res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+    return res.send(markdownContent);
   });
 }
 

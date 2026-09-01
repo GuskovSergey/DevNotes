@@ -8,6 +8,7 @@ const PostTag = require('./PostTag');
 
 const Bookmark = require('./Bookmark');
 const PostLike = require('./PostLike');
+const Series = require('./Series');
 
 // User <-> Post
 User.hasMany(Post, { foreignKey: 'userId', as: 'posts' });
@@ -17,9 +18,17 @@ Post.belongsTo(User, { foreignKey: 'userId', as: 'author' });
 Category.hasMany(Post, { foreignKey: 'categoryId', as: 'posts' });
 Post.belongsTo(Category, { foreignKey: 'categoryId', as: 'category' });
 
+// Series <-> Post
+Series.hasMany(Post, { foreignKey: 'seriesId', as: 'posts' });
+Post.belongsTo(Series, { foreignKey: 'seriesId', as: 'series' });
+
 // Post <-> Comment
 Post.hasMany(Comment, { foreignKey: 'postId', as: 'comments' });
 Comment.belongsTo(Post, { foreignKey: 'postId', as: 'post' });
+
+// Comment <-> Comment (Threaded Replies)
+Comment.hasMany(Comment, { foreignKey: 'parentId', as: 'replies' });
+Comment.belongsTo(Comment, { foreignKey: 'parentId', as: 'parent' });
 
 // User <-> Comment
 User.hasMany(Comment, { foreignKey: 'userId', as: 'comments' });
@@ -55,4 +64,5 @@ module.exports = {
   PostTag,
   Bookmark,
   PostLike,
+  Series,
 };

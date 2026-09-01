@@ -379,6 +379,22 @@ class UserController {
     });
   });
 
+  getLikedPostsPage = catchAsync(async (req, res) => {
+    const user = await authService.getUserById(req.userId);
+    const likedPosts = await likeService.getUserLikedPosts(req.userId);
+
+    const locals = {
+      title: 'Liked Articles',
+      description: 'View all articles you have liked on DevHub.',
+    };
+
+    res.render('my/likes', {
+      locals,
+      user,
+      posts: likedPosts,
+    });
+  });
+
   handleToggleLike = catchAsync(async (req, res) => {
     const { postId } = req.params;
     const result = await likeService.toggleLike(req.userId, postId);

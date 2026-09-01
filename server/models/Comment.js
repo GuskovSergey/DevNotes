@@ -31,6 +31,10 @@ const Comment = sequelize.define('Comment', {
     type: DataTypes.BOOLEAN,
     defaultValue: false,
   },
+  parentId: {
+    type: DataTypes.INTEGER,
+    allowNull: true,
+  },
 }, {
   tableName: 'comments',
   timestamps: true,

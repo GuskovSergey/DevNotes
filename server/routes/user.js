@@ -33,6 +33,7 @@ router.get('/my/posts/:id/edit', userAuthMiddleware, userController.getEditMyPos
 router.put('/my/posts/:id', userAuthMiddleware, upload.single('featuredImage'), validatePost, doubleCsrfProtection, userController.handleUpdateMyPost);
 // Protected User Bookmarks & Likes routes
 router.get('/my/bookmarks', userAuthMiddleware, userController.getBookmarksPage);
+router.get('/my/likes', userAuthMiddleware, userController.getLikedPostsPage);
 router.post('/my/bookmarks/toggle/:postId', userAuthMiddleware, doubleCsrfProtection, userController.handleToggleBookmark);
 router.post('/my/likes/toggle/:postId', userAuthMiddleware, doubleCsrfProtection, userController.handleToggleLike);
 

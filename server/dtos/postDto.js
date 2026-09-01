@@ -33,8 +33,32 @@ class PostDto {
     this.createdAtFormatted = new Date(post.createdAt).toDateString();
     this.createdAt = new Date(post.createdAt);
     this.updatedAt = new Date(post.updatedAt);
-    this.comments = post.comments ? post.comments.map(c => ({
+    this.difficultyLevel = post.difficultyLevel || 'Intermediate';
+
+    this.series = post.series ? (() => {
+      const sortedPosts = (post.series.posts || []).sort((a, b) => (a.seriesOrder || 0) - (b.seriesOrder || 0));
+      const currentIndex = sortedPosts.findIndex(p => p.id === post.id);
+      return {
+        id: post.series.id,
+        name: post.series.name,
+        slug: post.series.slug,
+        description: post.series.description,
+        totalChapters: sortedPosts.length,
+        currentOrder: post.seriesOrder || (currentIndex + 1),
+        posts: sortedPosts.map(p => ({
+          id: p.id,
+          title: p.title,
+          seriesOrder: p.seriesOrder,
+          isCurrent: p.id === post.id,
+        })),
+        prevPost: currentIndex > 0 ? sortedPosts[currentIndex - 1] : null,
+        nextPost: currentIndex >= 0 && currentIndex < sortedPosts.length - 1 ? sortedPosts[currentIndex + 1] : null,
+      };
+    })() : null;
+
+    const formatComment = (c) => ({
       id: c.id,
+      parentId: c.parentId || null,
       userId: c.userId || null,
       authorName: c.user ? (c.user.displayName || c.user.username) : c.authorName,
       user: c.user ? {
@@ -43,8 +67,12 @@ class PostDto {
         displayName: c.user.displayName || c.user.username,
       } : null,
       content: c.content,
+      contentHtml: c.content ? marked.parse(c.content) : '',
       createdAtFormatted: new Date(c.createdAt).toDateString(),
-    })) : [];
+      replies: c.replies ? c.replies.map(formatComment) : [],
+    });
+
+    this.comments = post.comments ? post.comments.map(formatComment) : [];
     this.tags = post.tags ? post.tags.map(t => ({
       id: t.id,
       name: t.name,

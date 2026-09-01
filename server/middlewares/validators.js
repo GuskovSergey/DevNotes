@@ -97,8 +97,11 @@ const validateChangePassword = [
 
 const validateSearch = [
   body('searchTerm')
-    .trim()
-    .escape(),
+    .optional()
+    .trim(),
+  query('q')
+    .optional()
+    .trim(),
   handleValidationErrors,
 ];
 

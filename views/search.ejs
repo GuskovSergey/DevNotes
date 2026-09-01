@@ -1,19 +1,69 @@
-<div class="author">
-  <h1 class="author__heading">Search Results</h1>
+<div class="search-results-header">
+  <a href="/" style="display: inline-flex; align-items: center; gap: 0.4rem; color: var(--text-muted); font-size: 0.9rem; font-weight: 600; text-decoration: none; margin-bottom: 1rem;">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+    <span>Back to Articles</span>
+  </a>
+  <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem;">
+    <div>
+      <h1 style="font-size: 2.1rem; margin-bottom: 0.4rem;">Search Results</h1>
+      <p style="color: var(--text-muted); font-size: 1.05rem;">
+        <% if (searchTerm) { %>
+          Results matching <strong style="color: var(--primary-indigo);">"<%= searchTerm %>"</strong>
+        <% } else { %>
+          Showing all published articles
+        <% } %>
+      </p>
+    </div>
+    <span class="tech-badge" style="font-size: 0.85rem; padding: 0.35rem 0.9rem; background: var(--primary-indigo-light); color: var(--primary-indigo); border-color: var(--border-accent);">
+      <%= data.length %> <%= data.length === 1 ? 'article' : 'articles' %> found
+    </span>
+  </div>
 </div>
 
-<section class="articles">
-
-  <ul class="article-ul">
-    <% data.forEach(post => { %>
-      <li>
-        <a href="/post/<%= post._id %>">
-          <span><%= post.title %></span>
-          <span class="article-list__date"><%= post.createdAt.toDateString() %></span>
-        </a>
-      </li>
-    <% }) %>
-  </ul>
-
-
+<section style="margin-top: 2.5rem;">
+  <% if (data && data.length > 0) { %>
+    <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 1.8rem;">
+      <% data.forEach(post => { %>
+        <article class="article-card" style="display: flex; flex-direction: column; height: 100%;">
+          <% if (post.coverImage) { %>
+            <a href="/post/<%= post._id %>">
+              <img src="<%= post.coverImage %>" alt="<%= post.title %>" style="width: 100%; height: 180px; object-fit: cover; border-top-left-radius: var(--radius-xl); border-top-right-radius: var(--radius-xl);">
+            </a>
+          <% } %>
+          <div style="padding: 1.5rem; flex: 1; display: flex; flex-direction: column;">
+            <div style="display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.8rem; font-size: 0.8rem; font-family: var(--font-mono); color: var(--text-muted);">
+              <% if (post.category) { %>
+                <span class="tech-badge" style="font-size: 0.72rem; padding: 0.15rem 0.6rem;"><%= post.category.name %></span>
+              <% } %>
+              <span>•</span>
+              <span><%= post.readingTime || '3 min read' %></span>
+            </div>
+            <h2 style="font-size: 1.25rem; line-height: 1.35; margin-bottom: 0.6rem;">
+              <a href="/post/<%= post._id %>" style="color: var(--text-main); text-decoration: none;"><%= post.title %></a>
+            </h2>
+            <p style="color: var(--text-muted); font-size: 0.92rem; line-height: 1.6; margin-bottom: 1.2rem; flex: 1; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;">
+              <%= post.excerpt || (post.body ? post.body.replace(/[#*`_]/g, '').substring(0, 120) + '...' : '') %>
+            </p>
+            <div style="display: flex; align-items: center; justify-content: space-between; border-top: 1px solid var(--border-light); padding-top: 0.8rem; font-size: 0.82rem; font-family: var(--font-mono); color: var(--text-muted);">
+              <span>By <%= post.author ? (post.author.displayName || post.author.username) : 'DevHub Team' %></span>
+              <a href="/post/<%= post._id %>" style="color: var(--primary-indigo); font-weight: 600; text-decoration: none; display: inline-flex; align-items: center; gap: 0.2rem;">Read &rarr;</a>
+            </div>
+          </div>
+        </article>
+      <% }) %>
+    </div>
+  <% } else { %>
+    <!-- Empty Search State -->
+    <div style="text-align: center; padding: 4rem 2rem; background: var(--bg-surface); border: 1px solid var(--border-light); border-radius: var(--radius-xl); max-width: 580px; margin: 2rem auto;">
+      <div style="font-size: 3rem; margin-bottom: 1rem;">🔍</div>
+      <h3 style="font-size: 1.4rem; margin-bottom: 0.6rem; color: var(--text-main);">No articles found</h3>
+      <p style="color: var(--text-muted); font-size: 0.98rem; margin-bottom: 1.8rem;">
+        We couldn't find any articles matching "<strong><%= searchTerm %></strong>". Try searching for different keywords or browse by categories.
+      </p>
+      <div style="display: flex; justify-content: center; gap: 0.8rem; flex-wrap: wrap;">
+        <a href="/" class="btn" style="padding: 0.6rem 1.4rem; font-size: 0.9rem;">Browse All Articles</a>
+        <a href="/about" class="btn" style="padding: 0.6rem 1.4rem; font-size: 0.9rem; background: var(--bg-subtle); color: var(--text-main); border: 1px solid var(--border-light);">About DevHub</a>
+      </div>
+    </div>
+  <% } %>
 </section>
