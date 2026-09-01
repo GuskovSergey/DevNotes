@@ -16,6 +16,20 @@
         <%= data.createdAtFormatted %>
       </span>
       <span style="color: var(--text-dim); font-size: 0.85rem;">• 👁 <%= data.viewsCount %> views</span>
+
+      <!-- Bookmark Action Button -->
+      <% if (typeof currentUser !== 'undefined' && currentUser) { %>
+        <form action="/my/bookmarks/toggle/<%= data.id %>" method="POST" style="margin: 0; margin-left: auto;">
+          <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+          <button type="submit" class="btn" style="padding: 0.35rem 0.95rem; font-size: 0.85rem; display: inline-flex; align-items: center; gap: 0.4rem; <%= (typeof isBookmarked !== 'undefined' && isBookmarked) ? 'background: rgba(16, 185, 129, 0.15); border-color: rgba(16, 185, 129, 0.3); color: #059669;' : 'background: var(--bg-subtle); border: 1px solid var(--border-light); color: var(--text-main); box-shadow: none;' %>">
+            <span><%= (typeof isBookmarked !== 'undefined' && isBookmarked) ? '📌 Saved' : '🔖 Bookmark' %></span>
+          </button>
+        </form>
+      <% } else { %>
+        <a href="/auth" class="btn" style="margin-left: auto; padding: 0.35rem 0.95rem; font-size: 0.85rem; background: var(--bg-subtle); border: 1px solid var(--border-light); color: var(--text-muted); box-shadow: none; text-decoration: none;">
+          🔖 Bookmark
+        </a>
+      <% } %>
     </div>
 
     <h1 style="font-size: clamp(2rem, 4vw, 3rem); line-height: 1.2; margin-bottom: 1rem;">
@@ -47,77 +61,104 @@
 </article>
 
 <!-- Comments Section -->
-<section class="comments-section" style="margin-top: 3rem;">
+<section class="comments-section" style="margin-top: 3.5rem;">
   <h2 style="font-size: 1.8rem; margin-bottom: 1.5rem;">Comments (<%= data.comments.length %>)</h2>
 
-  <% if (typeof successMessage !=='undefined' && successMessage) { %>
-    <div
-      style="background: rgba(16, 185, 129, 0.15); border: 1px solid rgba(16, 185, 129, 0.3); color: #34d399; padding: 1rem; border-radius: var(--radius-md); margin-bottom: 1.5rem;">
+  <% if (typeof successMessage !== 'undefined' && successMessage) { %>
+    <div style="background: rgba(16, 185, 129, 0.15); border: 1px solid rgba(16, 185, 129, 0.3); color: #059669; padding: 1rem 1.4rem; border-radius: var(--radius-lg); margin-bottom: 1.8rem; font-weight: 500;">
       ✓ <%= successMessage %>
     </div>
-    <% } %>
+  <% } %>
 
-      <div class="comments-list" style="display: flex; flex-direction: column; gap: 1rem; margin-bottom: 2.5rem;">
-        <% if (data.comments.length===0) { %>
-          <div
-            style="background: var(--bg-card); border: 1px dashed var(--border-glass); padding: 2rem; border-radius: var(--radius-md); text-align: center; color: var(--text-muted);">
-            No comments yet. Share your thoughts below!
-          </div>
-          <% } else { %>
-            <% data.comments.forEach(comment=> { %>
-              <div
-                style="background: var(--bg-card); border: 1px solid var(--border-glass); padding: 1.2rem 1.5rem; border-radius: var(--radius-md); border-left: 3px solid var(--primary-indigo);">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
-                  <strong style="color: var(--text-main); font-size: 1.05rem;">
-                    <%= comment.authorName %>
-                  </strong>
-                  <small style="color: var(--text-dim);">
-                    <%= comment.createdAtFormatted %>
-                  </small>
-                </div>
-                <p style="color: var(--text-muted); font-size: 0.98rem; margin: 0;">
-                  <%= comment.content %>
-                </p>
+  <div class="comments-list" style="display: flex; flex-direction: column; gap: 1.2rem; margin-bottom: 3rem;">
+    <% if (data.comments.length === 0) { %>
+      <div style="background: var(--bg-surface); border: 1px dashed var(--border-light); padding: 2.5rem; border-radius: var(--radius-lg); text-align: center; color: var(--text-muted);">
+        No comments yet. Share your thoughts below!
+      </div>
+    <% } else { %>
+      <% data.comments.forEach(comment => { %>
+        <div style="background: var(--bg-surface); border: 1px solid var(--border-light); padding: 1.4rem 1.6rem; border-radius: var(--radius-xl); box-shadow: var(--shadow-sm);">
+          
+          <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.8rem; flex-wrap: wrap; gap: 0.8rem;">
+            <div style="display: flex; align-items: center; gap: 0.8rem;">
+              <div style="width: 36px; height: 36px; border-radius: 50%; background: linear-gradient(135deg, var(--primary-indigo) 0%, #10b981 100%); color: white; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 0.85rem; flex-shrink: 0;">
+                <%= comment.authorName.charAt(0).toUpperCase() %>
               </div>
-              <% }) %>
+
+              <div style="display: flex; align-items: center; gap: 0.6rem; flex-wrap: wrap;">
+                <strong style="color: var(--text-main); font-size: 1.05rem;">
+                  <%= comment.authorName %>
+                </strong>
+
+                <% if (data.author && comment.userId === data.author.id) { %>
+                  <span class="tech-badge" style="background: var(--primary-indigo-light); color: var(--primary-indigo); border-color: var(--border-accent); font-size: 0.7rem; padding: 0.15rem 0.55rem;">
+                    ✍️ Article Author
+                  </span>
+                <% } else if (comment.userId) { %>
+                  <span class="tech-badge" style="background: rgba(16, 185, 129, 0.15); color: #059669; border-color: rgba(16, 185, 129, 0.3); font-size: 0.7rem; padding: 0.15rem 0.55rem;">
+                    ✓ Member
+                  </span>
                 <% } %>
-      </div>
-
-      <!-- Add Comment Box -->
-      <div
-        style="background: var(--bg-glass); border: 1px solid var(--border-glass); backdrop-filter: blur(16px); padding: 2rem; border-radius: var(--radius-lg); box-shadow: var(--shadow-sm);">
-        <h3 style="margin-bottom: 1.2rem; font-size: 1.4rem;">Leave a Comment</h3>
-
-        <form action="/post/<%= data.id %>/comment" method="POST">
-          <input type="hidden" name="_csrf" value="<%= csrfToken %>">
-
-          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
-            <div>
-              <label for="authorName"
-                style="display: block; font-size: 0.9rem; color: var(--text-muted); margin-bottom: 0.4rem;">Your
-                Name</label>
-              <input type="text" name="authorName" placeholder="e.g. John Doe" required>
+              </div>
             </div>
 
-            <div>
-              <label for="authorEmail"
-                style="display: block; font-size: 0.9rem; color: var(--text-muted); margin-bottom: 0.4rem;">Your
-                Email</label>
-              <input type="email" name="authorEmail" placeholder="e.g. john@example.com" required>
-            </div>
+            <span style="color: var(--text-dim); font-size: 0.82rem; font-family: var(--font-mono);">
+              <%= comment.createdAtFormatted %>
+            </span>
           </div>
 
-          <div style="margin-top: 0.5rem;">
-            <label for="content"
-              style="display: block; font-size: 0.9rem; color: var(--text-muted); margin-bottom: 0.4rem;">Comment
-              Content</label>
-            <textarea name="content" rows="4" placeholder="Write your thoughts..." required></textarea>
+          <p style="color: var(--text-body); font-size: 1rem; line-height: 1.6; margin: 0; padding-left: 3rem;">
+            <%= comment.content %>
+          </p>
+
+        </div>
+      <% }) %>
+    <% } %>
+  </div>
+
+  <!-- Add Comment Form Container -->
+  <div style="background: var(--bg-surface); border: 1px solid var(--border-light); padding: 2.2rem; border-radius: var(--radius-xl); box-shadow: var(--shadow-card);">
+    <h3 style="margin-bottom: 1.2rem; font-size: 1.4rem; color: var(--text-main);">Leave a Comment</h3>
+
+    <form action="/post/<%= data.id %>/comment" method="POST">
+      <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+
+      <% if (typeof currentUser !== 'undefined' && currentUser) { %>
+        <!-- Authenticated User Profile Badge -->
+        <div style="background: var(--bg-main); border: 1px solid var(--border-light); padding: 0.9rem 1.2rem; border-radius: var(--radius-lg); margin-bottom: 1.4rem; display: flex; align-items: center; gap: 0.8rem;">
+          <div style="width: 36px; height: 36px; border-radius: 50%; background: linear-gradient(135deg, var(--primary-indigo) 0%, #10b981 100%); color: white; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 0.85rem;">
+            <%= (currentUser.displayName || currentUser.username).charAt(0).toUpperCase() %>
+          </div>
+          <div style="display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap;">
+            <span style="font-weight: 700; color: var(--text-main); font-size: 0.95rem;"><%= currentUser.displayName || currentUser.username %></span>
+            <span style="color: var(--text-muted); font-size: 0.85rem;">(<%= currentUser.email %>)</span>
+            <span class="tech-badge" style="font-size: 0.7rem; padding: 0.1rem 0.5rem; background: var(--primary-indigo-light); color: var(--primary-indigo);">Posting as Member</span>
+          </div>
+        </div>
+      <% } else { %>
+        <!-- Guest Name & Email Inputs -->
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.2rem; margin-bottom: 1rem;">
+          <div>
+            <label for="authorName" style="display: block; font-size: 0.9rem; font-weight: 600; color: var(--text-main); margin-bottom: 0.4rem;">Your Name</label>
+            <input type="text" name="authorName" placeholder="e.g. John Doe" required>
           </div>
 
-          <button type="submit" class="btn" style="margin-top: 0.5rem; width: auto;">
-            <span>Submit Comment</span>
-            &rarr;
-          </button>
-        </form>
+          <div>
+            <label for="authorEmail" style="display: block; font-size: 0.9rem; font-weight: 600; color: var(--text-main); margin-bottom: 0.4rem;">Your Email</label>
+            <input type="email" name="authorEmail" placeholder="e.g. john@example.com" required>
+          </div>
+        </div>
+      <% } %>
+
+      <div>
+        <label for="content" style="display: block; font-size: 0.9rem; font-weight: 600; color: var(--text-main); margin-bottom: 0.4rem;">Comment Content</label>
+        <textarea name="content" rows="4" placeholder="Write your technical thoughts or questions..." required></textarea>
       </div>
+
+      <button type="submit" class="btn" style="margin-top: 1.2rem; padding: 0.75rem 1.8rem;">
+        <span>Submit Comment</span>
+        &rarr;
+      </button>
+    </form>
+  </div>
 </section>

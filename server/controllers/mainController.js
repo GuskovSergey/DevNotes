@@ -2,6 +2,7 @@ const postService = require('../services/postService');
 const categoryService = require('../services/categoryService');
 const commentService = require('../services/commentService');
 const tagService = require('../services/tagService');
+const bookmarkService = require('../services/bookmarkService');
 const catchAsync = require('../utils/catchAsync');
 const logger = require('../config/logger');
 
@@ -38,6 +39,10 @@ class MainController {
       return next(error);
     }
 
+    const isBookmarked = res.locals.currentUser
+      ? await bookmarkService.isBookmarked(res.locals.currentUser.id, id)
+      : false;
+
     const locals = {
       title: data.title,
       description: 'Simple Blog created with NodeJs, Express & SQLite.',
@@ -46,6 +51,7 @@ class MainController {
     res.render('post', {
       locals,
       data,
+      isBookmarked,
       currentRoute: `/post/${id}`,
       successMessage: req.query.commentAdded ? 'Thank you! Your comment has been submitted and is pending moderation.' : null,
     });
@@ -53,7 +59,18 @@ class MainController {
 
   addComment = catchAsync(async (req, res, next) => {
     const { id } = req.params;
-    const { authorName, authorEmail, content } = req.body;
+    const { content } = req.body;
+    const currentUser = res.locals.currentUser;
+
+    let authorName = req.body.authorName;
+    let authorEmail = req.body.authorEmail;
+    let userId = null;
+
+    if (currentUser) {
+      authorName = currentUser.displayName || currentUser.username;
+      authorEmail = currentUser.email;
+      userId = currentUser.id;
+    }
 
     if (!authorName || !authorEmail || !content) {
       logger.warn({ postId: id }, 'Incomplete comment submission');
@@ -65,9 +82,10 @@ class MainController {
       authorName: authorName.trim(),
       authorEmail: authorEmail.trim(),
       content: content.trim(),
+      userId,
     });
 
-    logger.info({ postId: id }, 'New comment submitted for moderation');
+    logger.info({ postId: id, userId }, 'New comment submitted for moderation');
     return res.redirect(`/post/${id}?commentAdded=1`);
   });
 

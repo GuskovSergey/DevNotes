@@ -48,6 +48,10 @@
           Write
         </a>
 
+        <a href="/my/bookmarks" class="admin-link-btn" style="padding: 0.45rem 0.75rem;" title="Saved Bookmarks">
+          🔖
+        </a>
+
         <a href="/account" class="admin-link-btn" style="display: inline-flex; align-items: center; gap: 0.55rem; background: var(--primary-indigo-light); border-color: var(--border-accent); color: var(--primary-indigo); font-weight: 600;">
           <span style="width: 24px; height: 24px; border-radius: 50%; background: linear-gradient(135deg, var(--primary-indigo) 0%, #10b981 100%); color: white; display: inline-flex; align-items: center; justify-content: center; font-size: 0.75rem; font-weight: 800;">
             <%= (currentUser.displayName || currentUser.username).charAt(0).toUpperCase() %>

@@ -31,6 +31,8 @@ router.get('/my/posts/new', userAuthMiddleware, userController.getCreatePostPage
 router.post('/my/posts', userAuthMiddleware, upload.single('featuredImage'), validatePost, doubleCsrfProtection, userController.handleCreatePost);
 router.get('/my/posts/:id/edit', userAuthMiddleware, userController.getEditMyPostPage);
 router.put('/my/posts/:id', userAuthMiddleware, upload.single('featuredImage'), validatePost, doubleCsrfProtection, userController.handleUpdateMyPost);
-router.delete('/my/posts/:id', userAuthMiddleware, doubleCsrfProtection, userController.handleDeleteMyPost);
+// Protected User Bookmarks routes
+router.get('/my/bookmarks', userAuthMiddleware, userController.getBookmarksPage);
+router.post('/my/bookmarks/toggle/:postId', userAuthMiddleware, doubleCsrfProtection, userController.handleToggleBookmark);
 
 module.exports = router;

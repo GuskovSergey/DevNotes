@@ -1,12 +1,13 @@
 const { Comment, Post } = require('../models');
 
 class CommentService {
-  async addComment({ postId, authorName, authorEmail, content }) {
+  async addComment({ postId, authorName, authorEmail, content, userId = null }) {
     return await Comment.create({
       postId,
       authorName,
       authorEmail,
       content,
+      userId,
       isApproved: false, // Moderation by default
     });
   }

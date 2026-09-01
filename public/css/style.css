@@ -114,16 +114,17 @@ a:hover {
   justify-content: space-between;
   align-items: center;
   padding: 0.9rem 1.6rem;
-  margin: 1.2rem 0 2.5rem 0;
+  margin: 0 0 2.5rem 0;
   background: var(--bg-surface);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
   border: 1px solid var(--border-light);
-  border-radius: var(--radius-xl);
+  border-top: none;
+  border-radius: 0 0 var(--radius-xl) var(--radius-xl);
   box-shadow: var(--shadow-sm);
   position: sticky;
-  top: 1rem;
-  z-index: 50;
+  top: 0;
+  z-index: 100;
   transition: background-color 0.3s ease, border-color 0.3s ease;
 }
 
@@ -894,24 +895,151 @@ select option {
   font-style: italic;
 }
 
+/* ==========================================================================
+   IntelliJ Code Syntax Highlighting Themes
+   Light Theme: IntelliJ Light (default)
+   Dark Theme:  IntelliJ Darcula ([data-theme="dark"])
+   ========================================================================== */
+
 .article-body pre {
-  background: #090d16;
-  border: 1px solid var(--border-light);
-  padding: 1.4rem;
+  padding: 1.4rem 1.6rem;
   border-radius: var(--radius-lg);
   overflow-x: auto;
-  margin: 1.5rem 0;
+  margin: 1.6rem 0;
   box-shadow: var(--shadow-card);
+  font-family: var(--font-mono);
+  font-size: 0.95rem;
+  line-height: 1.6;
+  transition: background-color 0.3s ease, border-color 0.3s ease;
+}
+
+/* IntelliJ Light Theme (Default / Light Mode) */
+.article-body pre {
+  background: #f8fafc;
+  border: 1px solid var(--border-light);
+  color: #000000;
 }
 
 .article-body pre code {
+  color: #000000;
   background: transparent;
-  border: none;
-  color: #38bdf8;
   padding: 0;
-  font-size: 0.95rem;
-  line-height: 1.6;
-  font-family: var(--font-mono);
+  border: none;
+}
+
+/* Highlight.js / Token mappings for IntelliJ Light */
+.hljs-keyword,
+.hljs-selector-tag,
+.hljs-subst {
+  color: #000080;
+  font-weight: bold;
+}
+
+.hljs-string,
+.hljs-title,
+.hljs-section,
+.hljs-attribute,
+.hljs-literal,
+.hljs-template-tag,
+.hljs-template-variable,
+.hljs-type,
+.hljs-addition {
+  color: #008000;
+  font-weight: 500;
+}
+
+.hljs-comment,
+.hljs-quote,
+.hljs-deletion,
+.hljs-meta {
+  color: #808080;
+  font-style: italic;
+}
+
+.hljs-number,
+.hljs-regexp,
+.hljs-link {
+  color: #0000ff;
+}
+
+.hljs-function,
+.hljs-title.function_,
+.hljs-attr {
+  color: #00627a;
+}
+
+.hljs-variable,
+.hljs-params,
+.hljs-property {
+  color: #660e7a;
+}
+
+.hljs-built_in,
+.hljs-class {
+  color: #20999d;
+  font-weight: 600;
+}
+
+/* IntelliJ Darcula Theme ([data-theme="dark"]) */
+[data-theme="dark"] .article-body pre {
+  background: #2b2b2b;
+  border: 1px solid #3c3f41;
+  color: #a9b7c6;
+}
+
+[data-theme="dark"] .article-body pre code {
+  color: #a9b7c6;
+}
+
+/* Highlight.js / Token mappings for IntelliJ Darcula */
+[data-theme="dark"] .hljs-keyword,
+[data-theme="dark"] .hljs-selector-tag,
+[data-theme="dark"] .hljs-subst {
+  color: #cc7832;
+  font-weight: bold;
+}
+
+[data-theme="dark"] .hljs-string,
+[data-theme="dark"] .hljs-addition {
+  color: #6a8759;
+}
+
+[data-theme="dark"] .hljs-comment,
+[data-theme="dark"] .hljs-quote,
+[data-theme="dark"] .hljs-deletion,
+[data-theme="dark"] .hljs-meta {
+  color: #808080;
+  font-style: italic;
+}
+
+[data-theme="dark"] .hljs-number,
+[data-theme="dark"] .hljs-regexp,
+[data-theme="dark"] .hljs-link {
+  color: #6897bb;
+}
+
+[data-theme="dark"] .hljs-function,
+[data-theme="dark"] .hljs-title.function_,
+[data-theme="dark"] .hljs-attr {
+  color: #ffc66d;
+}
+
+[data-theme="dark"] .hljs-variable,
+[data-theme="dark"] .hljs-params,
+[data-theme="dark"] .hljs-property {
+  color: #9876aa;
+}
+
+[data-theme="dark"] .hljs-title,
+[data-theme="dark"] .hljs-section,
+[data-theme="dark"] .hljs-class,
+[data-theme="dark"] .hljs-type {
+  color: #a9b7c6;
+  font-weight: 600;
+}
+
+[data-theme="dark"] .hljs-built_in {
+  color: #8888c6;
 }
 
 .article-body p code,

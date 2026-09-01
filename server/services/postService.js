@@ -52,6 +52,7 @@ class PostService {
           as: 'comments',
           where: { isApproved: true },
           required: false,
+          include: [{ model: User, as: 'user', attributes: ['id', 'username', 'displayName'] }],
         },
       ],
     });

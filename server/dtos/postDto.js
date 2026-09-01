@@ -34,7 +34,13 @@ class PostDto {
     this.updatedAt = new Date(post.updatedAt);
     this.comments = post.comments ? post.comments.map(c => ({
       id: c.id,
-      authorName: c.authorName,
+      userId: c.userId || null,
+      authorName: c.user ? (c.user.displayName || c.user.username) : c.authorName,
+      user: c.user ? {
+        id: c.user.id,
+        username: c.user.username,
+        displayName: c.user.displayName || c.user.username,
+      } : null,
       content: c.content,
       createdAtFormatted: new Date(c.createdAt).toDateString(),
     })) : [];

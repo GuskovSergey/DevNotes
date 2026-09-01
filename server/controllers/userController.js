@@ -1,6 +1,7 @@
 const postService = require('../services/postService');
 const categoryService = require('../services/categoryService');
 const tagService = require('../services/tagService');
+const bookmarkService = require('../services/bookmarkService');
 const authService = require('../services/authService');
 const commentService = require('../services/commentService');
 const { Comment, Post } = require('../models');
@@ -337,6 +338,34 @@ class UserController {
     const { id } = req.params;
     await postService.deletePost(id, req.userId);
     return res.redirect('/my/posts?success=Article%20deleted%20successfully');
+  });
+
+  handleToggleBookmark = catchAsync(async (req, res) => {
+    const { postId } = req.params;
+    const result = await bookmarkService.toggleBookmark(req.userId, postId);
+
+    if (req.xhr || (req.headers.accept && req.headers.accept.includes('application/json'))) {
+      return res.json({ success: true, ...result });
+    }
+
+    const backUrl = req.get('Referrer') || `/post/${postId}`;
+    return res.redirect(backUrl);
+  });
+
+  getBookmarksPage = catchAsync(async (req, res) => {
+    const user = await authService.getUserById(req.userId);
+    const bookmarks = await bookmarkService.getUserBookmarks(req.userId);
+
+    const locals = {
+      title: 'Saved Articles (Bookmarks)',
+      description: 'View and manage your bookmarked developer articles.',
+    };
+
+    res.render('my/bookmarks', {
+      locals,
+      user,
+      posts: bookmarks,
+    });
   });
 
   handleLogout = catchAsync(async (req, res) => {

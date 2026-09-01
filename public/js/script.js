@@ -1,4 +1,9 @@
 document.addEventListener('DOMContentLoaded', () => {
+  // Initialize Syntax Highlighting for code snippets
+  if (window.hljs) {
+    window.hljs.highlightAll();
+  }
+
   // --- Dark Mode / Light Mode Theme Switcher ---
   const themeToggleBtn = document.getElementById('themeToggleBtn');
   const storedTheme = localStorage.getItem('theme');

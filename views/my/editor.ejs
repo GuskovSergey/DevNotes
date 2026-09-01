@@ -1,112 +1,342 @@
-<div style="max-width: 960px; margin: 0 auto; padding-bottom: 3rem;">
-  
-  <a href="/my/posts" style="display: inline-flex; align-items: center; gap: 0.4rem; color: var(--text-muted); font-weight: 500; font-size: 0.9rem; margin-bottom: 1.5rem; text-decoration: none;">
-    &larr; Back to My Articles
-  </a>
+<style>
+  .editor-card {
+    background: var(--bg-surface);
+    border: 1px solid var(--border-light);
+    border-radius: var(--radius-xl);
+    overflow: hidden;
+    box-shadow: var(--shadow-card);
+    transition: box-shadow 0.3s ease, border-color 0.3s ease;
+  }
 
-  <div style="background: var(--bg-surface); border: 1px solid var(--border-light); padding: 2.5rem; border-radius: var(--radius-xl); box-shadow: var(--shadow-card);">
-    
-    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.8rem; flex-wrap: wrap; gap: 1rem;">
-      <h2 style="margin: 0; color: var(--text-main); font-size: 1.6rem;">
-        <%= post ? 'Edit Article' : 'Write New Article' %>
-      </h2>
-      <span class="tech-badge" style="background: var(--primary-indigo-light); color: var(--primary-indigo); border-color: var(--border-accent);">
-        ⚡ Markdown Supported
+  .editor-group {
+    margin-bottom: 1.8rem;
+  }
+
+  .editor-label {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: var(--text-main);
+    margin-bottom: 0.6rem;
+    letter-spacing: -0.01em;
+  }
+
+  .editor-label-badge {
+    background: var(--primary-indigo-light);
+    color: var(--primary-indigo);
+    padding: 0.15rem 0.55rem;
+    border-radius: var(--radius-sm);
+    font-size: 0.75rem;
+    font-family: var(--font-mono);
+    font-weight: 600;
+  }
+
+  .editor-input,
+  .editor-select,
+  .editor-textarea {
+    width: 100%;
+    padding: 0.95rem 1.3rem;
+    background: var(--bg-main);
+    border: 1.5px solid var(--border-light);
+    border-radius: var(--radius-lg);
+    color: var(--text-main);
+    font-family: var(--font-body);
+    font-size: 1rem;
+    line-height: 1.6;
+    transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.02);
+    margin-bottom: 0 !important;
+  }
+
+  .editor-input:hover,
+  .editor-select:hover,
+  .editor-textarea:hover {
+    border-color: var(--border-focus);
+    background: var(--bg-surface);
+  }
+
+  .editor-input:focus,
+  .editor-select:focus,
+  .editor-textarea:focus {
+    outline: none;
+    border-color: var(--primary-indigo);
+    background: var(--bg-surface);
+    box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.15), 0 4px 12px rgba(79, 70, 229, 0.06);
+    transform: translateY(-1px);
+  }
+
+  .editor-textarea {
+    font-family: var(--font-mono);
+    font-size: 0.95rem;
+    resize: vertical;
+    min-height: 400px;
+  }
+
+  /* Animated Drop Zone */
+  .drop-zone {
+    background: var(--bg-main);
+    border: 2px dashed var(--border-light);
+    border-radius: var(--radius-xl);
+    padding: 2.2rem 1.8rem;
+    text-align: center;
+    margin-bottom: 2.2rem;
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    cursor: pointer;
+    position: relative;
+  }
+
+  .drop-zone:hover {
+    border-color: var(--primary-indigo);
+    background: var(--primary-indigo-light);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 22px rgba(79, 70, 229, 0.08);
+  }
+
+  .drop-zone__icon {
+    margin-bottom: 0.6rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--primary-indigo);
+    transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+
+  .drop-zone:hover .drop-zone__icon {
+    transform: scale(1.18) translateY(-3px);
+  }
+
+  /* Toolbar Formatting Buttons */
+  .toolbar-btn {
+    font-family: var(--font-mono);
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: var(--text-muted);
+    background: var(--bg-subtle);
+    border: 1px solid var(--border-light);
+    padding: 0.4rem 0.85rem;
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    user-select: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+  }
+
+  .toolbar-btn:hover {
+    background: var(--primary-indigo-light);
+    color: var(--primary-indigo);
+    border-color: var(--border-accent);
+    transform: translateY(-2px);
+    box-shadow: 0 3px 10px rgba(79, 70, 229, 0.12);
+  }
+
+  .toolbar-btn:active {
+    transform: scale(0.95);
+  }
+</style>
+
+<div style="max-width: 1040px; margin: 0 auto; padding-bottom: 3.5rem;">
+  
+  <!-- Back Link & Top Info Bar -->
+  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.8rem; flex-wrap: wrap; gap: 1rem;">
+    <a href="/my/posts" style="display: inline-flex; align-items: center; gap: 0.4rem; color: var(--text-muted); font-weight: 600; font-size: 0.9rem; text-decoration: none; transition: color 0.2s ease;">
+      &larr; Back to My Articles
+    </a>
+
+    <div style="display: flex; gap: 0.6rem;">
+      <span class="tech-badge" style="background: var(--primary-indigo-light); color: var(--primary-indigo); border-color: var(--border-accent); font-size: 0.8rem; padding: 0.3rem 0.8rem; display: inline-flex; align-items: center; gap: 0.35rem;">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>
+        Markdown Engine
+      </span>
+      <span class="tech-badge" style="background: rgba(16, 185, 129, 0.15); color: #059669; border-color: rgba(16, 185, 129, 0.3); font-size: 0.8rem; padding: 0.3rem 0.8rem; display: inline-flex; align-items: center; gap: 0.35rem;">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path></svg>
+        File Import Ready
       </span>
     </div>
+  </div>
 
-    <% if (typeof errorMessage !== 'undefined' && errorMessage) { %>
-      <div style="background: #fef2f2; border: 1px solid #fecaca; color: #dc2626; padding: 0.9rem 1.2rem; border-radius: var(--radius-md); margin-bottom: 1.8rem; font-weight: 500;">
-        <%= errorMessage %>
-      </div>
-    <% } %>
+  <div class="editor-card">
+    
+    <!-- Header Banner -->
+    <div style="background: var(--bg-subtle); border-bottom: 1px solid var(--border-light); padding: 1rem 2rem; font-family: var(--font-mono); font-size: 0.85rem; color: var(--text-dim); display: flex; justify-content: space-between; align-items: center;">
+      <span>&lt;DevHub / Author Studio &gt;</span>
+      <span><%= post ? 'ID: #' + post.id : 'New Draft' %></span>
+    </div>
 
-    <form action="<%= post && post.id ? '/my/posts/' + post.id + '?_method=PUT' : '/my/posts' %>" method="POST" enctype="multipart/form-data">
-      <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+    <div style="padding: 3rem 2.8rem;">
 
-      <!-- Title -->
-      <label for="title" style="display: block; font-size: 0.9rem; font-weight: 600; color: var(--text-main); margin-bottom: 0.4rem;">Article Title</label>
-      <input type="text" placeholder="e.g. Building Resilient Microservices with Node.js & SQLite" name="title" value="<%= post ? post.title : '' %>" required style="font-size: 1.1rem; padding: 0.9rem 1.2rem;">
+      <% if (typeof errorMessage !== 'undefined' && errorMessage) { %>
+        <div style="background: #fef2f2; border: 1px solid #fecaca; color: #dc2626; padding: 1rem 1.4rem; border-radius: var(--radius-lg); margin-bottom: 2rem; font-weight: 500; display: flex; align-items: center; gap: 0.6rem;">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+          <span><%= errorMessage %></span>
+        </div>
+      <% } %>
 
-      <!-- Category & Cover Image Grid -->
-      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.2rem;">
-        <div>
-          <label for="categoryId" style="display: block; font-size: 0.9rem; font-weight: 600; color: var(--text-main); margin-bottom: 0.4rem;">Category</label>
-          <select name="categoryId">
-            <option value="">-- Select Category --</option>
-            <% categories.forEach(cat => { %>
-              <option value="<%= cat.id %>" <%= (post && post.categoryId === cat.id) ? 'selected' : '' %>><%= cat.name %></option>
-            <% }) %>
-          </select>
+      <!-- Interactive File Drop & Import Zone -->
+      <div id="dropZone" class="drop-zone">
+        <input type="file" id="mdFileInput" accept=".md,.markdown,.txt" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer; z-index: 10;">
+        
+        <div id="dropZoneContent">
+          <div class="drop-zone__icon">
+            <svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="12" y1="18" x2="12" y2="12"></line><polyline points="9 15 12 12 15 15"></polyline></svg>
+          </div>
+          <h4 style="font-size: 1.15rem; color: var(--text-main); margin-bottom: 0.4rem; font-weight: 700;">Import Markdown File (.md)</h4>
+          <p style="color: var(--text-muted); font-size: 0.92rem; margin-bottom: 1rem; max-width: 500px; margin-left: auto; margin-right: auto; line-height: 1.5;">
+            Drag &amp; drop a <code>.md</code> or <code>.markdown</code> file here, or click to browse from your filesystem.
+          </p>
+          <span class="btn" style="background: var(--bg-surface); border: 1px solid var(--border-light); color: var(--text-main); font-size: 0.88rem; padding: 0.45rem 1.2rem; pointer-events: none; border-radius: var(--radius-full);">
+            Browse File...
+          </span>
         </div>
 
-        <div>
-          <label for="featuredImage" style="display: block; font-size: 0.9rem; font-weight: 600; color: var(--text-main); margin-bottom: 0.4rem;">Cover Image</label>
-          <input type="file" name="featuredImage" accept="image/*">
-        </div>
-      </div>
-
-      <!-- Tags Input -->
-      <label for="tags" style="display: block; font-size: 0.9rem; font-weight: 600; color: var(--text-main); margin-bottom: 0.4rem;">Tags</label>
-      <input type="text" name="tags" value="<%= post && post.tags ? post.tags.map(t => t.name).join(', ') : (post && post.tagsInput ? post.tagsInput : '') %>" placeholder="e.g. nodejs, architecture, express, sqlite (comma-separated)">
-
-      <!-- Markdown Toolbar & Mode Switcher -->
-      <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 1.5rem; margin-bottom: 0.6rem; flex-wrap: wrap; gap: 0.8rem;">
-        <label for="body" style="font-size: 0.9rem; font-weight: 600; color: var(--text-main); margin: 0;">Article Content (Markdown)</label>
-
-        <div style="display: flex; gap: 0.4rem; background: var(--bg-subtle); padding: 0.2rem; border-radius: var(--radius-full); border: 1px solid var(--border-light);">
-          <button type="button" id="tabEditBtn" class="category-pill active" style="padding: 0.25rem 0.9rem; font-size: 0.8rem; cursor: pointer; border: none;">Write</button>
-          <button type="button" id="tabPreviewBtn" class="category-pill" style="padding: 0.25rem 0.9rem; font-size: 0.8rem; cursor: pointer; border: none; background: transparent; color: var(--text-muted);">Live Preview</button>
+        <!-- File Loaded Success Badge -->
+        <div id="fileLoadedBadge" style="display: none; align-items: center; justify-content: center; gap: 0.9rem; color: #059669; font-weight: 600; font-family: var(--font-mono); font-size: 1rem;">
+          <span>✓ Imported: <strong id="loadedFileName">article.md</strong> (<span id="loadedWordCount">0</span> words)</span>
+          <button type="button" id="clearFileBtn" style="background: #fef2f2; border: 1px solid #fecaca; color: #dc2626; border-radius: var(--radius-full); padding: 0.25rem 0.75rem; font-size: 0.8rem; cursor: pointer; z-index: 15; font-weight: 600;">Remove</button>
         </div>
       </div>
 
-      <!-- Quick Formatting Helper Buttons -->
-      <div style="display: flex; gap: 0.4rem; flex-wrap: wrap; margin-bottom: 0.8rem;">
-        <button type="button" onclick="insertSyntax('# ', '')" class="tech-badge" style="cursor: pointer;">H1</button>
-        <button type="button" onclick="insertSyntax('## ', '')" class="tech-badge" style="cursor: pointer;">H2</button>
-        <button type="button" onclick="insertSyntax('**', '**')" class="tech-badge" style="cursor: pointer;"><strong>B</strong> Bold</button>
-        <button type="button" onclick="insertSyntax('*', '*')" class="tech-badge" style="cursor: pointer;"><em>I</em> Italic</button>
-        <button type="button" onclick="insertSyntax('`', '`')" class="tech-badge" style="cursor: pointer;">`code`</button>
-        <button type="button" onclick="insertSyntax('\n```javascript\n', '\n```\n')" class="tech-badge" style="cursor: pointer;">``` Code Block</button>
-        <button type="button" onclick="insertSyntax('> ', '')" class="tech-badge" style="cursor: pointer;">&gt; Quote</button>
-        <button type="button" onclick="insertSyntax('[Link Title](', ')')" class="tech-badge" style="cursor: pointer;">🔗 Link</button>
-      </div>
+      <form action="<%= post && post.id ? '/my/posts/' + post.id + '?_method=PUT' : '/my/posts' %>" method="POST" enctype="multipart/form-data">
+        <input type="hidden" name="_csrf" value="<%= csrfToken %>">
 
-      <!-- Editor Textarea Area -->
-      <div id="editorWriteContainer">
-        <textarea id="markdownInput" name="body" rows="16" placeholder="# Article Title
+        <!-- Title Field Group -->
+        <div class="editor-group">
+          <label for="title" class="editor-label">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--primary-indigo);"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path></svg>
+            <span>Article Title</span>
+            <span class="editor-label-badge">Required</span>
+          </label>
+          <input type="text" id="articleTitle" class="editor-input" placeholder="e.g. Production-Grade Microservices with Express & SQLite" name="title" value="<%= post ? post.title : '' %>" required style="font-size: 1.15rem; font-weight: 700; padding: 1rem 1.4rem;">
+        </div>
+
+        <!-- Category & Cover Image Grid Group -->
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.6rem;" class="editor-group">
+          <div>
+            <label for="categoryId" class="editor-label">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--primary-indigo);"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path></svg>
+              <span>Category</span>
+            </label>
+            <select name="categoryId" class="editor-select">
+              <option value="">-- Select Category --</option>
+              <% categories.forEach(cat => { %>
+                <option value="<%= cat.id %>" <%= (post && post.categoryId === cat.id) ? 'selected' : '' %>><%= cat.name %></option>
+              <% }) %>
+            </select>
+          </div>
+
+          <div>
+            <label for="featuredImage" class="editor-label">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--primary-indigo);"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg>
+              <span>Cover Image</span>
+            </label>
+            <input type="file" name="featuredImage" accept="image/*" class="editor-input" style="padding: 0.75rem 1.2rem;">
+          </div>
+        </div>
+
+        <!-- Tags Field Group -->
+        <div class="editor-group">
+          <label for="tags" class="editor-label">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--primary-indigo);"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"></path><line x1="7" y1="7" x2="7.01" y2="7"></line></svg>
+            <span>Tags</span>
+            <span class="editor-label-badge">Comma-separated</span>
+          </label>
+          <input type="text" name="tags" class="editor-input" value="<%= post && post.tags ? post.tags.map(t => t.name).join(', ') : (post && post.tagsInput ? post.tagsInput : '') %>" placeholder="e.g. nodejs, architecture, express, sqlite">
+        </div>
+
+        <!-- Markdown Toolbar & Mode Selector Header -->
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 2.2rem; margin-bottom: 0.9rem; flex-wrap: wrap; gap: 1rem;">
+          <label for="body" class="editor-label" style="margin: 0; font-size: 1.05rem;">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--primary-indigo);"><polyline points="16 18 22 12 16 6"></polyline><polyline points="8 6 2 12 8 18"></polyline></svg>
+            <span>Article Body (Markdown)</span>
+            <span class="editor-label-badge" style="background: var(--bg-subtle); color: var(--text-muted);"><span id="statsWordCount">0</span> words</span>
+          </label>
+
+          <!-- View Mode Switcher -->
+          <div style="display: flex; gap: 0.35rem; background: var(--bg-subtle); padding: 0.3rem; border-radius: var(--radius-full); border: 1px solid var(--border-light);">
+            <button type="button" id="tabWriteBtn" class="category-pill active" style="padding: 0.3rem 1rem; font-size: 0.82rem; cursor: pointer; border: none;">Write</button>
+            <button type="button" id="tabPreviewBtn" class="category-pill" style="padding: 0.3rem 1rem; font-size: 0.82rem; cursor: pointer; border: none; background: transparent; color: var(--text-muted);">Preview</button>
+            <button type="button" id="tabSplitBtn" class="category-pill" style="padding: 0.3rem 1rem; font-size: 0.82rem; cursor: pointer; border: none; background: transparent; color: var(--text-muted);">Split View ↔</button>
+          </div>
+        </div>
+
+        <!-- Formatting Helper Buttons Bar -->
+        <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 1rem;">
+          <button type="button" onclick="insertSyntax('# ', '')" class="toolbar-btn">H1</button>
+          <button type="button" onclick="insertSyntax('## ', '')" class="toolbar-btn">H2</button>
+          <button type="button" onclick="insertSyntax('**', '**')" class="toolbar-btn"><strong>B</strong> Bold</button>
+          <button type="button" onclick="insertSyntax('*', '*')" class="toolbar-btn"><em>I</em> Italic</button>
+          <button type="button" onclick="insertSyntax('`', '`')" class="toolbar-btn">`code`</button>
+          <button type="button" onclick="insertSyntax('\n```javascript\n', '\n```\n')" class="toolbar-btn">``` Code Block</button>
+          <button type="button" onclick="insertSyntax('> ', '')" class="toolbar-btn">&gt; Quote</button>
+          <button type="button" onclick="insertSyntax('[Link Title](', ')')" class="toolbar-btn">🔗 Link</button>
+          <button type="button" onclick="insertSyntax('| Header 1 | Header 2 |\n| --- | ---\n| Cell 1 | Cell 2 |', '')" class="toolbar-btn">📊 Table</button>
+        </div>
+
+        <!-- Editor Grid Area -->
+        <div id="editorGrid" style="display: block; margin-bottom: 2rem;">
+          
+          <!-- Textarea Container -->
+          <div id="editorWriteContainer">
+            <textarea id="markdownInput" name="body" class="editor-textarea" rows="18" placeholder="# Article Title
 
 Write your technical post using Markdown syntax...
 
 ```js
 const server = express();
 server.listen(5000);
-```" required style="font-family: var(--font-mono); font-size: 0.95rem; line-height: 1.6;"><%= post ? post.body : '' %></textarea>
-      </div>
+```" required><%= post ? post.body : '' %></textarea>
+          </div>
 
-      <!-- Preview Container -->
-      <div id="editorPreviewContainer" style="display: none; background: var(--bg-main); border: 1px solid var(--border-light); border-radius: var(--radius-md); padding: 2rem; min-height: 380px; margin-bottom: 1.2rem;" class="article-body">
-        <div id="previewContent" style="font-size: 1.05rem; line-height: 1.8;"></div>
-      </div>
+          <!-- Preview Container -->
+          <div id="editorPreviewContainer" style="display: none; background: var(--bg-main); border: 1.5px solid var(--border-light); border-radius: var(--radius-lg); padding: 2.2rem; min-height: 440px; overflow-y: auto;" class="article-body">
+            <div id="previewContent" style="font-size: 1.05rem; line-height: 1.8;"></div>
+          </div>
 
-      <button type="submit" class="btn" style="width: 100%; margin-top: 1.2rem; padding: 0.85rem;">
-        <span><%= post ? 'Update Article' : 'Submit Article for Review' %></span>
-        &rarr;
-      </button>
-    </form>
+        </div>
 
+        <!-- Submit Button Row -->
+        <div style="display: flex; gap: 1.2rem; margin-top: 2rem;">
+          <button type="submit" class="btn" style="flex: 1; padding: 1rem; font-size: 1.05rem; border-radius: var(--radius-lg);">
+            <span><%= post ? 'Update Article' : 'Submit Article for Review' %></span>
+            &rarr;
+          </button>
+          <a href="/my/posts" class="btn" style="background: var(--bg-subtle); border: 1px solid var(--border-light); color: var(--text-main); box-shadow: none; padding: 1rem 1.8rem; border-radius: var(--radius-lg);">
+            Cancel
+          </a>
+        </div>
+      </form>
+
+    </div>
   </div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
 <script>
   const markdownInput = document.getElementById('markdownInput');
+  const articleTitle = document.getElementById('articleTitle');
   const writeContainer = document.getElementById('editorWriteContainer');
   const previewContainer = document.getElementById('editorPreviewContainer');
   const previewContent = document.getElementById('previewContent');
-  const tabEditBtn = document.getElementById('tabEditBtn');
+  const editorGrid = document.getElementById('editorGrid');
+  
+  const tabWriteBtn = document.getElementById('tabWriteBtn');
   const tabPreviewBtn = document.getElementById('tabPreviewBtn');
+  const tabSplitBtn = document.getElementById('tabSplitBtn');
+  
+  const mdFileInput = document.getElementById('mdFileInput');
+  const dropZone = document.getElementById('dropZone');
+  const dropZoneContent = document.getElementById('dropZoneContent');
+  const fileLoadedBadge = document.getElementById('fileLoadedBadge');
+  const loadedFileName = document.getElementById('loadedFileName');
+  const loadedWordCount = document.getElementById('loadedWordCount');
+  const clearFileBtn = document.getElementById('clearFileBtn');
+  const statsWordCount = document.getElementById('statsWordCount');
 
+  // Insert syntax at cursor position
   function insertSyntax(before, after) {
     const start = markdownInput.selectionStart;
     const end = markdownInput.selectionEnd;
@@ -116,33 +346,140 @@ server.listen(5000);
     markdownInput.focus();
     markdownInput.selectionStart = start + before.length;
     markdownInput.selectionEnd = start + before.length + selectedText.length;
+    updateStatsAndPreview();
   }
 
-  tabEditBtn.addEventListener('click', () => {
-    writeContainer.style.display = 'block';
-    previewContainer.style.display = 'none';
-    tabEditBtn.classList.add('active');
-    tabEditBtn.style.background = 'var(--primary-indigo)';
-    tabEditBtn.style.color = 'white';
-    tabPreviewBtn.classList.remove('active');
-    tabPreviewBtn.style.background = 'transparent';
-    tabPreviewBtn.style.color = 'var(--text-muted)';
-  });
-
-  tabPreviewBtn.addEventListener('click', () => {
-    writeContainer.style.display = 'none';
-    previewContainer.style.display = 'block';
-    tabPreviewBtn.classList.add('active');
-    tabPreviewBtn.style.background = 'var(--primary-indigo)';
-    tabPreviewBtn.style.color = 'white';
-    tabEditBtn.classList.remove('active');
-    tabEditBtn.style.background = 'transparent';
-    tabEditBtn.style.color = 'var(--text-muted)';
+  // Update Stats & Preview with Highlight.js
+  function updateStatsAndPreview() {
+    const text = markdownInput.value || '';
+    const words = text.trim() ? text.trim().split(/\s+/).length : 0;
+    statsWordCount.textContent = words;
 
     if (window.marked) {
-      previewContent.innerHTML = window.marked.parse(markdownInput.value || '*No content to preview*');
+      previewContent.innerHTML = window.marked.parse(text || '*No content to preview*');
+      // Highlight code blocks inside preview using IntelliJ themes
+      if (window.hljs) {
+        previewContent.querySelectorAll('pre code').forEach((el) => {
+          window.hljs.highlightElement(el);
+        });
+      }
     } else {
-      previewContent.textContent = markdownInput.value;
+      previewContent.textContent = text;
+    }
+  }
+
+  markdownInput.addEventListener('input', updateStatsAndPreview);
+
+  // Tab View Switcher Logic
+  function setViewMode(mode) {
+    [tabWriteBtn, tabPreviewBtn, tabSplitBtn].forEach(btn => {
+      btn.classList.remove('active');
+      btn.style.background = 'transparent';
+      btn.style.color = 'var(--text-muted)';
+    });
+
+    if (mode === 'write') {
+      tabWriteBtn.classList.add('active');
+      tabWriteBtn.style.background = 'var(--primary-indigo)';
+      tabWriteBtn.style.color = 'white';
+      
+      editorGrid.style.display = 'block';
+      writeContainer.style.display = 'block';
+      previewContainer.style.display = 'none';
+      editorGrid.style.gridTemplateColumns = 'none';
+    } else if (mode === 'preview') {
+      tabPreviewBtn.classList.add('active');
+      tabPreviewBtn.style.background = 'var(--primary-indigo)';
+      tabPreviewBtn.style.color = 'white';
+      
+      editorGrid.style.display = 'block';
+      writeContainer.style.display = 'none';
+      previewContainer.style.display = 'block';
+      editorGrid.style.gridTemplateColumns = 'none';
+      updateStatsAndPreview();
+    } else if (mode === 'split') {
+      tabSplitBtn.classList.add('active');
+      tabSplitBtn.style.background = 'var(--primary-indigo)';
+      tabSplitBtn.style.color = 'white';
+      
+      editorGrid.style.display = 'grid';
+      editorGrid.style.gridTemplateColumns = '1fr 1fr';
+      editorGrid.style.gap = '1.4rem';
+      writeContainer.style.display = 'block';
+      previewContainer.style.display = 'block';
+      updateStatsAndPreview();
+    }
+  }
+
+  tabWriteBtn.addEventListener('click', () => setViewMode('write'));
+  tabPreviewBtn.addEventListener('click', () => setViewMode('preview'));
+  tabSplitBtn.addEventListener('click', () => setViewMode('split'));
+
+  // File Upload / Drag & Drop Logic
+  dropZone.addEventListener('dragover', (e) => {
+    e.preventDefault();
+    dropZone.style.borderColor = 'var(--primary-indigo)';
+    dropZone.style.background = 'var(--primary-indigo-light)';
+  });
+
+  dropZone.addEventListener('dragleave', (e) => {
+    e.preventDefault();
+    dropZone.style.borderColor = 'var(--border-light)';
+    dropZone.style.background = 'var(--bg-main)';
+  });
+
+  dropZone.addEventListener('drop', (e) => {
+    e.preventDefault();
+    dropZone.style.borderColor = 'var(--border-light)';
+    dropZone.style.background = 'var(--bg-main)';
+    if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+      handleMarkdownFile(e.dataTransfer.files[0]);
     }
   });
+
+  mdFileInput.addEventListener('change', (e) => {
+    if (e.target.files && e.target.files[0]) {
+      handleMarkdownFile(e.target.files[0]);
+    }
+  });
+
+  function handleMarkdownFile(file) {
+    if (!file.name.match(/\.(md|markdown|txt)$/i)) {
+      alert('Please upload a valid .md or .markdown file');
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = function(e) {
+      const content = e.target.result;
+      markdownInput.value = content;
+
+      // Extract H1 title if present and title field is empty
+      const firstLineMatch = content.match(/^#\s+(.+)$/m);
+      if (firstLineMatch && (!articleTitle.value || articleTitle.value.trim() === '')) {
+        articleTitle.value = firstLineMatch[1].trim();
+      }
+
+      const words = content.trim() ? content.trim().split(/\s+/).length : 0;
+      loadedFileName.textContent = file.name;
+      loadedWordCount.textContent = words;
+
+      dropZoneContent.style.display = 'none';
+      fileLoadedBadge.style.display = 'flex';
+
+      updateStatsAndPreview();
+      setViewMode('preview');
+    };
+    reader.readAsText(file);
+  }
+
+  clearFileBtn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    mdFileInput.value = '';
+    dropZoneContent.style.display = 'block';
+    fileLoadedBadge.style.display = 'none';
+  });
+
+  // Initial stats & syntax highlighting calculation
+  updateStatsAndPreview();
 </script>
