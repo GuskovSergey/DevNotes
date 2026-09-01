@@ -112,6 +112,19 @@
             <p style="color: var(--text-muted); font-size: 0.95rem; line-height: 1.5; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; margin-top: 0.5rem;">
               <%= post.body %>
             </p>
+
+            <% if (post.tags && post.tags.length > 0) { %>
+              <div style="display: flex; flex-wrap: wrap; gap: 0.35rem; margin-top: 0.6rem;">
+                <% post.tags.slice(0, 3).forEach(tag => { %>
+                  <a href="/tag/<%= tag.slug %>" class="tech-badge" style="text-decoration: none; font-size: 0.7rem; padding: 0.15rem 0.5rem;">
+                    #<%= tag.name %>
+                  </a>
+                <% }) %>
+                <% if (post.tags.length > 3) { %>
+                  <span class="tech-badge" style="font-size: 0.7rem; padding: 0.15rem 0.5rem;">+<%= post.tags.length - 3 %></span>
+                <% } %>
+              </div>
+            <% } %>
           </div>
 
           <div class="article-card__meta">

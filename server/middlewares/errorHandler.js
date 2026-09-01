@@ -1,8 +1,13 @@
 const logger = require('../config/logger');
 
 const errorHandler = (err, req, res, next) => {
+  if (err.message === 'invalid csrf token' || err.code === 'EBADCSRFTOKEN') {
+    err.statusCode = 403;
+    err.message = 'Form security token mismatch. Please refresh the page and try again.';
+  }
+
   const statusCode = err.statusCode || err.status || 500;
-  
+
   logger.error({
     err: {
       message: err.message,
@@ -11,7 +16,7 @@ const errorHandler = (err, req, res, next) => {
     },
     url: req.originalUrl,
     method: req.method,
-  }, 'Unhandled Error encountered in Express pipeline');
+  }, 'Error encountered in Express pipeline');
 
   if (res.headersSent) {
     return next(err);
@@ -25,11 +30,14 @@ const errorHandler = (err, req, res, next) => {
     });
   }
 
-  // Handle 500 and other server errors
+  // Handle 403 / 500
   return res.status(statusCode).render('errors/500', {
     currentRoute: req.originalUrl,
-    locals: { title: '500 - Internal Server Error' },
-    error: process.env.NODE_ENV === 'development' ? err : null,
+    locals: { title: `${statusCode} - ${statusCode === 403 ? 'Security Mismatch' : 'Internal Server Error'}` },
+    error: {
+      message: err.message,
+      stack: process.env.NODE_ENV === 'development' ? err.stack : null,
+    },
   });
 };
 

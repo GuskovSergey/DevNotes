@@ -27,6 +27,11 @@ class PostDto {
       content: c.content,
       createdAtFormatted: new Date(c.createdAt).toDateString(),
     })) : [];
+    this.tags = post.tags ? post.tags.map(t => ({
+      id: t.id,
+      name: t.name,
+      slug: t.slug,
+    })) : [];
   }
 
   static formatMany(posts) {

@@ -2,6 +2,7 @@ const authService = require('../services/authService');
 const postService = require('../services/postService');
 const categoryService = require('../services/categoryService');
 const commentService = require('../services/commentService');
+const tagService = require('../services/tagService');
 const catchAsync = require('../utils/catchAsync');
 const logger = require('../config/logger');
 const { COOKIE_MAX_AGE } = require('../config/constants');
@@ -95,7 +96,7 @@ class AdminController {
   });
 
   handleAddPost = catchAsync(async (req, res) => {
-    const { title, body, categoryId } = req.body;
+    const { title, body, categoryId, tags: tagsInput } = req.body;
     const featuredImage = req.file ? req.file.filename : null;
 
     if (req.validationErrors && req.validationErrors.length > 0) {
@@ -108,12 +109,15 @@ class AdminController {
       });
     }
 
+    const tags = await tagService.findOrCreateTags(tagsInput || '');
+
     await postService.createPost({
       title,
       body,
       categoryId,
       featuredImage,
       userId: req.userId,
+      tags,
     });
 
     return res.redirect('/dashboard');
@@ -146,7 +150,7 @@ class AdminController {
 
   handleEditPost = catchAsync(async (req, res, next) => {
     const { id } = req.params;
-    const { title, body, categoryId } = req.body;
+    const { title, body, categoryId, tags: tagsInput } = req.body;
     const featuredImage = req.file ? req.file.filename : null;
 
     if (req.validationErrors && req.validationErrors.length > 0) {
@@ -161,11 +165,14 @@ class AdminController {
       });
     }
 
+    const tags = await tagService.findOrCreateTags(tagsInput || '');
+
     const updatedPost = await postService.updatePost(id, {
       title,
       body,
       categoryId,
       featuredImage,
+      tags,
     });
 
     if (!updatedPost) {

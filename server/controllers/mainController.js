@@ -1,6 +1,7 @@
 const postService = require('../services/postService');
 const categoryService = require('../services/categoryService');
 const commentService = require('../services/commentService');
+const tagService = require('../services/tagService');
 const catchAsync = require('../utils/catchAsync');
 const logger = require('../config/logger');
 
@@ -95,6 +96,32 @@ class MainController {
       },
     });
   });
+
+  getTagPage = catchAsync(async (req, res, next) => {
+    const { slug } = req.params;
+    const { tag, data, current, nextPage } = await tagService.getPostsByTag(slug, req.query.page);
+
+    if (!tag) {
+      const error = new Error('Tag not found');
+      error.statusCode = 404;
+      return next(error);
+    }
+
+    const locals = {
+      title: `#${tag.name} — Articles`,
+      description: `Browse all articles tagged with #${tag.name} on DevHub.`,
+    };
+
+    res.render('tag', {
+      locals,
+      tag,
+      data,
+      current,
+      nextPage,
+      currentRoute: `/tag/${slug}`,
+    });
+  });
 }
 
 module.exports = new MainController();
+

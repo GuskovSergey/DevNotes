@@ -39,6 +39,9 @@
       <% } %>
       <input type="file" name="featuredImage" accept="image/*">
 
+      <label for="tags" style="display: block; font-size: 0.9rem; font-weight: 600; color: var(--text-main); margin-bottom: 0.4rem;">Tags</label>
+      <input type="text" name="tags" value="<%= data.tags ? data.tags.map(t => t.name).join(', ') : '' %>" placeholder="e.g. nodejs, express, sqlite (comma-separated)">
+
       <label for="body" style="display: block; font-size: 0.9rem; font-weight: 600; color: var(--text-main); margin-bottom: 0.4rem;">Content</label>
       <textarea name="body" rows="12" required><%= data.body %></textarea>
 

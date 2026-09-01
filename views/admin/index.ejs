@@ -1,27 +1,73 @@
-<div style="max-width: 420px; margin: 4rem auto; background: var(--bg-surface); border: 1px solid var(--border-light); padding: 2.8rem; border-radius: var(--radius-xl); box-shadow: var(--shadow-card);">
-  <div style="text-align: center; margin-bottom: 2rem;">
-    <h2 style="font-size: 2rem; color: var(--text-main);">Admin Portal</h2>
-    <p style="color: var(--text-muted); font-size: 0.95rem; margin-top: 0.3rem;">Sign in to manage blog posts and comments</p>
-  </div>
-
-  <% if (typeof errorMessage !== 'undefined' && errorMessage) { %>
-    <div style="background: #fef2f2; border: 1px solid #fecaca; color: #dc2626; padding: 0.8rem; border-radius: var(--radius-md); margin-bottom: 1.2rem; font-size: 0.9rem; text-align: center; font-weight: 500;">
-      <%= errorMessage %>
+<div style="max-width: 480px; margin: 3rem auto;">
+  <div style="background: var(--bg-surface); border: 1px solid var(--border-light); border-radius: var(--radius-xl); padding: 2.5rem; box-shadow: var(--shadow-card);">
+    
+    <!-- Header Logo & Title -->
+    <div style="text-align: center; margin-bottom: 2rem;">
+      <a href="/" class="header__logo" style="justify-content: center; margin-bottom: 0.5rem;">
+        <span class="header__logo-badge">&lt;/&gt;</span>
+        <span class="header__logo-text">DevHub</span>
+      </a>
+      <h2 style="font-size: 1.6rem; color: var(--text-main); margin-top: 0.5rem;">Admin Portal</h2>
+      <p style="color: var(--text-muted); font-size: 0.95rem;">Sign in with administrator credentials</p>
     </div>
-  <% } %>
 
-  <form action="/admin" method="POST">
-    <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+    <!-- Error Message Banner -->
+    <% if (typeof errorMessage !== 'undefined' && errorMessage) { %>
+      <div style="background: #fef2f2; border: 1px solid #fecaca; color: #dc2626; padding: 0.9rem 1.1rem; border-radius: var(--radius-md); margin-bottom: 1.5rem; font-size: 0.9rem; text-align: center; font-weight: 500;">
+        ⚠️ <%= errorMessage %>
+      </div>
+    <% } %>
 
-    <label for="username" style="display: block; font-size: 0.9rem; font-weight: 600; color: var(--text-main); margin-bottom: 0.4rem;">Username</label>
-    <input type="text" placeholder="Enter Username" name="username" required>
+    <!-- Admin Sign In Form -->
+    <form action="/admin" method="POST">
+      <input type="hidden" name="_csrf" value="<%= csrfToken %>">
 
-    <label for="password" style="display: block; font-size: 0.9rem; font-weight: 600; color: var(--text-main); margin-bottom: 0.4rem;">Password</label>
-    <input type="password" placeholder="Enter Password" name="password" required>
+      <div style="margin-bottom: 1.2rem;">
+        <label for="adminUsername" style="display: block; font-size: 0.88rem; font-weight: 600; color: var(--text-main); margin-bottom: 0.4rem;">Admin Username</label>
+        <div style="position: relative;">
+          <input type="text" id="adminUsername" name="username" placeholder="admin" required style="padding-left: 2.8rem;">
+          <span style="position: absolute; left: 1rem; top: 50%; transform: translateY(-50%); color: var(--text-dim); font-size: 1.1rem;">👑</span>
+        </div>
+      </div>
 
-    <button type="submit" class="btn" style="width: 100%; margin-top: 1rem; padding: 0.85rem;">
-      <span>Sign In</span>
-      &rarr;
-    </button>
-  </form>
+      <div style="margin-bottom: 1.5rem;">
+        <label for="adminPassword" style="display: block; font-size: 0.88rem; font-weight: 600; color: var(--text-main); margin-bottom: 0.4rem;">Password</label>
+        <div style="position: relative;">
+          <input type="password" id="adminPassword" name="password" placeholder="Enter admin password" required style="padding-left: 2.8rem; padding-right: 2.8rem;">
+          <span style="position: absolute; left: 1rem; top: 50%; transform: translateY(-50%); color: var(--text-dim); font-size: 1.1rem;">🔒</span>
+          <button type="button" class="toggle-password-btn" data-target="adminPassword" style="position: absolute; right: 0.8rem; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; color: var(--text-muted); font-size: 1rem;">👁️</button>
+        </div>
+      </div>
+
+      <button type="submit" class="btn" style="width: 100%; padding: 0.85rem; font-size: 1rem;">
+        <span>Sign In to Admin Portal</span>
+        &rarr;
+      </button>
+    </form>
+
+    <div style="text-align: center; margin-top: 1.8rem; padding-top: 1.2rem; border-top: 1px solid var(--border-light);">
+      <a href="/auth" style="color: var(--text-muted); font-size: 0.9rem;">Looking for regular User Sign In / Registration? &rarr;</a>
+    </div>
+
+  </div>
 </div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    document.querySelectorAll('.toggle-password-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const inputId = btn.getAttribute('data-target');
+        const input = document.getElementById(inputId);
+        if (input) {
+          if (input.type === 'password') {
+            input.type = 'text';
+            btn.textContent = '🙈';
+          } else {
+            input.type = 'password';
+            btn.textContent = '👁️';
+          }
+        }
+      });
+    });
+  });
+</script>

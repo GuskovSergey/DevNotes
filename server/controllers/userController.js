@@ -7,11 +7,6 @@ const { COOKIE_MAX_AGE } = require('../config/constants');
 
 class UserController {
   getAuthPage = catchAsync(async (req, res) => {
-    // If already logged in, redirect to account
-    if (res.locals.currentUser) {
-      return res.redirect('/account');
-    }
-
     const locals = {
       title: 'Sign In / Register',
       description: 'Sign in to your DevHub account or create a new user profile.',

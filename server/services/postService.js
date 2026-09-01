@@ -1,5 +1,5 @@
 const { Op } = require('sequelize');
-const { Post, Category, Comment } = require('../models');
+const { Post, Category, Comment, Tag } = require('../models');
 const PostDto = require('../dtos/postDto');
 const { PAGINATION_LIMIT } = require('../config/constants');
 
@@ -9,7 +9,10 @@ class PostService {
     const offset = (pageNum - 1) * limit;
 
     const whereClause = {};
-    const includeClause = [{ model: Category, as: 'category' }];
+    const includeClause = [
+      { model: Category, as: 'category' },
+      { model: Tag, as: 'tags', through: { attributes: [] } },
+    ];
 
     if (categorySlug) {
       const category = await Category.findOne({ where: { slug: categorySlug } });
@@ -41,6 +44,7 @@ class PostService {
     const post = await Post.findByPk(id, {
       include: [
         { model: Category, as: 'category' },
+        { model: Tag, as: 'tags', through: { attributes: [] } },
         {
           model: Comment,
           as: 'comments',
@@ -72,7 +76,10 @@ class PostService {
           { body: { [Op.like]: `%${sanitizedSearch}%` } },
         ],
       },
-      include: [{ model: Category, as: 'category' }],
+      include: [
+        { model: Category, as: 'category' },
+        { model: Tag, as: 'tags', through: { attributes: [] } },
+      ],
       order: [['createdAt', 'DESC']],
     });
 
@@ -81,13 +88,16 @@ class PostService {
 
   async getAllPosts() {
     const posts = await Post.findAll({
-      include: [{ model: Category, as: 'category' }],
+      include: [
+        { model: Category, as: 'category' },
+        { model: Tag, as: 'tags', through: { attributes: [] } },
+      ],
       order: [['createdAt', 'DESC']],
     });
     return PostDto.formatMany(posts);
   }
 
-  async createPost({ title, body, categoryId = null, featuredImage = null, userId = null }) {
+  async createPost({ title, body, categoryId = null, featuredImage = null, userId = null, tags = [] }) {
     const newPost = await Post.create({
       title,
       body,
@@ -95,10 +105,15 @@ class PostService {
       featuredImage,
       userId,
     });
-    return PostDto.formatOne(newPost);
+
+    if (tags.length > 0) {
+      await newPost.setTags(tags);
+    }
+
+    return newPost;
   }
 
-  async updatePost(id, { title, body, categoryId = null, featuredImage = null }) {
+  async updatePost(id, { title, body, categoryId = null, featuredImage = null, tags = null }) {
     const post = await Post.findByPk(id);
     if (!post) {
       return null;
@@ -115,7 +130,12 @@ class PostService {
     }
 
     await post.update(updateData);
-    return PostDto.formatOne(post);
+
+    if (tags !== null) {
+      await post.setTags(tags);
+    }
+
+    return post;
   }
 
   async deletePost(id) {

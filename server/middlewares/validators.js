@@ -39,8 +39,8 @@ const validateRegister = [
     .trim()
     .notEmpty()
     .withMessage('Username is required')
-    .isAlphanumeric()
-    .withMessage('Username must contain only letters and numbers')
+    .matches(/^[a-zA-Z0-9_-]+$/)
+    .withMessage('Username can contain letters, numbers, underscores, and hyphens')
     .isLength({ min: 3, max: 30 })
     .withMessage('Username must be between 3 and 30 characters'),
   body('email')
@@ -52,8 +52,8 @@ const validateRegister = [
   body('password')
     .notEmpty()
     .withMessage('Password is required')
-    .isLength({ min: 6 })
-    .withMessage('Password must be at least 6 characters long'),
+    .isLength({ min: 4 })
+    .withMessage('Password must be at least 4 characters long'),
   body('displayName')
     .optional()
     .trim()
@@ -90,8 +90,8 @@ const validateChangePassword = [
   body('newPassword')
     .notEmpty()
     .withMessage('New password is required')
-    .isLength({ min: 6 })
-    .withMessage('New password must be at least 6 characters long'),
+    .isLength({ min: 4 })
+    .withMessage('New password must be at least 4 characters long'),
   handleValidationErrors,
 ];
 

@@ -68,10 +68,10 @@ app.use(expressLayout);
 app.set('layout', './layouts/main');
 app.set('view engine', 'ejs');
 
-// Global Helpers, CSRF Token & Optional Auth Locals
+// Global Helpers, Optional Auth Locals & CSRF Token
 app.locals.isActiveRoute = isActiveRoute;
+app.use(optionalAuthMiddleware); // Must run before attachCsrfToken so req.userId is available for getSessionIdentifier
 app.use(attachCsrfToken);
-app.use(optionalAuthMiddleware);
 
 // Routes
 app.use('/', require('./server/routes/main'));

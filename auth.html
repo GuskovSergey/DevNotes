@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>500 - Internal Server Error</title>
+  <meta name="description" content="">
+  
+  <!-- Google Fonts: Inter & JetBrains Mono (Lumina Tech Editorial Design System) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+  
+  <link rel="stylesheet" href="/css/style.css">
+  <script type="text/javascript" defer src="/js/script.js"></script>
+</head>
+<body>
+  
+  <div class="searchBar">
+  <div class="container">
+    <form action="/search" method="POST" class="search__form" role="search">
+      <input 
+        type="search"
+        aria-label="Seach"
+        id="searchInput"
+        name="searchTerm"
+        placeholder="Seach the site..."
+      >
+    </form>
+    <div id="searchClose">Close</div>
+  </div>
+</div>
+  <div class="container">
+    <header class="header">
+  <!-- Brand Logo with Code Badge -->
+  <a href="/" class="header__logo">
+    <span class="header__logo-badge">&lt;/&gt;</span>
+    <span class="header__logo-text">DevHub</span>
+  </a>
+
+  <!-- Centered Pill Navigation -->
+  <nav class="header__nav">
+    <ul>
+      <li>
+        <a href="/" class="">
+          <span>Home</span>
+        </a>
+      </li>
+      <li>
+        <a href="/about"
+          class="">
+          <span>About</span>
+        </a>
+      </li>
+    </ul>
+  </nav>
+
+  <!-- Right Actions: Search, Theme Toggle & Admin Entry -->
+  <div class="header__right-actions">
+    <button class="searchBtn" aria-expanded="false">
+      <svg width="15" height="15" viewBox="0 0 17 17" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path
+          d="M7.79167 13.4583C10.9213 13.4583 13.4583 10.9213 13.4583 7.79167C13.4583 4.66205 10.9213 2.125 7.79167 2.125C4.66205 2.125 2.125 4.66205 2.125 7.79167C2.125 10.9213 4.66205 13.4583 7.79167 13.4583Z"
+          stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+        <path d="M14.875 14.875L11.7938 11.7938" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+          stroke-linejoin="round" />
+      </svg>
+      <span>Search</span>
+      <kbd class="shortcut-badge" style="margin-right: 0; font-size: 0.65rem;">⌘K</kbd>
+    </button>
+
+    <!-- Theme Toggle Switcher -->
+    <button id="themeToggleBtn" class="theme-toggle-btn" aria-label="Toggle Theme" title="Toggle Theme">
+      🌙
+    </button>
+
+    <a href="/admin" class="admin-link-btn">
+      Admin Portal
+    </a>
+  </div>
+</header>
+    <main class="main">
+      <div class="error-page" style="text-align: center; padding: 3rem 1rem;">
+  <h1>500</h1>
+  <h2>Internal Server Error</h2>
+  <p>Something went wrong on our end. Please try again later.</p>
+  
+    <pre style="text-align: left; background: #f4f4f4; padding: 1rem; margin-top: 1rem; overflow-x: auto;">Error: Failed to lookup view &#34;auth&#34; in views directory &#34;/home/admin/workspace/blogapp/views&#34;
+    at app.render (/home/admin/workspace/blogapp/node_modules/express/lib/application.js:597:17)
+    at ServerResponse.render (/home/admin/workspace/blogapp/node_modules/express/lib/response.js:1039:7)
+    at res.render (/home/admin/workspace/blogapp/node_modules/express-ejs-layouts/lib/express-layouts.js:77:18)
+    at /home/admin/workspace/blogapp/server/controllers/userController.js:20:9
+    at /home/admin/workspace/blogapp/server/utils/catchAsync.js:6:19
+    at Layer.handle [as handle_request] (/home/admin/workspace/blogapp/node_modules/express/lib/router/layer.js:95:5)
+    at next (/home/admin/workspace/blogapp/node_modules/express/lib/router/route.js:144:13)
+    at Route.dispatch (/home/admin/workspace/blogapp/node_modules/express/lib/router/route.js:114:3)
+    at Layer.handle [as handle_request] (/home/admin/workspace/blogapp/node_modules/express/lib/router/layer.js:95:5)
+    at /home/admin/workspace/blogapp/node_modules/express/lib/router/index.js:284:15</pre>
+  
+  <a href="/" class="btn" style="display: inline-block; margin-top: 1rem;">&lt; Back to Home</a>
+</div>
+
+    </main>
+    <footer class="footer">
+  <p>&copy; 2026 <strong>NodeJs Blog</strong> • Crafting modern web applications with Express & SQLite</p>
+</footer>
+  </div>  
+
+</body>
+</html>
