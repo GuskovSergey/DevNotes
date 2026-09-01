@@ -16,6 +16,10 @@ Post.belongsTo(Category, { foreignKey: 'categoryId', as: 'category' });
 Post.hasMany(Comment, { foreignKey: 'postId', as: 'comments' });
 Comment.belongsTo(Post, { foreignKey: 'postId', as: 'post' });
 
+// User <-> Comment
+User.hasMany(Comment, { foreignKey: 'userId', as: 'comments' });
+Comment.belongsTo(User, { foreignKey: 'userId', as: 'user' });
+
 module.exports = {
   sequelize,
   User,

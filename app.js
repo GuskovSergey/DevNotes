@@ -14,6 +14,7 @@ const connectDB = require('./server/config/db');
 const { sequelize } = require('./server/models');
 const { isActiveRoute } = require('./server/helpers/routeHelpers');
 const { attachCsrfToken } = require('./server/middlewares/csrfMiddleware');
+const { optionalAuthMiddleware } = require('./server/middlewares/authMiddleware');
 const errorHandler = require('./server/middlewares/errorHandler');
 const { DEFAULT_PORT } = require('./server/config/constants');
 
@@ -34,7 +35,7 @@ app.use(pinoHttp({ logger }));
 // Security Headers (Helmet)
 app.use(
   helmet({
-    contentSecurityPolicy: false, // Disable for EJS static assets inline compatibility if needed
+    contentSecurityPolicy: false,
   })
 );
 
@@ -67,13 +68,15 @@ app.use(expressLayout);
 app.set('layout', './layouts/main');
 app.set('view engine', 'ejs');
 
-// Global Helpers & CSRF Token Locals
+// Global Helpers, CSRF Token & Optional Auth Locals
 app.locals.isActiveRoute = isActiveRoute;
 app.use(attachCsrfToken);
+app.use(optionalAuthMiddleware);
 
 // Routes
 app.use('/', require('./server/routes/main'));
 app.use('/', require('./server/routes/admin'));
+app.use('/', require('./server/routes/user'));
 
 // 404 Handler
 app.use((req, res, next) => {
