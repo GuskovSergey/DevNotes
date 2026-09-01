@@ -27,4 +27,9 @@ router.get('/admin/comments', adminAuthMiddleware, adminController.getCommentsPa
 router.post('/admin/comments/:id/approve', adminAuthMiddleware, doubleCsrfProtection, adminController.handleApproveComment);
 router.delete('/admin/comments/:id', adminAuthMiddleware, doubleCsrfProtection, adminController.handleDeleteComment);
 
+// Protected Admin Post Moderation routes
+router.get('/admin/posts/pending', adminAuthMiddleware, adminController.getPendingPostsPage);
+router.post('/admin/posts/:id/approve', adminAuthMiddleware, doubleCsrfProtection, adminController.handleApprovePost);
+router.post('/admin/posts/:id/reject', adminAuthMiddleware, doubleCsrfProtection, adminController.handleRejectPost);
+
 module.exports = router;

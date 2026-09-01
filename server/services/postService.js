@@ -1,5 +1,5 @@
 const { Op } = require('sequelize');
-const { Post, Category, Comment, Tag } = require('../models');
+const { Post, Category, Comment, Tag, User } = require('../models');
 const PostDto = require('../dtos/postDto');
 const { PAGINATION_LIMIT } = require('../config/constants');
 
@@ -8,10 +8,11 @@ class PostService {
     const pageNum = parseInt(page, 10) || 1;
     const offset = (pageNum - 1) * limit;
 
-    const whereClause = {};
+    const whereClause = { status: 'published' };
     const includeClause = [
       { model: Category, as: 'category' },
       { model: Tag, as: 'tags', through: { attributes: [] } },
+      { model: User, as: 'author', attributes: ['id', 'username', 'displayName'] },
     ];
 
     if (categorySlug) {
@@ -45,6 +46,7 @@ class PostService {
       include: [
         { model: Category, as: 'category' },
         { model: Tag, as: 'tags', through: { attributes: [] } },
+        { model: User, as: 'author', attributes: ['id', 'username', 'displayName'] },
         {
           model: Comment,
           as: 'comments',
@@ -71,6 +73,7 @@ class PostService {
 
     const posts = await Post.findAll({
       where: {
+        status: 'published',
         [Op.or]: [
           { title: { [Op.like]: `%${sanitizedSearch}%` } },
           { body: { [Op.like]: `%${sanitizedSearch}%` } },
@@ -79,6 +82,7 @@ class PostService {
       include: [
         { model: Category, as: 'category' },
         { model: Tag, as: 'tags', through: { attributes: [] } },
+        { model: User, as: 'author', attributes: ['id', 'username', 'displayName'] },
       ],
       order: [['createdAt', 'DESC']],
     });
@@ -91,19 +95,75 @@ class PostService {
       include: [
         { model: Category, as: 'category' },
         { model: Tag, as: 'tags', through: { attributes: [] } },
+        { model: User, as: 'author', attributes: ['id', 'username', 'displayName'] },
       ],
       order: [['createdAt', 'DESC']],
     });
     return PostDto.formatMany(posts);
   }
 
-  async createPost({ title, body, categoryId = null, featuredImage = null, userId = null, tags = [] }) {
+  async getUserPosts(userId) {
+    const posts = await Post.findAll({
+      where: { userId },
+      include: [
+        { model: Category, as: 'category' },
+        { model: Tag, as: 'tags', through: { attributes: [] } },
+      ],
+      order: [['createdAt', 'DESC']],
+    });
+    return PostDto.formatMany(posts);
+  }
+
+  async getUserPostById(id, userId) {
+    const post = await Post.findOne({
+      where: { id, userId },
+      include: [
+        { model: Category, as: 'category' },
+        { model: Tag, as: 'tags', through: { attributes: [] } },
+      ],
+    });
+    return PostDto.formatOne(post);
+  }
+
+  async getPendingPosts() {
+    const posts = await Post.findAll({
+      where: { status: 'pending' },
+      include: [
+        { model: Category, as: 'category' },
+        { model: Tag, as: 'tags', through: { attributes: [] } },
+        { model: User, as: 'author', attributes: ['id', 'username', 'displayName'] },
+      ],
+      order: [['createdAt', 'ASC']],
+    });
+    return PostDto.formatMany(posts);
+  }
+
+  async getPendingCount() {
+    return await Post.count({ where: { status: 'pending' } });
+  }
+
+  async approvePost(id) {
+    const post = await Post.findByPk(id);
+    if (!post) return false;
+    await post.update({ status: 'published' });
+    return true;
+  }
+
+  async rejectPost(id) {
+    const post = await Post.findByPk(id);
+    if (!post) return false;
+    await post.update({ status: 'rejected' });
+    return true;
+  }
+
+  async createPost({ title, body, categoryId = null, featuredImage = null, userId = null, tags = [], status = 'published' }) {
     const newPost = await Post.create({
       title,
       body,
       categoryId: categoryId ? parseInt(categoryId, 10) : null,
       featuredImage,
       userId,
+      status,
     });
 
     if (tags.length > 0) {
@@ -113,7 +173,7 @@ class PostService {
     return newPost;
   }
 
-  async updatePost(id, { title, body, categoryId = null, featuredImage = null, tags = null }) {
+  async updatePost(id, { title, body, categoryId = null, featuredImage = null, tags = null, status = null }) {
     const post = await Post.findByPk(id);
     if (!post) {
       return null;
@@ -129,6 +189,10 @@ class PostService {
       updateData.featuredImage = featuredImage;
     }
 
+    if (status) {
+      updateData.status = status;
+    }
+
     await post.update(updateData);
 
     if (tags !== null) {
@@ -138,8 +202,13 @@ class PostService {
     return post;
   }
 
-  async deletePost(id) {
-    const post = await Post.findByPk(id);
+  async deletePost(id, userId = null) {
+    const whereClause = { id };
+    if (userId) {
+      whereClause.userId = userId;
+    }
+
+    const post = await Post.findOne({ where: whereClause });
     if (!post) {
       return false;
     }
@@ -149,7 +218,7 @@ class PostService {
   }
 
   async getTotalCount() {
-    return await Post.count();
+    return await Post.count({ where: { status: 'published' } });
   }
 
   async getTotalViews() {

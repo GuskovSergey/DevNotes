@@ -1,16 +1,21 @@
 <article class="post-container"
   style="background: var(--bg-card); border: 1px solid var(--border-glass); border-radius: var(--radius-lg); padding: 2.5rem; backdrop-filter: blur(16px); margin-bottom: 3rem;">
   <header style="margin-bottom: 2rem;">
-    <div style="display: flex; gap: 0.8rem; align-items: center; margin-bottom: 1rem;">
+    <div style="display: flex; gap: 0.8rem; align-items: center; margin-bottom: 1rem; flex-wrap: wrap;">
       <% if (data.category) { %>
         <span class="article-card__badge">
           <%= data.category.name %>
         </span>
-        <% } %>
-          <span style="color: var(--text-dim); font-size: 0.85rem;">
-            <%= data.createdAtFormatted %>
-          </span>
-          <span style="color: var(--text-dim); font-size: 0.85rem;">• 👁 <%= data.viewsCount %> views</span>
+      <% } %>
+      <% if (data.author) { %>
+        <span style="color: var(--primary-indigo); font-size: 0.85rem; font-weight: 600; font-family: var(--font-mono);">
+          ✍️ <%= data.author.displayName %>
+        </span>
+      <% } %>
+      <span style="color: var(--text-dim); font-size: 0.85rem;">
+        <%= data.createdAtFormatted %>
+      </span>
+      <span style="color: var(--text-dim); font-size: 0.85rem;">• 👁 <%= data.viewsCount %> views</span>
     </div>
 
     <h1 style="font-size: clamp(2rem, 4vw, 3rem); line-height: 1.2; margin-bottom: 1rem;">
@@ -34,11 +39,11 @@
       <img src="<%= data.featuredImage %>" alt="<%= data.title %>"
         style="width: 100%; max-height: 450px; object-fit: cover; display: block;">
     </div>
-    <% } %>
+  <% } %>
 
-      <div class="article-body" style="font-size: 1.15rem; line-height: 1.8; color: #cbd5e1; white-space: pre-line;">
-        <%= data.body %>
-      </div>
+  <div class="article-body" style="font-size: 1.1rem; line-height: 1.8; color: var(--text-body);">
+    <%- data.bodyHtml || data.body %>
+  </div>
 </article>
 
 <!-- Comments Section -->

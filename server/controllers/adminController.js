@@ -66,6 +66,7 @@ class AdminController {
     const totalPosts = await postService.getTotalCount();
     const totalViews = await postService.getTotalViews();
     const pendingCommentsCount = await commentService.getPendingCount();
+    const pendingPostsCount = await postService.getPendingCount();
 
     res.render('admin/dashboard', {
       locals,
@@ -74,6 +75,7 @@ class AdminController {
         totalPosts,
         totalViews,
         pendingCommentsCount,
+        pendingPostsCount,
       },
       layout: adminLayout,
     });
@@ -216,6 +218,34 @@ class AdminController {
     const { id } = req.params;
     await commentService.deleteComment(id);
     return res.redirect('/admin/comments');
+  });
+
+  // Post Moderation Methods
+  getPendingPostsPage = catchAsync(async (req, res) => {
+    const locals = {
+      title: 'Article Moderation',
+      description: 'Review and moderate articles submitted by community members.',
+    };
+
+    const posts = await postService.getPendingPosts();
+
+    res.render('admin/pending-posts', {
+      locals,
+      posts,
+      layout: adminLayout,
+    });
+  });
+
+  handleApprovePost = catchAsync(async (req, res) => {
+    const { id } = req.params;
+    await postService.approvePost(id);
+    return res.redirect('/admin/posts/pending');
+  });
+
+  handleRejectPost = catchAsync(async (req, res) => {
+    const { id } = req.params;
+    await postService.rejectPost(id);
+    return res.redirect('/admin/posts/pending');
   });
 
   handleLogout = catchAsync(async (req, res) => {

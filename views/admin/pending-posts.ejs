@@ -1,0 +1,74 @@
+<div style="max-width: 960px; margin: 0 auto;">
+  <a href="/dashboard" style="display: inline-block; color: var(--text-muted); margin-bottom: 1.5rem; font-weight: 500;">&larr; Back to Dashboard</a>
+
+  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem;">
+    <div>
+      <h2 style="color: var(--text-main); margin: 0;">Article Moderation Queue</h2>
+      <p style="color: var(--text-muted); font-size: 0.95rem; margin-top: 0.3rem;">Review and approve technical articles submitted by community members.</p>
+    </div>
+    <span class="tech-badge" style="background: #fffbe6; color: #d46b08; border-color: #ffe58f; font-size: 0.85rem; padding: 0.4rem 0.9rem;">
+      ⏳ <%= posts.length %> Pending Article<%= posts.length !== 1 ? 's' : '' %>
+    </span>
+  </div>
+
+  <div style="display: flex; flex-direction: column; gap: 1.5rem;">
+    <% if (posts.length === 0) { %>
+      <div style="background: var(--bg-surface); border: 1px dashed var(--border-light); padding: 3rem; border-radius: var(--radius-lg); text-align: center; color: var(--text-muted);">
+        <div style="font-size: 2.5rem; margin-bottom: 0.6rem;">🎉</div>
+        <h3 style="font-size: 1.2rem; color: var(--text-main); margin-bottom: 0.3rem;">No pending articles!</h3>
+        <p style="margin: 0;">All community submissions have been reviewed.</p>
+      </div>
+    <% } else { %>
+      <% posts.forEach(post => { %>
+        <div style="background: var(--bg-surface); border: 1px solid var(--border-light); border-left: 4px solid #f59e0b; padding: 2rem; border-radius: var(--radius-xl); box-shadow: var(--shadow-sm);">
+          
+          <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 1rem; margin-bottom: 1rem; flex-wrap: wrap;">
+            <div>
+              <span class="featured-post-card__tag" style="margin-bottom: 0.5rem;">Submitted for Review</span>
+              <h3 style="font-size: 1.4rem; color: var(--text-main); margin-bottom: 0.4rem;"><%= post.title %></h3>
+              
+              <div style="display: flex; gap: 0.8rem; align-items: center; font-size: 0.85rem; color: var(--text-muted); font-family: var(--font-mono); flex-wrap: wrap;">
+                <span>Author: <strong><%= post.author ? post.author.displayName : 'Community User' %></strong></span>
+                <span>•</span>
+                <span>Category: <%= post.category ? post.category.name : 'Uncategorized' %></span>
+                <span>•</span>
+                <span>Submitted <%= post.createdAtFormatted %></span>
+              </div>
+            </div>
+          </div>
+
+          <% if (post.tags && post.tags.length > 0) { %>
+            <div style="display: flex; gap: 0.4rem; flex-wrap: wrap; margin-bottom: 1rem;">
+              <% post.tags.forEach(t => { %>
+                <span class="tech-badge" style="font-size: 0.75rem; padding: 0.2rem 0.6rem;">#<%= t.name %></span>
+              <% }) %>
+            </div>
+          <% } %>
+
+          <!-- Body Excerpt / Preview -->
+          <div style="background: var(--bg-main); border: 1px solid var(--border-light); border-radius: var(--radius-md); padding: 1.2rem; max-height: 240px; overflow-y: auto; font-family: var(--font-mono); font-size: 0.9rem; color: var(--text-body); white-space: pre-line; margin-bottom: 1.5rem;">
+            <%= post.body %>
+          </div>
+
+          <!-- Moderation Action Buttons -->
+          <div style="display: flex; gap: 0.8rem; align-items: center;">
+            <form action="/admin/posts/<%= post.id %>/approve" method="POST" style="margin: 0;">
+              <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+              <button type="submit" class="btn" style="background: #059669; padding: 0.6rem 1.4rem; font-size: 0.9rem;">
+                ✓ Approve & Publish Article
+              </button>
+            </form>
+
+            <form action="/admin/posts/<%= post.id %>/reject" method="POST" style="margin: 0;">
+              <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+              <button type="submit" class="btn btn-delete" style="padding: 0.6rem 1.4rem; font-size: 0.9rem;">
+                ✕ Reject Article
+              </button>
+            </form>
+          </div>
+
+        </div>
+      <% }) %>
+    <% } %>
+  </div>
+</div>

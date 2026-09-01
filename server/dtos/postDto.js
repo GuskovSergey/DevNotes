@@ -1,9 +1,13 @@
+const { marked } = require('marked');
+
 class PostDto {
   constructor(post) {
     this.id = post.id;
     this._id = post.id; // Legacy view compatibility
     this.title = post.title;
     this.body = post.body;
+    this.bodyHtml = post.body ? marked.parse(post.body) : '';
+    this.status = post.status || 'published';
     
     // Reading time calculation (~180 words per min)
     const wordCount = post.body ? post.body.trim().split(/\s+/).length : 0;
@@ -16,6 +20,13 @@ class PostDto {
       name: post.category.name,
       slug: post.category.slug,
     } : null;
+
+    this.author = post.author ? {
+      id: post.author.id,
+      username: post.author.username,
+      displayName: post.author.displayName || post.author.username,
+    } : null;
+
     this.featuredImage = post.featuredImage ? `/uploads/${post.featuredImage}` : null;
     this.viewsCount = post.viewsCount || 0;
     this.createdAtFormatted = new Date(post.createdAt).toDateString();

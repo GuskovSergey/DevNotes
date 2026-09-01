@@ -1,0 +1,148 @@
+<div style="max-width: 960px; margin: 0 auto; padding-bottom: 3rem;">
+  
+  <a href="/my/posts" style="display: inline-flex; align-items: center; gap: 0.4rem; color: var(--text-muted); font-weight: 500; font-size: 0.9rem; margin-bottom: 1.5rem; text-decoration: none;">
+    &larr; Back to My Articles
+  </a>
+
+  <div style="background: var(--bg-surface); border: 1px solid var(--border-light); padding: 2.5rem; border-radius: var(--radius-xl); box-shadow: var(--shadow-card);">
+    
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.8rem; flex-wrap: wrap; gap: 1rem;">
+      <h2 style="margin: 0; color: var(--text-main); font-size: 1.6rem;">
+        <%= post ? 'Edit Article' : 'Write New Article' %>
+      </h2>
+      <span class="tech-badge" style="background: var(--primary-indigo-light); color: var(--primary-indigo); border-color: var(--border-accent);">
+        ⚡ Markdown Supported
+      </span>
+    </div>
+
+    <% if (typeof errorMessage !== 'undefined' && errorMessage) { %>
+      <div style="background: #fef2f2; border: 1px solid #fecaca; color: #dc2626; padding: 0.9rem 1.2rem; border-radius: var(--radius-md); margin-bottom: 1.8rem; font-weight: 500;">
+        <%= errorMessage %>
+      </div>
+    <% } %>
+
+    <form action="<%= post && post.id ? '/my/posts/' + post.id + '?_method=PUT' : '/my/posts' %>" method="POST" enctype="multipart/form-data">
+      <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+
+      <!-- Title -->
+      <label for="title" style="display: block; font-size: 0.9rem; font-weight: 600; color: var(--text-main); margin-bottom: 0.4rem;">Article Title</label>
+      <input type="text" placeholder="e.g. Building Resilient Microservices with Node.js & SQLite" name="title" value="<%= post ? post.title : '' %>" required style="font-size: 1.1rem; padding: 0.9rem 1.2rem;">
+
+      <!-- Category & Cover Image Grid -->
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.2rem;">
+        <div>
+          <label for="categoryId" style="display: block; font-size: 0.9rem; font-weight: 600; color: var(--text-main); margin-bottom: 0.4rem;">Category</label>
+          <select name="categoryId">
+            <option value="">-- Select Category --</option>
+            <% categories.forEach(cat => { %>
+              <option value="<%= cat.id %>" <%= (post && post.categoryId === cat.id) ? 'selected' : '' %>><%= cat.name %></option>
+            <% }) %>
+          </select>
+        </div>
+
+        <div>
+          <label for="featuredImage" style="display: block; font-size: 0.9rem; font-weight: 600; color: var(--text-main); margin-bottom: 0.4rem;">Cover Image</label>
+          <input type="file" name="featuredImage" accept="image/*">
+        </div>
+      </div>
+
+      <!-- Tags Input -->
+      <label for="tags" style="display: block; font-size: 0.9rem; font-weight: 600; color: var(--text-main); margin-bottom: 0.4rem;">Tags</label>
+      <input type="text" name="tags" value="<%= post && post.tags ? post.tags.map(t => t.name).join(', ') : (post && post.tagsInput ? post.tagsInput : '') %>" placeholder="e.g. nodejs, architecture, express, sqlite (comma-separated)">
+
+      <!-- Markdown Toolbar & Mode Switcher -->
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 1.5rem; margin-bottom: 0.6rem; flex-wrap: wrap; gap: 0.8rem;">
+        <label for="body" style="font-size: 0.9rem; font-weight: 600; color: var(--text-main); margin: 0;">Article Content (Markdown)</label>
+
+        <div style="display: flex; gap: 0.4rem; background: var(--bg-subtle); padding: 0.2rem; border-radius: var(--radius-full); border: 1px solid var(--border-light);">
+          <button type="button" id="tabEditBtn" class="category-pill active" style="padding: 0.25rem 0.9rem; font-size: 0.8rem; cursor: pointer; border: none;">Write</button>
+          <button type="button" id="tabPreviewBtn" class="category-pill" style="padding: 0.25rem 0.9rem; font-size: 0.8rem; cursor: pointer; border: none; background: transparent; color: var(--text-muted);">Live Preview</button>
+        </div>
+      </div>
+
+      <!-- Quick Formatting Helper Buttons -->
+      <div style="display: flex; gap: 0.4rem; flex-wrap: wrap; margin-bottom: 0.8rem;">
+        <button type="button" onclick="insertSyntax('# ', '')" class="tech-badge" style="cursor: pointer;">H1</button>
+        <button type="button" onclick="insertSyntax('## ', '')" class="tech-badge" style="cursor: pointer;">H2</button>
+        <button type="button" onclick="insertSyntax('**', '**')" class="tech-badge" style="cursor: pointer;"><strong>B</strong> Bold</button>
+        <button type="button" onclick="insertSyntax('*', '*')" class="tech-badge" style="cursor: pointer;"><em>I</em> Italic</button>
+        <button type="button" onclick="insertSyntax('`', '`')" class="tech-badge" style="cursor: pointer;">`code`</button>
+        <button type="button" onclick="insertSyntax('\n```javascript\n', '\n```\n')" class="tech-badge" style="cursor: pointer;">``` Code Block</button>
+        <button type="button" onclick="insertSyntax('> ', '')" class="tech-badge" style="cursor: pointer;">&gt; Quote</button>
+        <button type="button" onclick="insertSyntax('[Link Title](', ')')" class="tech-badge" style="cursor: pointer;">🔗 Link</button>
+      </div>
+
+      <!-- Editor Textarea Area -->
+      <div id="editorWriteContainer">
+        <textarea id="markdownInput" name="body" rows="16" placeholder="# Article Title
+
+Write your technical post using Markdown syntax...
+
+```js
+const server = express();
+server.listen(5000);
+```" required style="font-family: var(--font-mono); font-size: 0.95rem; line-height: 1.6;"><%= post ? post.body : '' %></textarea>
+      </div>
+
+      <!-- Preview Container -->
+      <div id="editorPreviewContainer" style="display: none; background: var(--bg-main); border: 1px solid var(--border-light); border-radius: var(--radius-md); padding: 2rem; min-height: 380px; margin-bottom: 1.2rem;" class="article-body">
+        <div id="previewContent" style="font-size: 1.05rem; line-height: 1.8;"></div>
+      </div>
+
+      <button type="submit" class="btn" style="width: 100%; margin-top: 1.2rem; padding: 0.85rem;">
+        <span><%= post ? 'Update Article' : 'Submit Article for Review' %></span>
+        &rarr;
+      </button>
+    </form>
+
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+<script>
+  const markdownInput = document.getElementById('markdownInput');
+  const writeContainer = document.getElementById('editorWriteContainer');
+  const previewContainer = document.getElementById('editorPreviewContainer');
+  const previewContent = document.getElementById('previewContent');
+  const tabEditBtn = document.getElementById('tabEditBtn');
+  const tabPreviewBtn = document.getElementById('tabPreviewBtn');
+
+  function insertSyntax(before, after) {
+    const start = markdownInput.selectionStart;
+    const end = markdownInput.selectionEnd;
+    const selectedText = markdownInput.value.substring(start, end);
+    const replacement = before + selectedText + after;
+    markdownInput.value = markdownInput.value.substring(0, start) + replacement + markdownInput.value.substring(end);
+    markdownInput.focus();
+    markdownInput.selectionStart = start + before.length;
+    markdownInput.selectionEnd = start + before.length + selectedText.length;
+  }
+
+  tabEditBtn.addEventListener('click', () => {
+    writeContainer.style.display = 'block';
+    previewContainer.style.display = 'none';
+    tabEditBtn.classList.add('active');
+    tabEditBtn.style.background = 'var(--primary-indigo)';
+    tabEditBtn.style.color = 'white';
+    tabPreviewBtn.classList.remove('active');
+    tabPreviewBtn.style.background = 'transparent';
+    tabPreviewBtn.style.color = 'var(--text-muted)';
+  });
+
+  tabPreviewBtn.addEventListener('click', () => {
+    writeContainer.style.display = 'none';
+    previewContainer.style.display = 'block';
+    tabPreviewBtn.classList.add('active');
+    tabPreviewBtn.style.background = 'var(--primary-indigo)';
+    tabPreviewBtn.style.color = 'white';
+    tabEditBtn.classList.remove('active');
+    tabEditBtn.style.background = 'transparent';
+    tabEditBtn.style.color = 'var(--text-muted)';
+
+    if (window.marked) {
+      previewContent.innerHTML = window.marked.parse(markdownInput.value || '*No content to preview*');
+    } else {
+      previewContent.textContent = markdownInput.value;
+    }
+  });
+</script>

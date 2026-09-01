@@ -1,3 +1,6 @@
+const postService = require('../services/postService');
+const categoryService = require('../services/categoryService');
+const tagService = require('../services/tagService');
 const authService = require('../services/authService');
 const commentService = require('../services/commentService');
 const { Comment, Post } = require('../models');
@@ -195,6 +198,145 @@ class UserController {
         errorMessage: err.message || 'Failed to change password',
       });
     }
+  });
+
+  getMyPostsPage = catchAsync(async (req, res) => {
+    const posts = await postService.getUserPosts(req.userId);
+    const user = await authService.getUserById(req.userId);
+
+    const locals = {
+      title: 'My Articles',
+      description: 'Manage your written articles and check moderation status.',
+    };
+
+    res.render('my/posts', {
+      locals,
+      user,
+      posts,
+      successMessage: req.query.success || null,
+    });
+  });
+
+  getCreatePostPage = catchAsync(async (req, res) => {
+    const categories = await categoryService.getAllCategories();
+    const locals = {
+      title: 'Write New Article',
+      description: 'Create a new tech article with Markdown support.',
+    };
+
+    res.render('my/editor', {
+      locals,
+      categories,
+      post: null,
+      errorMessage: null,
+    });
+  });
+
+  handleCreatePost = catchAsync(async (req, res) => {
+    const { title, body, categoryId, tags: tagsInput } = req.body;
+    const featuredImage = req.file ? req.file.filename : null;
+    const user = await authService.getUserById(req.userId);
+
+    if (req.validationErrors && req.validationErrors.length > 0) {
+      const categories = await categoryService.getAllCategories();
+      return res.status(400).render('my/editor', {
+        locals: { title: 'Write New Article' },
+        categories,
+        post: { title, body, categoryId, tagsInput },
+        errorMessage: req.validationErrors[0],
+      });
+    }
+
+    const tags = await tagService.findOrCreateTags(tagsInput || '');
+    const status = user.role === 'admin' ? 'published' : 'pending';
+
+    await postService.createPost({
+      title,
+      body,
+      categoryId,
+      featuredImage,
+      userId: req.userId,
+      tags,
+      status,
+    });
+
+    const msg = status === 'published'
+      ? 'Article published successfully!'
+      : 'Article submitted successfully and is pending admin moderation.';
+
+    return res.redirect('/my/posts?success=' + encodeURIComponent(msg));
+  });
+
+  getEditMyPostPage = catchAsync(async (req, res, next) => {
+    const { id } = req.params;
+    const post = await postService.getUserPostById(id, req.userId);
+
+    if (!post) {
+      const error = new Error('Article not found or access denied');
+      error.statusCode = 404;
+      return next(error);
+    }
+
+    const categories = await categoryService.getAllCategories();
+    const locals = {
+      title: 'Edit Article',
+      description: 'Update your article content and tags.',
+    };
+
+    res.render('my/editor', {
+      locals,
+      categories,
+      post,
+      errorMessage: null,
+    });
+  });
+
+  handleUpdateMyPost = catchAsync(async (req, res, next) => {
+    const { id } = req.params;
+    const { title, body, categoryId, tags: tagsInput } = req.body;
+    const featuredImage = req.file ? req.file.filename : null;
+    const user = await authService.getUserById(req.userId);
+
+    const existingPost = await postService.getUserPostById(id, req.userId);
+    if (!existingPost) {
+      const error = new Error('Article not found or access denied');
+      error.statusCode = 404;
+      return next(error);
+    }
+
+    if (req.validationErrors && req.validationErrors.length > 0) {
+      const categories = await categoryService.getAllCategories();
+      return res.status(400).render('my/editor', {
+        locals: { title: 'Edit Article' },
+        categories,
+        post: { ...existingPost, title, body, categoryId },
+        errorMessage: req.validationErrors[0],
+      });
+    }
+
+    const tags = await tagService.findOrCreateTags(tagsInput || '');
+    const status = user.role === 'admin' ? 'published' : 'pending';
+
+    await postService.updatePost(id, {
+      title,
+      body,
+      categoryId,
+      featuredImage,
+      tags,
+      status,
+    });
+
+    const msg = status === 'published'
+      ? 'Article updated successfully!'
+      : 'Article updated and submitted for re-moderation.';
+
+    return res.redirect('/my/posts?success=' + encodeURIComponent(msg));
+  });
+
+  handleDeleteMyPost = catchAsync(async (req, res) => {
+    const { id } = req.params;
+    await postService.deletePost(id, req.userId);
+    return res.redirect('/my/posts?success=Article%20deleted%20successfully');
   });
 
   handleLogout = catchAsync(async (req, res) => {

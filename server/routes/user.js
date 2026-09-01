@@ -2,11 +2,13 @@ const express = require('express');
 const router = express.Router();
 const userController = require('../controllers/userController');
 const { userAuthMiddleware } = require('../middlewares/authMiddleware');
+const upload = require('../middlewares/uploadMiddleware');
 const {
   validateAuth,
   validateRegister,
   validateProfileUpdate,
   validateChangePassword,
+  validatePost,
 } = require('../middlewares/validators');
 const { doubleCsrfProtection } = require('../middlewares/csrfMiddleware');
 
@@ -22,5 +24,13 @@ router.get('/account/edit', userAuthMiddleware, userController.getEditProfilePag
 router.put('/account/profile', userAuthMiddleware, validateProfileUpdate, doubleCsrfProtection, userController.handleUpdateProfile);
 router.get('/account/password', userAuthMiddleware, userController.getChangePasswordPage);
 router.put('/account/password', userAuthMiddleware, validateChangePassword, doubleCsrfProtection, userController.handleChangePassword);
+
+// Protected User Article Authoring routes
+router.get('/my/posts', userAuthMiddleware, userController.getMyPostsPage);
+router.get('/my/posts/new', userAuthMiddleware, userController.getCreatePostPage);
+router.post('/my/posts', userAuthMiddleware, upload.single('featuredImage'), validatePost, doubleCsrfProtection, userController.handleCreatePost);
+router.get('/my/posts/:id/edit', userAuthMiddleware, userController.getEditMyPostPage);
+router.put('/my/posts/:id', userAuthMiddleware, upload.single('featuredImage'), validatePost, doubleCsrfProtection, userController.handleUpdateMyPost);
+router.delete('/my/posts/:id', userAuthMiddleware, doubleCsrfProtection, userController.handleDeleteMyPost);
 
 module.exports = router;

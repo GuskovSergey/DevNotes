@@ -4,11 +4,18 @@
     <p style="color: var(--text-muted); font-size: 0.95rem;">Manage posts, view metrics, and moderate comments</p>
   </div>
   
-  <div style="display: flex; gap: 0.8rem;">
-    <a href="/admin/comments" class="btn" style="background: #fffbe6; border: 1px solid #ffe58f; color: #d46b08; box-shadow: none;">
-      <span>Moderation</span>
+  <div style="display: flex; gap: 0.8rem; flex-wrap: wrap;">
+    <a href="/admin/posts/pending" class="btn" style="background: #fffbe6; border: 1px solid #ffe58f; color: #d46b08; box-shadow: none;">
+      <span>Article Queue</span>
+      <% if (analytics.pendingPostsCount > 0) { %>
+        <span style="background: #d46b08; color: #fff; padding: 2px 7px; border-radius: 9999px; font-size: 0.75rem; font-weight: bold;"><%= analytics.pendingPostsCount %></span>
+      <% } %>
+    </a>
+
+    <a href="/admin/comments" class="btn" style="background: #f0fdf4; border: 1px solid #bbf7d0; color: #15803d; box-shadow: none;">
+      <span>Comment Queue</span>
       <% if (analytics.pendingCommentsCount > 0) { %>
-        <span style="background: #fa8c16; color: #fff; padding: 2px 7px; border-radius: 9999px; font-size: 0.75rem; font-weight: bold;"><%= analytics.pendingCommentsCount %></span>
+        <span style="background: #15803d; color: #fff; padding: 2px 7px; border-radius: 9999px; font-size: 0.75rem; font-weight: bold;"><%= analytics.pendingCommentsCount %></span>
       <% } %>
     </a>
 
@@ -19,10 +26,10 @@
 </div>
 
 <!-- KPI Analytics Grid -->
-<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1.5rem; margin-bottom: 3rem;">
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.5rem; margin-bottom: 3rem;">
   <div style="background: var(--bg-surface); border: 1px solid var(--border-light); padding: 1.6rem; border-radius: var(--radius-lg); text-align: center; box-shadow: var(--shadow-card);">
     <span style="font-size: 2.6rem; font-weight: 800; font-family: var(--font-heading); color: var(--text-main); display: block; line-height: 1;"><%= analytics.totalPosts %></span>
-    <span style="color: var(--text-muted); font-size: 0.9rem; margin-top: 0.4rem; display: block; font-weight: 500;">Total Articles</span>
+    <span style="color: var(--text-muted); font-size: 0.9rem; margin-top: 0.4rem; display: block; font-weight: 500;">Published Articles</span>
   </div>
 
   <div style="background: var(--bg-surface); border: 1px solid var(--border-light); padding: 1.6rem; border-radius: var(--radius-lg); text-align: center; box-shadow: var(--shadow-card);">
@@ -31,8 +38,13 @@
   </div>
 
   <div style="background: var(--bg-surface); border: 1px solid var(--border-light); padding: 1.6rem; border-radius: var(--radius-lg); text-align: center; box-shadow: var(--shadow-card);">
-    <span style="font-size: 2.6rem; font-weight: 800; font-family: var(--font-heading); color: #d46b08; display: block; line-height: 1;"><%= analytics.pendingCommentsCount %></span>
-    <span style="color: var(--text-muted); font-size: 0.9rem; margin-top: 0.4rem; display: block; font-weight: 500;">Pending Moderation</span>
+    <span style="font-size: 2.6rem; font-weight: 800; font-family: var(--font-heading); color: #d46b08; display: block; line-height: 1;"><%= analytics.pendingPostsCount %></span>
+    <span style="color: var(--text-muted); font-size: 0.9rem; margin-top: 0.4rem; display: block; font-weight: 500;">Pending Articles</span>
+  </div>
+
+  <div style="background: var(--bg-surface); border: 1px solid var(--border-light); padding: 1.6rem; border-radius: var(--radius-lg); text-align: center; box-shadow: var(--shadow-card);">
+    <span style="font-size: 2.6rem; font-weight: 800; font-family: var(--font-heading); color: #15803d; display: block; line-height: 1;"><%= analytics.pendingCommentsCount %></span>
+    <span style="color: var(--text-muted); font-size: 0.9rem; margin-top: 0.4rem; display: block; font-weight: 500;">Pending Comments</span>
   </div>
 </div>
 
