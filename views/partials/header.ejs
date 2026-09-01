@@ -1,0 +1,44 @@
+<header class="header">
+  <!-- Brand Logo with Code Badge -->
+  <a href="/" class="header__logo">
+    <span class="header__logo-badge">&lt;/&gt;</span>
+    <span class="header__logo-text">DevHub</span>
+  </a>
+
+  <!-- Centered Pill Navigation -->
+  <nav class="header__nav">
+    <ul>
+      <li>
+        <a href="/" class="<%= (typeof currentRoute !== 'undefined' && currentRoute === '/') ? 'active' : '' %>">
+          <span>Home</span>
+        </a>
+      </li>
+      <li>
+        <a href="/about" class="<%= (typeof currentRoute !== 'undefined' && currentRoute === '/about') ? 'active' : '' %>">
+          <span>About</span>
+        </a>
+      </li>
+    </ul>
+  </nav>
+
+  <!-- Right Actions: Search, Theme Toggle & Admin Entry -->
+  <div class="header__right-actions">
+    <button class="searchBtn" aria-expanded="false">
+      <svg width="15" height="15" viewBox="0 0 17 17" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M7.79167 13.4583C10.9213 13.4583 13.4583 10.9213 13.4583 7.79167C13.4583 4.66205 10.9213 2.125 7.79167 2.125C4.66205 2.125 2.125 4.66205 2.125 7.79167C2.125 10.9213 4.66205 13.4583 7.79167 13.4583Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M14.875 14.875L11.7938 11.7938" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      <span>Search</span>
+      <kbd class="shortcut-badge" style="margin-right: 0; font-size: 0.65rem;">⌘K</kbd>
+    </button>
+
+    <!-- Theme Toggle Switcher -->
+    <button id="themeToggleBtn" class="theme-toggle-btn" aria-label="Toggle Theme" title="Toggle Theme">
+      🌙
+    </button>
+
+    <a href="/admin" class="admin-link-btn">
+      Admin Portal
+    </a>
+  </div>
+</header>

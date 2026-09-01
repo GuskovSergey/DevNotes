@@ -1,0 +1,51 @@
+<div style="max-width: 800px; margin: 0 auto;">
+  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+    <a href="/dashboard" style="color: var(--text-muted); font-weight: 500;">&larr; Back to Dashboard</a>
+
+    <form action="/delete-post/<%= data._id %>?_method=DELETE" method="POST">
+      <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+      <button type="submit" class="btn btn-delete">Delete Article</button>
+    </form>
+  </div>
+
+  <div style="background: var(--bg-surface); border: 1px solid var(--border-light); padding: 2.8rem; border-radius: var(--radius-xl); box-shadow: var(--shadow-card);">
+    <h2 style="margin-bottom: 1.5rem; color: var(--text-main);">Edit Article</h2>
+
+    <% if (typeof errorMessage !== 'undefined' && errorMessage) { %>
+      <div style="background: #fef2f2; border: 1px solid #fecaca; color: #dc2626; padding: 0.8rem; border-radius: var(--radius-md); margin-bottom: 1.5rem; font-weight: 500;">
+        <%= errorMessage %>
+      </div>
+    <% } %>
+
+    <form action="/edit-post/<%= data._id %>?_method=PUT" method="POST" enctype="multipart/form-data">
+      <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+
+      <label for="title" style="display: block; font-size: 0.9rem; font-weight: 600; color: var(--text-main); margin-bottom: 0.4rem;">Title</label>
+      <input type="text" placeholder="Article Title" name="title" value="<%= data.title %>" required>
+
+      <label for="categoryId" style="display: block; font-size: 0.9rem; font-weight: 600; color: var(--text-main); margin-bottom: 0.4rem;">Category</label>
+      <select name="categoryId">
+        <option value="">-- Select Category --</option>
+        <% categories.forEach(cat => { %>
+          <option value="<%= cat.id %>" <%= data.categoryId === cat.id ? 'selected' : '' %>><%= cat.name %></option>
+        <% }) %>
+      </select>
+
+      <label for="featuredImage" style="display: block; font-size: 0.9rem; font-weight: 600; color: var(--text-main); margin-bottom: 0.4rem;">Cover Image</label>
+      <% if (data.featuredImage) { %>
+        <div style="margin-bottom: 1rem; border-radius: var(--radius-md); overflow: hidden; max-width: 220px; border: 1px solid var(--border-light);">
+          <img src="<%= data.featuredImage %>" alt="Current Cover" style="width: 100%; height: auto; display: block;">
+        </div>
+      <% } %>
+      <input type="file" name="featuredImage" accept="image/*">
+
+      <label for="body" style="display: block; font-size: 0.9rem; font-weight: 600; color: var(--text-main); margin-bottom: 0.4rem;">Content</label>
+      <textarea name="body" rows="12" required><%= data.body %></textarea>
+
+      <button type="submit" class="btn" style="width: 100%; margin-top: 1rem;">
+        <span>Save Changes</span>
+        &rarr;
+      </button>
+    </form>
+  </div>
+</div>

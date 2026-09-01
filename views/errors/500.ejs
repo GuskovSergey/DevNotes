@@ -1,0 +1,9 @@
+<div class="error-page" style="text-align: center; padding: 3rem 1rem;">
+  <h1>500</h1>
+  <h2>Internal Server Error</h2>
+  <p>Something went wrong on our end. Please try again later.</p>
+  <% if (error && error.message) { %>
+    <pre style="text-align: left; background: #f4f4f4; padding: 1rem; margin-top: 1rem; overflow-x: auto;"><%= error.stack %></pre>
+  <% } %>
+  <a href="/" class="btn" style="display: inline-block; margin-top: 1rem;">&lt; Back to Home</a>
+</div>

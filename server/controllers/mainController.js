@@ -1,0 +1,100 @@
+const postService = require('../services/postService');
+const categoryService = require('../services/categoryService');
+const commentService = require('../services/commentService');
+const catchAsync = require('../utils/catchAsync');
+const logger = require('../config/logger');
+
+class MainController {
+  getHomePage = catchAsync(async (req, res) => {
+    const categorySlug = req.query.category || null;
+    const locals = {
+      title: 'NodeJs Blog',
+      description: 'Simple Blog created with NodeJs, Express & SQLite.',
+    };
+
+    const { data, current, nextPage } = await postService.getPaginatedPosts(req.query.page, 10, categorySlug);
+    const categories = await categoryService.getAllCategories();
+
+    res.render('index', {
+      locals,
+      data,
+      current,
+      nextPage,
+      categories,
+      activeCategory: categorySlug,
+      currentRoute: '/',
+    });
+  });
+
+  getPostPage = catchAsync(async (req, res, next) => {
+    const { id } = req.params;
+    // Increment view count when post is visited
+    const data = await postService.getPostById(id, true);
+
+    if (!data) {
+      const error = new Error('Post not found');
+      error.statusCode = 404;
+      return next(error);
+    }
+
+    const locals = {
+      title: data.title,
+      description: 'Simple Blog created with NodeJs, Express & SQLite.',
+    };
+
+    res.render('post', {
+      locals,
+      data,
+      currentRoute: `/post/${id}`,
+      successMessage: req.query.commentAdded ? 'Thank you! Your comment has been submitted and is pending moderation.' : null,
+    });
+  });
+
+  addComment = catchAsync(async (req, res, next) => {
+    const { id } = req.params;
+    const { authorName, authorEmail, content } = req.body;
+
+    if (!authorName || !authorEmail || !content) {
+      logger.warn({ postId: id }, 'Incomplete comment submission');
+      return res.redirect(`/post/${id}?commentError=1`);
+    }
+
+    await commentService.addComment({
+      postId: parseInt(id, 10),
+      authorName: authorName.trim(),
+      authorEmail: authorEmail.trim(),
+      content: content.trim(),
+    });
+
+    logger.info({ postId: id }, 'New comment submitted for moderation');
+    return res.redirect(`/post/${id}?commentAdded=1`);
+  });
+
+  searchPosts = catchAsync(async (req, res) => {
+    const locals = {
+      title: 'Search',
+      description: 'Simple Blog created with NodeJs, Express & SQLite.',
+    };
+
+    const searchTerm = req.body.searchTerm || '';
+    const data = await postService.searchPosts(searchTerm);
+
+    res.render('search', {
+      data,
+      locals,
+      currentRoute: '/',
+    });
+  });
+
+  getAboutPage = catchAsync(async (req, res) => {
+    res.render('about', {
+      currentRoute: '/about',
+      locals: {
+        title: 'About Us',
+        description: 'About NodeJs Blog.',
+      },
+    });
+  });
+}
+
+module.exports = new MainController();

@@ -1,0 +1,27 @@
+<div style="max-width: 420px; margin: 4rem auto; background: var(--bg-surface); border: 1px solid var(--border-light); padding: 2.8rem; border-radius: var(--radius-xl); box-shadow: var(--shadow-card);">
+  <div style="text-align: center; margin-bottom: 2rem;">
+    <h2 style="font-size: 2rem; color: var(--text-main);">Admin Portal</h2>
+    <p style="color: var(--text-muted); font-size: 0.95rem; margin-top: 0.3rem;">Sign in to manage blog posts and comments</p>
+  </div>
+
+  <% if (typeof errorMessage !== 'undefined' && errorMessage) { %>
+    <div style="background: #fef2f2; border: 1px solid #fecaca; color: #dc2626; padding: 0.8rem; border-radius: var(--radius-md); margin-bottom: 1.2rem; font-size: 0.9rem; text-align: center; font-weight: 500;">
+      <%= errorMessage %>
+    </div>
+  <% } %>
+
+  <form action="/admin" method="POST">
+    <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+
+    <label for="username" style="display: block; font-size: 0.9rem; font-weight: 600; color: var(--text-main); margin-bottom: 0.4rem;">Username</label>
+    <input type="text" placeholder="Enter Username" name="username" required>
+
+    <label for="password" style="display: block; font-size: 0.9rem; font-weight: 600; color: var(--text-main); margin-bottom: 0.4rem;">Password</label>
+    <input type="password" placeholder="Enter Password" name="password" required>
+
+    <button type="submit" class="btn" style="width: 100%; margin-top: 1rem; padding: 0.85rem;">
+      <span>Sign In</span>
+      &rarr;
+    </button>
+  </form>
+</div>

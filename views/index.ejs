@@ -1,0 +1,146 @@
+<!-- Clean Hero Section -->
+<section class="dev-hero">
+  <div class="dev-hero__body">
+    <div class="dev-hero__badge">
+      <span class="dev-hero__badge-dot"></span>
+      <span>🚀 Node.js Architecture &amp; Database Engineering</span>
+    </div>
+
+    <h1 class="dev-hero__heading">Production-Grade Backend Architecture &amp; Node.js Patterns</h1>
+    <p class="dev-hero__sub">In-depth guides, architectural breakdowns, and practical tutorials for building robust Server-Side Rendered applications with Express &amp; SQLite.</p>
+
+    <!-- Command Palette Style Search Box -->
+    <form action="/search" method="POST" class="dev-hero__search-box">
+      <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+      <svg class="dev-hero__search-icon" width="20" height="20" viewBox="0 0 17 17" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M7.79167 13.4583C10.9213 13.4583 13.4583 10.9213 13.4583 7.79167C13.4583 4.66205 10.9213 2.125 7.79167 2.125C4.66205 2.125 2.125 4.66205 2.125 7.79167C2.125 10.9213 4.66205 13.4583 7.79167 13.4583Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M14.875 14.875L11.7938 11.7938" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      <input type="search" name="searchTerm" placeholder="Search architecture patterns, tutorials, SQL..." required>
+      <kbd class="shortcut-badge">⌘K</kbd>
+      <button type="submit" class="btn">Search</button>
+    </form>
+
+    <div class="tech-badges">
+      <span class="tech-badge">#nodejs</span>
+      <span class="tech-badge">#express-mvc</span>
+      <span class="tech-badge">#sqlite3</span>
+      <span class="tech-badge">#sequelize</span>
+      <span class="tech-badge">#pino-logger</span>
+      <span class="tech-badge">#async-await</span>
+    </div>
+  </div>
+</section>
+
+<!-- Category Pills Filter -->
+<section class="categories-nav">
+  <h3>Filter by Topic</h3>
+  <div class="categories-pills">
+    <a href="/" class="category-pill <%= !activeCategory ? 'active' : '' %>">All Topics</a>
+    <% categories.forEach(cat => { %>
+      <a href="/?category=<%= cat.slug %>" class="category-pill <%= activeCategory === cat.slug ? 'active' : '' %>">
+        #<%= cat.name.toLowerCase() %>
+      </a>
+    <% }) %>
+  </div>
+</section>
+
+<!-- Featured Hero Post (if present & page 1 & no filter) -->
+<% if (data.length > 0 && !activeCategory && current === 1) { %>
+  <% const featuredPost = data[0]; %>
+  <section style="margin-bottom: 2.5rem;">
+    <div class="featured-post-card">
+      <div>
+        <span class="featured-post-card__tag">🔥 Featured Post</span>
+        
+        <h2 class="featured-post-card__title">
+          <a href="/post/<%= featuredPost._id %>"><%= featuredPost.title %></a>
+        </h2>
+
+        <p class="featured-post-card__excerpt">
+          <%= featuredPost.body %>
+        </p>
+
+        <div class="featured-post-card__meta">
+          <span><%= featuredPost.createdAtFormatted %></span>
+          <span>•</span>
+          <span>⏱ <%= featuredPost.readingTime %></span>
+          <span>•</span>
+          <span>👁 <%= featuredPost.viewsCount %> views</span>
+          <% if (featuredPost.category) { %>
+            <span class="article-card__badge" style="margin-left: auto;"><%= featuredPost.category.name %></span>
+          <% } %>
+        </div>
+      </div>
+
+      <% if (featuredPost.featuredImage) { %>
+        <img src="<%= featuredPost.featuredImage %>" alt="<%= featuredPost.title %>" class="featured-post-card__cover">
+      <% } else { %>
+        <div style="background: linear-gradient(135deg, #0f172a 0%, #4f46e5 100%); height: 280px; border-radius: var(--radius-lg); display: flex; align-items: center; justify-content: center; font-family: var(--font-mono); color: white; font-size: 1.5rem; font-weight: bold; padding: 2rem; text-align: center;">
+          &lt;NodeJs / Architecture&gt;
+        </div>
+      <% } %>
+    </div>
+  </section>
+<% } %>
+
+<!-- Articles Grid -->
+<section class="articles">
+  <h2 class="articles__heading">
+    <%= activeCategory ? 'Topic Articles' : 'Recent Articles' %>
+  </h2>
+
+  <% const gridPosts = (!activeCategory && current === 1 && data.length > 1) ? data.slice(1) : data; %>
+
+  <% if (gridPosts.length === 0) { %>
+    <div style="background: var(--bg-surface); border: 1px dashed var(--border-light); padding: 3rem; border-radius: var(--radius-lg); text-align: center; color: var(--text-muted);">
+      No articles found in this category yet.
+    </div>
+  <% } else { %>
+    <ul class="article-grid">
+      <% gridPosts.forEach(post => { %>
+        <li class="article-card">
+          <div>
+            <% if (post.featuredImage) { %>
+              <img src="<%= post.featuredImage %>" alt="<%= post.title %>" class="article-card__cover">
+            <% } %>
+            
+            <h3 class="article-card__title">
+              <a href="/post/<%= post._id %>"><%= post.title %></a>
+            </h3>
+
+            <p style="color: var(--text-muted); font-size: 0.95rem; line-height: 1.5; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; margin-top: 0.5rem;">
+              <%= post.body %>
+            </p>
+          </div>
+
+          <div class="article-card__meta">
+            <span><%= post.createdAtFormatted %></span>
+            <span>•</span>
+            <span>⏱ <%= post.readingTime %></span>
+            <% if (post.category) { %>
+              <span class="article-card__badge" style="margin-left: auto;"><%= post.category.name %></span>
+            <% } %>
+          </div>
+        </li>
+      <% }) %>
+    </ul>
+  <% } %>
+
+  <% if (nextPage !== null) { %>
+    <div style="text-align: center; margin-top: 2rem;">
+      <a href="/?page=<%= nextPage %><%= activeCategory ? '&category=' + activeCategory : '' %>" class="pagination">&lt; Older Articles</a>
+    </div>
+  <% } %>
+</section>
+
+<!-- Developer Newsletter Box -->
+<section class="newsletter-box">
+  <h3>📬 Developer Weekly Digest</h3>
+  <p>Get hand-picked Node.js architecture guides, Express MVC best practices, and SQLite performance tips delivered straight to your inbox.</p>
+  
+  <form onsubmit="event.preventDefault(); alert('Thank you for subscribing to the Developer Digest!');" class="newsletter-form">
+    <input type="email" placeholder="enter.your.email@dev.com" required>
+    <button type="submit" class="btn" style="border-radius: var(--radius-full);">Subscribe</button>
+  </form>
+</section>

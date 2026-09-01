@@ -1,0 +1,44 @@
+<header class="header">
+  <!-- Brand Logo with Code Badge -->
+  <a href="/" class="header__logo">
+    <span class="header__logo-badge">&lt;/&gt;</span>
+    <span class="header__logo-text">DevHub <small style="font-size: 0.75rem; color: var(--primary-indigo); font-family: var(--font-mono);">[Admin]</small></span>
+  </a>
+
+  <!-- Centered Pill Navigation for Admin -->
+  <nav class="header__nav">
+    <ul>
+      <li>
+        <a href="/dashboard" class="<%= (typeof currentRoute !== 'undefined' && currentRoute === '/dashboard') ? 'active' : '' %>">
+          <span>Dashboard</span>
+        </a>
+      </li>
+      <li>
+        <a href="/add-post" class="<%= (typeof currentRoute !== 'undefined' && currentRoute === '/add-post') ? 'active' : '' %>">
+          <span>+ Add Post</span>
+        </a>
+      </li>
+      <li>
+        <a href="/admin/comments" class="<%= (typeof currentRoute !== 'undefined' && currentRoute === '/admin/comments') ? 'active' : '' %>">
+          <span>Comments</span>
+        </a>
+      </li>
+    </ul>
+  </nav>
+
+  <!-- Right Actions: Site link, Theme Toggle & Logout -->
+  <div class="header__right-actions">
+    <a href="/" target="_blank" class="searchBtn">
+      <span>View Site ↗</span>
+    </a>
+
+    <!-- Theme Toggle Switcher -->
+    <button id="themeToggleBtn" class="theme-toggle-btn" aria-label="Toggle Theme" title="Toggle Theme">
+      🌙
+    </button>
+
+    <a href="/logout" class="admin-link-btn" style="background: #fef2f2; border-color: #fecaca; color: #dc2626;">
+      Logout
+    </a>
+  </div>
+</header>

@@ -1,0 +1,64 @@
+<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; flex-wrap: wrap; gap: 1rem;">
+  <div>
+    <h2>Dashboard Overview</h2>
+    <p style="color: var(--text-muted); font-size: 0.95rem;">Manage posts, view metrics, and moderate comments</p>
+  </div>
+  
+  <div style="display: flex; gap: 0.8rem;">
+    <a href="/admin/comments" class="btn" style="background: #fffbe6; border: 1px solid #ffe58f; color: #d46b08; box-shadow: none;">
+      <span>Moderation</span>
+      <% if (analytics.pendingCommentsCount > 0) { %>
+        <span style="background: #fa8c16; color: #fff; padding: 2px 7px; border-radius: 9999px; font-size: 0.75rem; font-weight: bold;"><%= analytics.pendingCommentsCount %></span>
+      <% } %>
+    </a>
+
+    <a href="/add-post" class="btn">
+      <span>+ Add Post</span>
+    </a>
+  </div>
+</div>
+
+<!-- KPI Analytics Grid -->
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1.5rem; margin-bottom: 3rem;">
+  <div style="background: var(--bg-surface); border: 1px solid var(--border-light); padding: 1.6rem; border-radius: var(--radius-lg); text-align: center; box-shadow: var(--shadow-card);">
+    <span style="font-size: 2.6rem; font-weight: 800; font-family: var(--font-heading); color: var(--text-main); display: block; line-height: 1;"><%= analytics.totalPosts %></span>
+    <span style="color: var(--text-muted); font-size: 0.9rem; margin-top: 0.4rem; display: block; font-weight: 500;">Total Articles</span>
+  </div>
+
+  <div style="background: var(--bg-surface); border: 1px solid var(--border-light); padding: 1.6rem; border-radius: var(--radius-lg); text-align: center; box-shadow: var(--shadow-card);">
+    <span style="font-size: 2.6rem; font-weight: 800; font-family: var(--font-heading); color: var(--primary-indigo); display: block; line-height: 1;"><%= analytics.totalViews %></span>
+    <span style="color: var(--text-muted); font-size: 0.9rem; margin-top: 0.4rem; display: block; font-weight: 500;">Total Views</span>
+  </div>
+
+  <div style="background: var(--bg-surface); border: 1px solid var(--border-light); padding: 1.6rem; border-radius: var(--radius-lg); text-align: center; box-shadow: var(--shadow-card);">
+    <span style="font-size: 2.6rem; font-weight: 800; font-family: var(--font-heading); color: #d46b08; display: block; line-height: 1;"><%= analytics.pendingCommentsCount %></span>
+    <span style="color: var(--text-muted); font-size: 0.9rem; margin-top: 0.4rem; display: block; font-weight: 500;">Pending Moderation</span>
+  </div>
+</div>
+
+<h3 style="font-size: 1.5rem; margin-bottom: 1.2rem; color: var(--text-main);">All Posts</h3>
+
+<ul style="list-style: none; display: flex; flex-direction: column; gap: 0.8rem;">
+  <% data.forEach(post => { %>
+    <li style="background: var(--bg-surface); border: 1px solid var(--border-light); padding: 1.2rem 1.6rem; border-radius: var(--radius-lg); display: flex; justify-content: space-between; align-items: center; gap: 1rem; flex-wrap: wrap; box-shadow: var(--shadow-sm); transition: all 0.2s ease;">
+      <div style="display: flex; align-items: center; gap: 1rem;">
+        <a href="/post/<%= post._id %>" style="font-weight: 600; font-size: 1.05rem; color: var(--text-main);">
+          <%= post.title %>
+        </a>
+        <% if (post.category) { %>
+          <span class="article-card__badge"><%= post.category.name %></span>
+        <% } %>
+      </div>
+
+      <div style="display: flex; align-items: center; gap: 1rem;">
+        <span style="color: var(--text-muted); font-size: 0.85rem; font-family: var(--font-mono);">👁 <%= post.viewsCount %></span>
+        <a href="/edit-post/<%= post._id %>" class="btn" style="padding: 0.45rem 1.1rem; font-size: 0.85rem; background: var(--bg-subtle); border: 1px solid var(--border-light); color: var(--text-main); box-shadow: none;">Edit</a>
+
+        <form action="/delete-post/<%= post._id %>?_method=DELETE" method="POST" style="display: inline;">
+          <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+          <input type="submit" value="Delete" class="btn btn-delete">
+        </form>
+      </div>
+    </li>
+  <% }) %>
+</ul>

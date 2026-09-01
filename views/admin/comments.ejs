@@ -1,0 +1,54 @@
+<div style="max-width: 900px; margin: 0 auto;">
+  <a href="/dashboard" style="display: inline-block; color: var(--text-muted); margin-bottom: 1.5rem; font-weight: 500;">&larr; Back to Dashboard</a>
+
+  <h2 style="color: var(--text-main);">Comments Moderation</h2>
+  <p style="color: var(--text-muted); font-size: 0.95rem; margin-bottom: 2rem;">Approve reader comments to make them public, or delete inappropriate submissions.</p>
+
+  <div style="display: flex; flex-direction: column; gap: 1rem;">
+    <% if (comments.length === 0) { %>
+      <div style="background: var(--bg-surface); border: 1px dashed var(--border-light); padding: 2.5rem; border-radius: var(--radius-lg); text-align: center; color: var(--text-muted);">
+        No comments to moderate at the moment.
+      </div>
+    <% } else { %>
+      <% comments.forEach(comment => { %>
+        <div style="background: var(--bg-surface); border: 1px solid var(--border-light); border-left: 4px solid <%= comment.isApproved ? 'var(--accent-emerald)' : '#fa8c16' %>; padding: 1.6rem; border-radius: var(--radius-lg); box-shadow: var(--shadow-sm);">
+          <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 1rem; margin-bottom: 0.8rem; flex-wrap: wrap;">
+            <div>
+              <strong style="color: var(--text-main); font-size: 1.05rem;"><%= comment.authorName %></strong> 
+              <span style="color: var(--text-muted); font-size: 0.85rem;">(<%= comment.authorEmail %>)</span>
+              <div style="color: var(--text-muted); font-size: 0.85rem; margin-top: 0.2rem;">
+                Article: <em><%= comment.post ? comment.post.title : 'Deleted Article' %></em>
+              </div>
+            </div>
+
+            <span style="font-size: 0.75rem; font-weight: 600; padding: 3px 10px; border-radius: var(--radius-full); color: <%= comment.isApproved ? '#047857' : '#d46b08' %>; background: <%= comment.isApproved ? '#ecfdf5' : '#fffbe6' %>; border: 1px solid <%= comment.isApproved ? '#a7f3d0' : '#ffe58f' %>; font-family: var(--font-mono);">
+              <%= comment.isApproved ? '✓ Approved' : '⏳ Pending' %>
+            </span>
+          </div>
+
+          <p style="color: var(--text-body); font-size: 1rem; line-height: 1.6; margin-bottom: 1.2rem; background: var(--bg-subtle); padding: 0.9rem 1.1rem; border-radius: var(--radius-md); border: 1px solid var(--border-light);">
+            <%= comment.content %>
+          </p>
+
+          <div style="display: flex; gap: 0.8rem;">
+            <% if (!comment.isApproved) { %>
+              <form action="/admin/comments/<%= comment.id %>/approve" method="POST" style="display: inline;">
+                <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                <button type="submit" class="btn" style="background: #059669; padding: 0.45rem 1.2rem; font-size: 0.85rem;">
+                  Approve Comment
+                </button>
+              </form>
+            <% } %>
+
+            <form action="/admin/comments/<%= comment.id %>?_method=DELETE" method="POST" style="display: inline;">
+              <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+              <button type="submit" class="btn btn-delete">
+                Delete
+              </button>
+            </form>
+          </div>
+        </div>
+      <% }) %>
+    <% } %>
+  </div>
+</div>
