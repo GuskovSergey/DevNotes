@@ -1,0 +1,287 @@
+<!-- Redesigned DevHub Home Page (Stitch Design System) -->
+<div style="background: radial-gradient(circle at 50% -20%, rgba(79, 70, 229, 0.25) 0%, rgba(15, 19, 28, 0) 70%), var(--bg-body); min-height: 100vh;">
+  
+  <!-- Hero Section -->
+  <section class="dev-hero" style="margin-bottom: 3rem; position: relative;">
+    
+    <!-- Background Aurora Light Blob -->
+    <div style="position: absolute; top: -100px; left: 50%; transform: translateX(-50%); width: 600px; height: 300px; background: radial-gradient(circle, rgba(99, 102, 241, 0.2) 0%, rgba(16, 185, 129, 0.1) 50%, transparent 80%); filter: blur(60px); pointer-events: none; z-index: 0;"></div>
+
+    <div class="dev-hero__body" style="position: relative; z-index: 1;">
+      
+      <div class="dev-hero__badge" style="background: rgba(99, 102, 241, 0.12); border: 1px solid rgba(99, 102, 241, 0.3); color: #a5b4fc; box-shadow: 0 0 20px rgba(99, 102, 241, 0.15);">
+        <span class="dev-hero__badge-dot" style="background: #10b981; box-shadow: 0 0 10px #10b981;"></span>
+        <span>🚀 DevHub — Engineering Knowledge Base &amp; Developer Community</span>
+      </div>
+
+      <h1 class="dev-hero__heading" style="font-size: clamp(2.2rem, 4.5vw, 3.4rem); font-weight: 800; letter-spacing: -0.03em; line-height: 1.15; margin-bottom: 1.2rem;">
+        Production Backend Architecture <br>&amp; Knowledge Base
+      </h1>
+
+      <p class="dev-hero__sub" style="font-size: 1.12rem; max-width: 720px; color: var(--text-muted); line-height: 1.65; margin: 0 auto 2rem auto;">
+        Structured text-based courses, architectural deep-dives, and technical Q&amp;As built by engineers for engineers.
+      </p>
+
+      <!-- Hero Action Buttons -->
+      <div style="display: flex; align-items: center; justify-content: center; gap: 1.2rem; flex-wrap: wrap;">
+        <a href="/courses" class="btn" style="background: linear-gradient(135deg, var(--primary-indigo) 0%, #4338ca 100%); color: #ffffff; padding: 0.85rem 1.8rem; font-size: 0.98rem; font-weight: 700; border-radius: var(--radius-lg); box-shadow: 0 4px 20px rgba(79, 70, 229, 0.4); border: none;">
+          <span>📚 Explore Courses</span>
+          &rarr;
+        </a>
+
+        <a href="/posts" class="btn" style="background: var(--bg-surface); border: 1px solid var(--border-light); color: var(--text-main); padding: 0.85rem 1.8rem; font-size: 0.98rem; font-weight: 700; border-radius: var(--radius-lg); box-shadow: none;">
+          <span>📝 Read Articles</span>
+        </a>
+
+        <a href="/faq" class="btn" style="background: rgba(255, 255, 255, 0.04); border: 1px solid var(--border-light); color: var(--text-muted); padding: 0.85rem 1.6rem; font-size: 0.98rem; font-weight: 600; border-radius: var(--radius-lg); box-shadow: none;">
+          <span>💡 Interview FAQ</span>
+        </a>
+      </div>
+
+      <!-- Live Platform Counters Ribbon -->
+      <div style="display: flex; align-items: center; justify-content: center; gap: 2.2rem; margin-top: 2.5rem; flex-wrap: wrap; font-family: var(--font-mono); font-size: 0.88rem;">
+        <div style="display: flex; align-items: center; gap: 0.5rem; background: var(--bg-surface); padding: 0.5rem 1.2rem; border-radius: var(--radius-full); border: 1px solid var(--border-light); box-shadow: var(--shadow-sm);">
+          <span style="color: var(--primary-indigo); font-weight: 800; font-size: 1.1rem;"><%= stats.totalPosts %></span>
+          <span style="color: var(--text-muted);">Articles</span>
+        </div>
+
+        <div style="display: flex; align-items: center; gap: 0.5rem; background: var(--bg-surface); padding: 0.5rem 1.2rem; border-radius: var(--radius-full); border: 1px solid var(--border-light); box-shadow: var(--shadow-sm);">
+          <span style="color: #10b981; font-weight: 800; font-size: 1.1rem;"><%= stats.totalCourses %></span>
+          <span style="color: var(--text-muted);">Courses</span>
+        </div>
+
+        <div style="display: flex; align-items: center; gap: 0.5rem; background: var(--bg-surface); padding: 0.5rem 1.2rem; border-radius: var(--radius-full); border: 1px solid var(--border-light); box-shadow: var(--shadow-sm);">
+          <span style="color: #f59e0b; font-weight: 800; font-size: 1.1rem;"><%= (stats.totalViews || 0).toLocaleString() %></span>
+          <span style="color: var(--text-muted);">Views &amp; Reads</span>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- Core Feature Pillars Grid -->
+  <div style="max-width: 1240px; margin: 0 auto; padding-bottom: 4rem;">
+    
+    <div style="text-align: center; margin-bottom: 2.5rem;">
+      <span class="tech-badge" style="background: rgba(99, 102, 241, 0.12); color: var(--primary-indigo); border-color: rgba(99, 102, 241, 0.3); font-size: 0.8rem; padding: 0.25rem 0.8rem;">
+        ⚡ Core Knowledge Pillars
+      </span>
+      <h2 style="font-size: 2rem; font-weight: 800; color: var(--text-main); margin: 0.6rem 0 0.4rem 0; letter-spacing: -0.02em;">
+        Designed for Backend Engineers
+      </h2>
+      <p style="color: var(--text-muted); font-size: 0.95rem; max-width: 580px; margin: 0 auto;">
+        Production patterns, text-based courses, and interview Q&amp;A built for technical mastery.
+      </p>
+    </div>
+
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 1.8rem; margin-bottom: 4rem;">
+      
+      <!-- Feature 1: Engineering Courses -->
+      <div style="background: var(--bg-surface); border: 1px solid var(--border-light); border-radius: var(--radius-xl); padding: 2.2rem; box-shadow: var(--shadow-sm); transition: all 0.3s ease; position: relative; overflow: hidden;" onmouseover="this.style.borderColor='var(--primary-indigo)'; this.style.transform='translateY(-6px)'; this.style.boxShadow='0 12px 30px rgba(79, 70, 229, 0.15)';" onmouseout="this.style.borderColor='var(--border-light)'; this.style.transform='translateY(0)'; this.style.boxShadow='var(--shadow-sm)';">
+        
+        <div style="width: 52px; height: 52px; border-radius: var(--radius-lg); background: rgba(79, 70, 229, 0.15); color: var(--primary-indigo); display: flex; align-items: center; justify-content: center; font-size: 1.6rem; margin-bottom: 1.4rem;">
+          📚
+        </div>
+
+        <h3 style="font-size: 1.3rem; font-weight: 800; color: var(--text-main); margin-bottom: 0.6rem;">
+          Engineering Courses
+        </h3>
+
+        <p style="color: var(--text-muted); font-size: 0.93rem; line-height: 1.65; margin-bottom: 1.4rem;">
+          Structured, text-based learning tracks with step-by-step code modules, reading time estimates, and progress tracking.
+        </p>
+
+        <a href="/courses" style="display: inline-flex; align-items: center; gap: 0.4rem; color: var(--primary-indigo); font-weight: 700; font-size: 0.92rem; text-decoration: none;">
+          <span>Explore All Courses</span>
+          &rarr;
+        </a>
+      </div>
+
+      <!-- Feature 2: Technical Articles -->
+      <div style="background: var(--bg-surface); border: 1px solid var(--border-light); border-radius: var(--radius-xl); padding: 2.2rem; box-shadow: var(--shadow-sm); transition: all 0.3s ease; position: relative; overflow: hidden;" onmouseover="this.style.borderColor='#10b981'; this.style.transform='translateY(-6px)'; this.style.boxShadow='0 12px 30px rgba(16, 185, 129, 0.15)';" onmouseout="this.style.borderColor='var(--border-light)'; this.style.transform='translateY(0)'; this.style.boxShadow='var(--shadow-sm)';">
+        
+        <div style="width: 52px; height: 52px; border-radius: var(--radius-lg); background: rgba(16, 185, 129, 0.15); color: #10b981; display: flex; align-items: center; justify-content: center; font-size: 1.6rem; margin-bottom: 1.4rem;">
+          📝
+        </div>
+
+        <h3 style="font-size: 1.3rem; font-weight: 800; color: var(--text-main); margin-bottom: 0.6rem;">
+          Technical Articles
+        </h3>
+
+        <p style="color: var(--text-muted); font-size: 0.93rem; line-height: 1.65; margin-bottom: 1.4rem;">
+          Deep-dive architecture tutorials, Express MVC patterns, SQLite concurrency tuning, and security best practices.
+        </p>
+
+        <a href="/posts" style="display: inline-flex; align-items: center; gap: 0.4rem; color: #10b981; font-weight: 700; font-size: 0.92rem; text-decoration: none;">
+          <span>Read Technical Stream</span>
+          &rarr;
+        </a>
+      </div>
+
+      <!-- Feature 3: Interview Q&A FAQ -->
+      <div style="background: var(--bg-surface); border: 1px solid var(--border-light); border-radius: var(--radius-xl); padding: 2.2rem; box-shadow: var(--shadow-sm); transition: all 0.3s ease; position: relative; overflow: hidden;" onmouseover="this.style.borderColor='#f59e0b'; this.style.transform='translateY(-6px)'; this.style.boxShadow='0 12px 30px rgba(245, 158, 11, 0.15)';" onmouseout="this.style.borderColor='var(--border-light)'; this.style.transform='translateY(0)'; this.style.boxShadow='var(--shadow-sm)';">
+        
+        <div style="width: 52px; height: 52px; border-radius: var(--radius-lg); background: rgba(245, 158, 11, 0.15); color: #f59e0b; display: flex; align-items: center; justify-content: center; font-size: 1.6rem; margin-bottom: 1.4rem;">
+          💡
+        </div>
+
+        <h3 style="font-size: 1.3rem; font-weight: 800; color: var(--text-main); margin-bottom: 0.6rem;">
+          Interview FAQ &amp; Q&amp;A
+        </h3>
+
+        <p style="color: var(--text-muted); font-size: 0.93rem; line-height: 1.65; margin-bottom: 1.4rem;">
+          Curated developer interview questions, system design FAQs, and production-tested technical explanations.
+        </p>
+
+        <a href="/faq" style="display: inline-flex; align-items: center; gap: 0.4rem; color: #f59e0b; font-weight: 700; font-size: 0.92rem; text-decoration: none;">
+          <span>Browse Interview FAQ</span>
+          &rarr;
+        </a>
+      </div>
+
+    </div>
+
+    <!-- Featured Courses Section -->
+    <% if (courses && courses.length > 0) { %>
+      <div style="margin-bottom: 4rem;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.6rem; flex-wrap: wrap; gap: 1rem;">
+          <div>
+            <h2 style="font-size: 1.6rem; font-weight: 800; color: var(--text-main); margin: 0;">
+              🎓 Featured Knowledge Base Courses
+            </h2>
+            <p style="color: var(--text-muted); font-size: 0.88rem; margin: 0.2rem 0 0 0;">Production learning tracks ready for immediate study.</p>
+          </div>
+
+          <a href="/courses" style="color: var(--primary-indigo); font-weight: 700; font-size: 0.9rem; text-decoration: none;">
+            View All Courses &rarr;
+          </a>
+        </div>
+
+        <div class="article-grid" style="grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));">
+          <% courses.forEach(course => { %>
+            <article class="article-card" style="display: flex; flex-direction: column; justify-content: space-between;">
+              <div>
+                <div class="article-card__body">
+                  <div class="article-card__meta-top">
+                    <span class="tech-badge" style="font-size: 0.72rem; padding: 0.15rem 0.55rem; font-family: var(--font-mono); <%= course.difficultyLevel === 'Advanced' ? 'background: rgba(239, 68, 68, 0.15); color: #dc2626; border-color: rgba(239, 68, 68, 0.3);' : 'background: var(--primary-indigo-light); color: var(--primary-indigo); border-color: var(--border-accent);' %>">
+                      <%= course.difficultyLevel === 'Advanced' ? '🚀 Advanced' : (course.difficultyLevel === 'Beginner' ? '🌱 Beginner' : '⚡ Intermediate') %>
+                    </span>
+                    <span>•</span>
+                    <span>⏱ <%= course.estimatedTime %></span>
+                    <span>•</span>
+                    <span>📚 <%= course.lessonsCount %> Modules</span>
+                  </div>
+
+                  <h3 class="article-card__title" style="font-size: 1.3rem;">
+                    <a href="/courses/<%= course.slug %>"><%= course.title %></a>
+                  </h3>
+
+                  <p class="article-card__excerpt" style="-webkit-line-clamp: 3;">
+                    <%= course.descriptionSnippet %>
+                  </p>
+                </div>
+              </div>
+
+              <div class="article-card__footer" style="padding: 1.2rem 1.4rem;">
+                <% if (course.author) { %>
+                  <div style="display: flex; align-items: center; gap: 0.5rem;">
+                    <div style="width: 24px; height: 24px; border-radius: 50%; background: linear-gradient(135deg, var(--primary-indigo) 0%, #10b981 100%); color: white; display: flex; align-items: center; justify-content: center; font-size: 0.7rem; font-weight: 800; overflow: hidden;">
+                      <% if (course.author.avatarUrl) { %>
+                        <img src="<%= course.author.avatarUrl %>" alt="Author" style="width: 100%; height: 100%; object-fit: cover;">
+                      <% } else { %>
+                        <%= (course.author.displayName || course.author.username).charAt(0).toUpperCase() %>
+                      <% } %>
+                    </div>
+                    <span style="font-size: 0.82rem; font-weight: 600; color: var(--text-main); font-family: var(--font-mono);">@<%= course.author.username %></span>
+                  </div>
+                <% } %>
+
+                <a href="/courses/<%= course.slug %>" class="btn" style="padding: 0.45rem 1.2rem; font-size: 0.85rem; border-radius: var(--radius-lg); margin-left: auto;">
+                  <span>Start Track</span>
+                  &rarr;
+                </a>
+              </div>
+            </article>
+          <% }) %>
+        </div>
+      </div>
+    <% } %>
+
+    <!-- Recent Technical Articles Section -->
+    <% if (latestPosts && latestPosts.length > 0) { %>
+      <div style="margin-bottom: 4rem;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.6rem; flex-wrap: wrap; gap: 1rem;">
+          <div>
+            <h2 style="font-size: 1.6rem; font-weight: 800; color: var(--text-main); margin: 0;">
+              📝 Latest Technical Stream
+            </h2>
+            <p style="color: var(--text-muted); font-size: 0.88rem; margin: 0.2rem 0 0 0;">Recent architectural guides and tutorials from our developers.</p>
+          </div>
+
+          <a href="/posts" style="color: var(--primary-indigo); font-weight: 700; font-size: 0.9rem; text-decoration: none;">
+            View All Stream &rarr;
+          </a>
+        </div>
+
+        <div style="display: flex; flex-direction: column; gap: 1.2rem;">
+          <% latestPosts.forEach(post => { %>
+            <article style="background: var(--bg-surface); border: 1px solid var(--border-light); border-radius: var(--radius-xl); padding: 1.6rem 1.8rem; box-shadow: var(--shadow-sm); display: flex; justify-content: space-between; align-items: center; gap: 1.4rem; flex-wrap: wrap; transition: border-color 0.2s;" onmouseover="this.style.borderColor='var(--border-accent)'" onmouseout="this.style.borderColor='var(--border-light)'">
+              
+              <div style="flex: 1; min-width: 280px;">
+                <div style="display: flex; align-items: center; gap: 0.7rem; margin-bottom: 0.4rem; flex-wrap: wrap;">
+                  <% if (post.category) { %>
+                    <span class="category-pill"><%= post.category.name %></span>
+                  <% } %>
+                  <span style="font-size: 0.78rem; font-family: var(--font-mono); color: var(--text-muted);">⏱ <%= post.readingTime %></span>
+                  <span style="font-size: 0.78rem; font-family: var(--font-mono); color: var(--text-muted);">👁 <%= (post.viewsCount || 0).toLocaleString() %> views</span>
+                </div>
+
+                <h3 style="font-size: 1.25rem; font-weight: 700; color: var(--text-main); margin-bottom: 0.4rem; line-height: 1.35;">
+                  <a href="/post/<%= post.id %>" style="color: var(--text-main); text-decoration: none;"><%= post.title %></a>
+                </h3>
+
+                <p style="font-size: 0.9rem; color: var(--text-muted); margin: 0; line-height: 1.5; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 720px;">
+                  <%= post.bodySnippet %>
+                </p>
+              </div>
+
+              <div style="display: flex; align-items: center; gap: 1rem; flex-shrink: 0;">
+                <% if (post.author) { %>
+                  <span style="font-size: 0.82rem; color: var(--text-muted); font-family: var(--font-mono);">By @<%= post.author.username %></span>
+                <% } %>
+                <a href="/post/<%= post.id %>" class="btn" style="padding: 0.55rem 1.2rem; font-size: 0.88rem; border-radius: var(--radius-lg);">
+                  Read &rarr;
+                </a>
+              </div>
+
+            </article>
+          <% }) %>
+        </div>
+      </div>
+    <% } %>
+
+    <!-- Community Contribution CTA Banner -->
+    <div style="background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #312e81 100%); border-radius: var(--radius-xl); padding: 3.5rem 2.5rem; color: #ffffff; text-align: center; box-shadow: var(--shadow-md); border: 1px solid rgba(99, 102, 241, 0.3); position: relative; overflow: hidden;">
+      
+      <h2 style="font-size: 2rem; font-weight: 800; color: #ffffff; margin-bottom: 0.6rem; letter-spacing: -0.02em;">
+        Share Your Engineering Knowledge
+      </h2>
+      
+      <p style="font-size: 1.08rem; opacity: 0.9; max-width: 640px; margin: 0 auto 2rem auto; line-height: 1.65;">
+        Join backend developers publishing production tutorials, architectural patterns, and structured learning tracks on DevHub.
+      </p>
+
+      <div style="display: flex; gap: 1.2rem; justify-content: center; flex-wrap: wrap;">
+        <a href="/my/posts/new" class="btn" style="background: #ffffff; color: var(--primary-indigo); border: none; font-weight: 800; padding: 0.8rem 2rem; font-size: 0.98rem; border-radius: var(--radius-lg); box-shadow: var(--shadow-md);">
+          ✍️ Write Technical Article
+        </a>
+        <a href="/my/courses/new" class="btn" style="background: rgba(255, 255, 255, 0.12); color: #ffffff; border: 1px solid rgba(255, 255, 255, 0.3); font-weight: 700; padding: 0.8rem 2rem; font-size: 0.98rem; border-radius: var(--radius-lg);">
+          🎓 Build Course Track
+        </a>
+      </div>
+
+    </div>
+
+  </div>
+
+</div>

@@ -6,6 +6,7 @@ const { validateSearch } = require('../middlewares/validators');
 const { doubleCsrfProtection } = require('../middlewares/csrfMiddleware');
 
 router.get('', optionalAuthMiddleware, mainController.getHomePage);
+router.get('/posts', optionalAuthMiddleware, mainController.getPostsPage);
 router.get('/post/:id', optionalAuthMiddleware, mainController.getPostPage);
 router.get('/post/:id/export', mainController.exportPostMarkdown);
 router.post('/post/:id/comment', optionalAuthMiddleware, doubleCsrfProtection, mainController.addComment);
@@ -16,6 +17,7 @@ router.get('/api/posts', mainController.apiGetPosts);
 router.get('/feed.xml', mainController.getRssFeed);
 router.get('/rss.xml', mainController.getRssFeed);
 router.get('/about', optionalAuthMiddleware, mainController.getAboutPage);
+router.get('/faq', optionalAuthMiddleware, mainController.getFaqPage);
 router.get('/tag/:slug', optionalAuthMiddleware, mainController.getTagPage);
 
 module.exports = router;

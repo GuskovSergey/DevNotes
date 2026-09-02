@@ -1,0 +1,53 @@
+<div class="dashboard">
+  
+  <%- include('../partials/sidebar-cabinet', { user, activeTab: 'courses' }) %>
+
+  <main class="dashboard__content">
+    <div class="dashboard-section">
+      
+      <div class="dashboard-section__header">
+        <div>
+          <h1 class="dashboard-section__title">
+            <span><%= lesson ? '✏️ Edit Lesson Module' : '✍️ Add Lesson Module' %></span>
+          </h1>
+          <p style="color: var(--text-muted); font-size: 0.88rem; margin: 0.2rem 0 0 0;">Course: <strong><%= course ? course.title : 'My Course' %></strong></p>
+        </div>
+
+        <% if (course) { %>
+          <a href="/my/courses/<%= course.id %>/edit" class="btn" style="background: var(--bg-subtle); border: 1px solid var(--border-light); color: var(--text-main); padding: 0.45rem 1rem; font-size: 0.85rem; box-shadow: none;">
+            &larr; Back to Course
+          </a>
+        <% } %>
+      </div>
+
+      <div style="background: var(--bg-surface); border: 1px solid var(--border-light); padding: 2.2rem; border-radius: var(--radius-xl); box-shadow: var(--shadow-sm);">
+
+        <form action="<%= lesson ? `/my/lessons/${lesson.id}?_method=PUT` : `/my/courses/${course.id}/lessons` %>" method="POST">
+          <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+
+          <div style="display: grid; grid-template-columns: 1fr 140px; gap: 1.2rem; margin-bottom: 1.2rem;">
+            <div>
+              <label for="title" style="display: block; font-size: 0.88rem; font-weight: 700; color: var(--text-main); margin-bottom: 0.4rem;">Lesson Title *</label>
+              <input type="text" placeholder="e.g. 1. Event Loop Fundamentals & Non-Blocking Async Patterns" name="title" value="<%= lesson ? lesson.title : '' %>" required style="width: 100%; padding: 0.75rem 1rem; border-radius: var(--radius-lg); border: 1px solid var(--border-light); font-size: 0.95rem; background: var(--bg-surface); color: var(--text-main); outline: none;">
+            </div>
+
+            <div>
+              <label for="order" style="display: block; font-size: 0.88rem; font-weight: 700; color: var(--text-main); margin-bottom: 0.4rem;">Module Order</label>
+              <input type="number" min="1" name="order" value="<%= lesson ? lesson.order : ((course && course.lessons ? course.lessons.length : 0) + 1) %>" required style="width: 100%; padding: 0.75rem 1rem; border-radius: var(--radius-lg); border: 1px solid var(--border-light); font-size: 0.95rem; background: var(--bg-surface); color: var(--text-main); outline: none;">
+            </div>
+          </div>
+
+          <div style="margin-bottom: 1.5rem;">
+            <label for="body" style="display: block; font-size: 0.88rem; font-weight: 700; color: var(--text-main); margin-bottom: 0.4rem;">Lesson Content (Markdown Supported) *</label>
+            <textarea name="body" rows="16" placeholder="Write full lesson content using Markdown formatting and code blocks..." required style="width: 100%; padding: 1rem; border-radius: var(--radius-lg); border: 1px solid var(--border-light); font-size: 0.92rem; font-family: var(--font-mono); background: var(--bg-surface); color: var(--text-main); line-height: 1.55; outline: none; resize: vertical;"><%= lesson ? lesson.body : '' %></textarea>
+          </div>
+
+          <button type="submit" class="btn" style="width: 100%; padding: 0.8rem; font-size: 0.95rem; font-weight: 700; justify-content: center; border-radius: var(--radius-lg);">
+            <span><%= lesson ? '💾 Save Lesson Changes' : '🚀 Publish Lesson' %></span>
+          </button>
+        </form>
+
+      </div>
+    </div>
+  </main>
+</div>

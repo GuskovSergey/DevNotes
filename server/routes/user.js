@@ -31,6 +31,20 @@ router.get('/my/posts/new', userAuthMiddleware, userController.getCreatePostPage
 router.post('/my/posts', userAuthMiddleware, upload.single('featuredImage'), validatePost, doubleCsrfProtection, userController.handleCreatePost);
 router.get('/my/posts/:id/edit', userAuthMiddleware, userController.getEditMyPostPage);
 router.put('/my/posts/:id', userAuthMiddleware, upload.single('featuredImage'), validatePost, doubleCsrfProtection, userController.handleUpdateMyPost);
+
+// Protected User Course Authoring routes
+router.get('/my/courses', userAuthMiddleware, userController.getMyCoursesPage);
+router.get('/my/courses/new', userAuthMiddleware, userController.getCreateCoursePage);
+router.post('/my/courses', userAuthMiddleware, upload.single('coverImage'), doubleCsrfProtection, userController.handleCreateCourse);
+router.get('/my/courses/:id/edit', userAuthMiddleware, userController.getEditMyCoursePage);
+router.put('/my/courses/:id', userAuthMiddleware, upload.single('coverImage'), doubleCsrfProtection, userController.handleUpdateMyCourse);
+router.delete('/my/courses/:id', userAuthMiddleware, doubleCsrfProtection, userController.handleDeleteMyCourse);
+
+router.get('/my/courses/:courseId/lessons/new', userAuthMiddleware, userController.getCreateMyLessonPage);
+router.post('/my/courses/:courseId/lessons', userAuthMiddleware, doubleCsrfProtection, userController.handleCreateMyLesson);
+router.get('/my/lessons/:id/edit', userAuthMiddleware, userController.getEditMyLessonPage);
+router.put('/my/lessons/:id', userAuthMiddleware, doubleCsrfProtection, userController.handleUpdateMyLesson);
+router.delete('/my/lessons/:id', userAuthMiddleware, doubleCsrfProtection, userController.handleDeleteMyLesson);
 // Protected User Bookmarks, Likes, History & Notifications routes
 router.get('/my/bookmarks', userAuthMiddleware, userController.getBookmarksPage);
 router.get('/my/likes', userAuthMiddleware, userController.getLikedPostsPage);

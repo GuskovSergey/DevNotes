@@ -79,6 +79,8 @@ class AdminController {
     const totalViews = await postService.getTotalViews();
     const pendingCommentsCount = await commentService.getPendingCount();
     const pendingPostsCount = await postService.getPendingCount();
+    const pendingCoursesCount = await courseService.getPendingCoursesCount();
+    const totalCourses = await courseService.getCoursesCount();
 
     res.render('admin/dashboard', {
       locals,
@@ -89,6 +91,8 @@ class AdminController {
         totalViews,
         pendingCommentsCount,
         pendingPostsCount,
+        pendingCoursesCount,
+        totalCourses,
       },
       layout: adminLayout,
     });
@@ -294,17 +298,66 @@ class AdminController {
     return res.redirect('/admin/posts/pending');
   });
 
+  // Course Moderation Methods
+  getPendingCoursesPage = catchAsync(async (req, res) => {
+    const courses = await courseService.getPendingCourses();
+    const pendingCommentsCount = await commentService.getPendingCount();
+    const pendingPostsCount = await postService.getPendingCount();
+    const pendingCoursesCount = await courseService.getPendingCoursesCount();
+
+    res.render('admin/pending-courses', {
+      locals: { title: 'Course Moderation Queue | DevHub Admin' },
+      courses,
+      activeTab: 'course-queue',
+      analytics: { pendingCommentsCount, pendingPostsCount, pendingCoursesCount },
+      layout: adminLayout,
+    });
+  });
+
+  handleApproveCourse = catchAsync(async (req, res) => {
+    const { id } = req.params;
+    const course = await courseService.approveCourse(id);
+
+    if (course && course.author && course.author.id) {
+      await notificationService.createNotification({
+        userId: course.author.id,
+        type: 'moderation_approved',
+        message: `Your course "${course.title}" has been approved and published! 🎓`,
+        link: `/courses/${course.slug}`,
+      });
+    }
+
+    return res.redirect('/admin/courses/pending');
+  });
+
+  handleRejectCourse = catchAsync(async (req, res) => {
+    const { id } = req.params;
+    const course = await courseService.rejectCourse(id);
+
+    if (course && course.author && course.author.id) {
+      await notificationService.createNotification({
+        userId: course.author.id,
+        type: 'moderation_rejected',
+        message: `Your course "${course.title}" was rejected during moderation.`,
+        link: `/my/courses`,
+      });
+    }
+
+    return res.redirect('/admin/courses/pending');
+  });
+
   // Course Administration Methods
   getAdminCoursesPage = catchAsync(async (req, res) => {
     const courses = await courseService.getAllCoursesAdmin();
     const pendingCommentsCount = await commentService.getPendingCount();
     const pendingPostsCount = await postService.getPendingCount();
+    const pendingCoursesCount = await courseService.getPendingCoursesCount();
 
     res.render('admin/courses', {
       locals: { title: 'Manage Courses | DevHub Admin' },
       courses,
       activeTab: 'courses',
-      analytics: { pendingCommentsCount, pendingPostsCount },
+      analytics: { pendingCommentsCount, pendingPostsCount, pendingCoursesCount },
       layout: adminLayout,
     });
   });

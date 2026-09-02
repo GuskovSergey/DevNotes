@@ -1,0 +1,154 @@
+<div class="dashboard">
+  
+  <%- include('../partials/sidebar-cabinet', { user, activeTab: 'courses' }) %>
+
+  <main class="dashboard__content">
+    
+    <!-- Success Notification -->
+    <% if (typeof successMessage !== 'undefined' && successMessage) { %>
+      <div style="background: #ecfdf5; border: 1px solid #a7f3d0; color: #047857; padding: 1rem 1.4rem; border-radius: var(--radius-lg); margin-bottom: 1.6rem; font-weight: 500; display: flex; align-items: center; justify-content: space-between; box-shadow: var(--shadow-sm);">
+        <div style="display: flex; align-items: center; gap: 0.6rem;">
+          <span style="font-size: 1.2rem;">✓</span>
+          <span><%= successMessage %></span>
+        </div>
+      </div>
+    <% } %>
+
+    <div class="dashboard-section">
+      
+      <div class="dashboard-section__header">
+        <div>
+          <h1 class="dashboard-section__title">
+            <span><%= course ? '✏️ Edit Course Track' : '🎓 Create New Course Track' %></span>
+          </h1>
+          <p style="color: var(--text-muted); font-size: 0.88rem; margin: 0.2rem 0 0 0;">
+            <%= user.role === 'admin' ? 'Publish directly to Knowledge Base.' : 'Submissions are reviewed by moderators before public publishing.' %>
+          </p>
+        </div>
+
+        <a href="/my/courses" class="btn" style="background: var(--bg-subtle); border: 1px solid var(--border-light); color: var(--text-main); padding: 0.45rem 1rem; font-size: 0.85rem; box-shadow: none;">
+          &larr; Back to My Courses
+        </a>
+      </div>
+
+      <!-- Course Details Form -->
+      <div style="background: var(--bg-surface); border: 1px solid var(--border-light); padding: 2.2rem; border-radius: var(--radius-xl); box-shadow: var(--shadow-sm); margin-bottom: 2.2rem;">
+
+        <% if (typeof errorMessage !== 'undefined' && errorMessage) { %>
+          <div style="background: #fef2f2; border: 1px solid #fecaca; color: #dc2626; padding: 0.8rem 1.1rem; border-radius: var(--radius-lg); margin-bottom: 1.5rem; font-weight: 500; font-size: 0.9rem;">
+            ⚠️ <%= errorMessage %>
+          </div>
+        <% } %>
+
+        <form action="<%= course ? `/my/courses/${course.id}?_method=PUT` : '/my/courses' %>" method="POST" enctype="multipart/form-data">
+          <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+
+          <div style="margin-bottom: 1.2rem;">
+            <label for="title" style="display: block; font-size: 0.88rem; font-weight: 700; color: var(--text-main); margin-bottom: 0.4rem;">Course Title *</label>
+            <input type="text" placeholder="e.g. Node.js Production Architecture & Systems Engineering" name="title" value="<%= course ? course.title : '' %>" required style="width: 100%; padding: 0.75rem 1rem; border-radius: var(--radius-lg); border: 1px solid var(--border-light); font-size: 0.95rem; background: var(--bg-surface); color: var(--text-main); outline: none;">
+          </div>
+
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.2rem; margin-bottom: 1.2rem;">
+            <div>
+              <label for="difficultyLevel" style="display: block; font-size: 0.88rem; font-weight: 700; color: var(--text-main); margin-bottom: 0.4rem;">Difficulty Level</label>
+              <select name="difficultyLevel" style="width: 100%; padding: 0.75rem 1rem; border-radius: var(--radius-lg); border: 1px solid var(--border-light); font-size: 0.92rem; background: var(--bg-surface); color: var(--text-main); outline: none;">
+                <option value="Beginner" <%= (course && course.difficultyLevel === 'Beginner') ? 'selected' : '' %>>🌱 Beginner</option>
+                <option value="Intermediate" <%= (!course || course.difficultyLevel === 'Intermediate') ? 'selected' : '' %>>⚡ Intermediate</option>
+                <option value="Advanced" <%= (course && course.difficultyLevel === 'Advanced') ? 'selected' : '' %>>🚀 Advanced</option>
+              </select>
+            </div>
+
+            <div>
+              <label for="estimatedHours" style="display: block; font-size: 0.88rem; font-weight: 700; color: var(--text-main); margin-bottom: 0.4rem;">Estimated Hours</label>
+              <input type="number" step="0.5" min="0.5" name="estimatedHours" value="<%= course ? course.estimatedHours : '2.5' %>" style="width: 100%; padding: 0.75rem 1rem; border-radius: var(--radius-lg); border: 1px solid var(--border-light); font-size: 0.92rem; background: var(--bg-surface); color: var(--text-main); outline: none;">
+            </div>
+
+            <div>
+              <label for="categoryId" style="display: block; font-size: 0.88rem; font-weight: 700; color: var(--text-main); margin-bottom: 0.4rem;">Category</label>
+              <select name="categoryId" style="width: 100%; padding: 0.75rem 1rem; border-radius: var(--radius-lg); border: 1px solid var(--border-light); font-size: 0.92rem; background: var(--bg-surface); color: var(--text-main); outline: none;">
+                <option value="">-- Select Category --</option>
+                <% categories.forEach(cat => { %>
+                  <option value="<%= cat.id %>" <%= (course && course.category && course.category.id === cat.id) ? 'selected' : '' %>><%= cat.name %></option>
+                <% }) %>
+              </select>
+            </div>
+          </div>
+
+          <div style="margin-bottom: 1.2rem;">
+            <label for="coverImage" style="display: block; font-size: 0.88rem; font-weight: 700; color: var(--text-main); margin-bottom: 0.4rem;">Course Banner Image</label>
+            <input type="file" name="coverImage" accept="image/*" style="width: 100%; padding: 0.6rem; border-radius: var(--radius-lg); border: 1px solid var(--border-light); font-size: 0.88rem; background: var(--bg-surface); color: var(--text-main);">
+          </div>
+
+          <div style="margin-bottom: 1.2rem;">
+            <label for="description" style="display: block; font-size: 0.88rem; font-weight: 700; color: var(--text-main); margin-bottom: 0.4rem;">Short Summary / Description *</label>
+            <textarea name="description" rows="3" placeholder="Brief summary of what developers will master in this track..." required style="width: 100%; padding: 0.85rem; border-radius: var(--radius-lg); border: 1px solid var(--border-light); font-size: 0.92rem; background: var(--bg-surface); color: var(--text-main); outline: none; resize: vertical;"><%= course ? course.description : '' %></textarea>
+          </div>
+
+          <div style="margin-bottom: 1.5rem;">
+            <label for="body" style="display: block; font-size: 0.88rem; font-weight: 700; color: var(--text-main); margin-bottom: 0.4rem;">Full Overview &amp; Prerequisites (Markdown Supported)</label>
+            <textarea name="body" rows="8" placeholder="Detailed syllabus, course overview, objectives..." style="width: 100%; padding: 0.85rem; border-radius: var(--radius-lg); border: 1px solid var(--border-light); font-size: 0.92rem; font-family: var(--font-mono); background: var(--bg-surface); color: var(--text-main); outline: none; resize: vertical;"><%= course ? course.body : '' %></textarea>
+          </div>
+
+          <button type="submit" class="btn" style="width: 100%; padding: 0.8rem; font-size: 0.95rem; font-weight: 700; justify-content: center; border-radius: var(--radius-lg);">
+            <span><%= course ? '💾 Save Course Changes' : '🚀 Submit Course Track' %></span>
+          </button>
+        </form>
+      </div>
+
+      <!-- Syllabus Lessons Section (if editing existing course) -->
+      <% if (course) { %>
+        <div style="background: var(--bg-surface); border: 1px solid var(--border-light); padding: 2.2rem; border-radius: var(--radius-xl); box-shadow: var(--shadow-sm);">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.4rem;">
+            <div>
+              <h2 style="font-size: 1.2rem; font-weight: 800; color: var(--text-main); margin: 0;">
+                📖 Syllabus Lessons (<%= course.lessons ? course.lessons.length : 0 %>)
+              </h2>
+              <p style="color: var(--text-muted); font-size: 0.85rem; margin: 0.2rem 0 0 0;">Add and edit text modules for this course track.</p>
+            </div>
+
+            <a href="/my/courses/<%= course.id %>/lessons/new" class="btn" style="background: #059669; color: #ffffff; padding: 0.45rem 1rem; font-size: 0.85rem; border-radius: var(--radius-lg);">
+              + Add Lesson
+            </a>
+          </div>
+
+          <% if (!course.lessons || course.lessons.length === 0) { %>
+            <div style="background: var(--bg-subtle); border: 1px dashed var(--border-light); padding: 2.5rem; border-radius: var(--radius-lg); text-align: center; color: var(--text-muted);">
+              No lessons added to this course track yet. Click "+ Add Lesson" above to add the first module!
+            </div>
+          <% } else { %>
+            <div style="display: flex; flex-direction: column; gap: 0.8rem;">
+              <% course.lessons.sort((a,b) => (a.order || 0) - (b.order || 0)).forEach(lesson => { %>
+                <div style="background: var(--bg-subtle); border: 1px solid var(--border-light); padding: 1rem 1.4rem; border-radius: var(--radius-lg); display: flex; justify-content: space-between; align-items: center; gap: 1rem;">
+                  <div style="display: flex; align-items: center; gap: 0.8rem;">
+                    <span style="font-family: var(--font-mono); font-weight: 800; font-size: 0.85rem; color: var(--primary-indigo); background: var(--primary-indigo-light); width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                      <%= lesson.order %>
+                    </span>
+                    <div>
+                      <h3 style="font-size: 1rem; font-weight: 700; color: var(--text-main); margin: 0;">
+                        <%= lesson.title %>
+                      </h3>
+                    </div>
+                  </div>
+
+                  <div style="display: flex; align-items: center; gap: 0.5rem;">
+                    <a href="/my/lessons/<%= lesson.id %>/edit" class="btn" style="background: var(--bg-surface); border: 1px solid var(--border-light); color: var(--text-main); padding: 0.35rem 0.8rem; font-size: 0.82rem; box-shadow: none;">
+                      Edit
+                    </a>
+
+                    <form action="/my/lessons/<%= lesson.id %>?_method=DELETE" method="POST" onsubmit="return confirm('Delete lesson?');" style="margin: 0;">
+                      <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                      <button type="submit" class="btn btn-delete" style="padding: 0.35rem 0.8rem; font-size: 0.82rem;">
+                        Delete
+                      </button>
+                    </form>
+                  </div>
+                </div>
+              <% }) %>
+            </div>
+          <% } %>
+        </div>
+      <% } %>
+
+    </div>
+  </main>
+</div>

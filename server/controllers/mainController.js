@@ -6,16 +6,46 @@ const bookmarkService = require('../services/bookmarkService');
 const likeService = require('../services/likeService');
 const readingHistoryService = require('../services/readingHistoryService');
 const notificationService = require('../services/notificationService');
+const courseService = require('../services/courseService');
 const { Post, Comment: CommentModel } = require('../models');
 const catchAsync = require('../utils/catchAsync');
 const logger = require('../config/logger');
 
 class MainController {
   getHomePage = catchAsync(async (req, res) => {
+    const locals = {
+      title: 'DevHub — Engineering Knowledge Base & Developer Community',
+      description: 'The production-grade knowledge base for software engineers. Discover structured courses, technical articles, and interview Q&As.',
+      currentRoute: '/',
+    };
+
+    const latestPostsResult = await postService.getPaginatedPosts(1, 6);
+    const popularPosts = await postService.getPopularPosts(4);
+    const courses = await courseService.getAllPublishedCourses(req.userId || null);
+    const totalPosts = await postService.getTotalCount();
+    const totalCourses = await courseService.getCoursesCount();
+    const totalViews = await postService.getTotalViews();
+
+    res.render('home', {
+      locals,
+      latestPosts: latestPostsResult.data,
+      popularPosts,
+      courses: courses.slice(0, 3),
+      stats: {
+        totalPosts,
+        totalCourses,
+        totalViews,
+      },
+      currentRoute: '/',
+    });
+  });
+
+  getPostsPage = catchAsync(async (req, res) => {
     const categorySlug = req.query.category || null;
     const locals = {
-      title: 'DevHub — Production Backend Architecture & Node.js Engineering',
-      description: 'Production-grade backend architecture, Express MVC patterns, SQLite performance tuning, and technical tutorials.',
+      title: 'Technical Articles & Architecture Posts | DevHub',
+      description: 'Browse production-grade backend architecture articles, Express MVC guides, and performance tuning posts.',
+      currentRoute: '/posts',
     };
 
     const { data, current, nextPage } = await postService.getPaginatedPosts(req.query.page, 10, categorySlug);
@@ -24,7 +54,7 @@ class MainController {
     const popularTags = await tagService.getAllTags();
     const topAuthors = await postService.getTopAuthors(4);
 
-    res.render('index', {
+    res.render('posts', {
       locals,
       data,
       current,
@@ -34,7 +64,7 @@ class MainController {
       popularTags: popularTags.slice(0, 8),
       topAuthors,
       activeCategory: categorySlug,
-      currentRoute: '/',
+      currentRoute: '/posts',
     });
   });
 
@@ -272,6 +302,20 @@ class MainController {
     res.setHeader('Content-Type', 'text/markdown; charset=utf-8');
     res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
     return res.send(markdownContent);
+  });
+
+  getFaqPage = catchAsync(async (req, res) => {
+    const locals = {
+      title: 'Developer FAQ & Interview Q&A | DevHub Knowledge Base',
+      description: 'Frequently asked backend engineering interview questions, system architecture FAQs, and technical answers.',
+      currentRoute: '/faq',
+    };
+
+    res.render('faq', {
+      locals,
+      currentRoute: '/faq',
+      currentUser: res.locals.currentUser || null,
+    });
   });
 }
 

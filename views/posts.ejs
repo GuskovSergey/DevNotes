@@ -1,0 +1,165 @@
+<!-- Posts Feed Hero Banner -->
+<section class="dev-hero" style="margin-bottom: 2rem;">
+  <div class="dev-hero__body">
+    <div class="dev-hero__badge">
+      <span class="dev-hero__badge-dot"></span>
+      <span>📝 DevHub Engineering Articles &amp; Posts</span>
+    </div>
+
+    <h1 class="dev-hero__heading">Technical Articles &amp; Tutorials</h1>
+    <p class="dev-hero__sub">Browse production-grade backend architecture guides, Express patterns, SQLite performance tuning, and technical insights.</p>
+
+    <!-- Category Pill Filter Tabs -->
+    <div class="category-tabs" style="justify-content: center; margin-top: 1.4rem;">
+      <a href="/posts" class="category-pill <%= !activeCategory ? 'active' : '' %>">
+        All Articles
+      </a>
+      <% if (categories && categories.length > 0) { %>
+        <% categories.forEach(cat => { %>
+          <a href="/posts?category=<%= cat.slug %>" class="category-pill <%= activeCategory === cat.slug ? 'active' : '' %>">
+            <%= cat.name %>
+          </a>
+        <% }) %>
+      <% } %>
+    </div>
+  </div>
+</section>
+
+<!-- Main Posts Stream Layout -->
+<div style="max-width: 1240px; margin: 0 auto; padding-bottom: 3.5rem;">
+  
+  <div class="home-layout" style="display: grid; grid-template-columns: 1fr 340px; gap: 2.2rem; align-items: flex-start;">
+    
+    <!-- Left Column: Articles Stream Grid & Pagination -->
+    <main style="min-width: 0;">
+      
+      <% if (!data || data.length === 0) { %>
+        <div style="background: var(--bg-surface); border: 1px dashed var(--border-light); padding: 4rem 2rem; border-radius: var(--radius-xl); text-align: center; color: var(--text-muted);">
+          <div style="font-size: 3rem; margin-bottom: 0.8rem;">📝</div>
+          <h3 style="font-size: 1.3rem; color: var(--text-main); margin-bottom: 0.4rem; font-weight: 700;">No Articles Found</h3>
+          <p style="margin: 0; font-size: 0.95rem;">No technical articles found in this category.</p>
+        </div>
+      <% } else { %>
+        <div class="article-grid" style="grid-template-columns: 1fr; gap: 1.6rem;">
+          <% data.forEach(post => { %>
+            <article class="article-card" style="display: flex; flex-direction: row; gap: 1.4rem; padding: 1.6rem; align-items: center; flex-wrap: wrap;">
+              
+              <% if (post.featuredImage) { %>
+                <div style="width: 220px; height: 140px; border-radius: var(--radius-lg); overflow: hidden; flex-shrink: 0;">
+                  <img src="<%= post.featuredImage %>" alt="<%= post.title %>" style="width: 100%; height: 100%; object-fit: cover;">
+                </div>
+              <% } %>
+
+              <div class="article-card__body" style="flex: 1; min-width: 260px; padding: 0;">
+                <div class="article-card__meta-top">
+                  <% if (post.category) { %>
+                    <span class="category-pill"><%= post.category.name %></span>
+                  <% } %>
+                  <span>•</span>
+                  <span>⏱ <%= post.readingTime %></span>
+                  <span>•</span>
+                  <span>👁 <%= (post.viewsCount || 0).toLocaleString() %> views</span>
+                </div>
+
+                <h3 class="article-card__title" style="font-size: 1.35rem; margin-bottom: 0.4rem;">
+                  <a href="/post/<%= post.id %>"><%= post.title %></a>
+                </h3>
+
+                <p class="article-card__excerpt" style="-webkit-line-clamp: 2; margin-bottom: 0.8rem;">
+                  <%= post.bodySnippet %>
+                </p>
+
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                  <% if (post.author) { %>
+                    <div style="display: flex; align-items: center; gap: 0.5rem;">
+                      <div style="width: 24px; height: 24px; border-radius: 50%; background: linear-gradient(135deg, var(--primary-indigo) 0%, #10b981 100%); color: white; display: flex; align-items: center; justify-content: center; font-size: 0.7rem; font-weight: 800; overflow: hidden;">
+                        <% if (post.author.avatarUrl) { %>
+                          <img src="<%= post.author.avatarUrl %>" alt="Author" style="width: 100%; height: 100%; object-fit: cover;">
+                        <% } else { %>
+                          <%= (post.author.displayName || post.author.username).charAt(0).toUpperCase() %>
+                        <% } %>
+                      </div>
+                      <span style="font-size: 0.82rem; font-weight: 600; color: var(--text-main);"><%= post.author.displayName || post.author.username %></span>
+                    </div>
+                  <% } %>
+
+                  <a href="/post/<%= post.id %>" class="btn" style="padding: 0.45rem 1.1rem; font-size: 0.85rem;">
+                    Read Article &rarr;
+                  </a>
+                </div>
+              </div>
+
+            </article>
+          <% }) %>
+        </div>
+
+        <!-- Pagination Controls -->
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 2.5rem;">
+          <% if (current > 1) { %>
+            <a href="/posts?page=<%= current - 1 %><%= activeCategory ? '&category=' + activeCategory : '' %>" class="btn" style="background: var(--bg-subtle); border: 1px solid var(--border-light); color: var(--text-main); padding: 0.55rem 1.2rem; font-size: 0.88rem; box-shadow: none;">
+              &larr; Previous Page
+            </a>
+          <% } else { %>
+            <div></div>
+          <% } %>
+
+          <% if (nextPage) { %>
+            <a href="/posts?page=<%= nextPage %><%= activeCategory ? '&category=' + activeCategory : '' %>" class="btn" style="padding: 0.55rem 1.2rem; font-size: 0.88rem;">
+              Next Page &rarr;
+            </a>
+          <% } %>
+        </div>
+      <% } %>
+
+    </main>
+
+    <!-- Right Sidebar Widgets -->
+    <aside style="display: flex; flex-direction: column; gap: 1.6rem;">
+      
+      <!-- Popular Tags Widget -->
+      <% if (popularTags && popularTags.length > 0) { %>
+        <div style="background: var(--bg-surface); border: 1px solid var(--border-light); border-radius: var(--radius-xl); padding: 1.6rem; box-shadow: var(--shadow-sm);">
+          <h3 style="font-size: 1.05rem; font-weight: 800; color: var(--text-main); margin: 0 0 1rem 0;">
+            🏷️ Popular Tech Tags
+          </h3>
+          <div style="display: flex; flex-wrap: wrap; gap: 0.5rem;">
+            <% popularTags.forEach(tag => { %>
+              <a href="/tag/<%= tag.slug %>" class="tech-badge" style="text-decoration: none;">
+                #<%= tag.name %>
+              </a>
+            <% }) %>
+          </div>
+        </div>
+      <% } %>
+
+      <!-- Top Authors Widget -->
+      <% if (topAuthors && topAuthors.length > 0) { %>
+        <div style="background: var(--bg-surface); border: 1px solid var(--border-light); border-radius: var(--radius-xl); padding: 1.6rem; box-shadow: var(--shadow-sm);">
+          <h3 style="font-size: 1.05rem; font-weight: 800; color: var(--text-main); margin: 0 0 1rem 0;">
+            ⚡ Top Contributors
+          </h3>
+          <div style="display: flex; flex-direction: column; gap: 0.8rem;">
+            <% topAuthors.forEach(author => { %>
+              <a href="/profile/<%= author.username %>" style="display: flex; align-items: center; gap: 0.75rem; text-decoration: none; padding: 0.4rem; border-radius: var(--radius-md); transition: background 0.2s;" onmouseover="this.style.background='var(--bg-subtle)'" onmouseout="this.style.background='transparent'">
+                <div style="width: 32px; height: 32px; border-radius: 50%; background: linear-gradient(135deg, var(--primary-indigo) 0%, #10b981 100%); color: white; display: flex; align-items: center; justify-content: center; font-size: 0.8rem; font-weight: 800; overflow: hidden; flex-shrink: 0;">
+                  <% if (author.avatarUrl) { %>
+                    <img src="<%= author.avatarUrl %>" alt="Avatar" style="width: 100%; height: 100%; object-fit: cover;">
+                  <% } else { %>
+                    <%= (author.displayName || author.username).charAt(0).toUpperCase() %>
+                  <% } %>
+                </div>
+                <div>
+                  <div style="font-size: 0.88rem; font-weight: 700; color: var(--text-main);"><%= author.displayName || author.username %></div>
+                  <div style="font-size: 0.75rem; color: var(--text-muted); font-family: var(--font-mono);">@<%= author.username %></div>
+                </div>
+              </a>
+            <% }) %>
+          </div>
+        </div>
+      <% } %>
+
+    </aside>
+
+  </div>
+
+</div>

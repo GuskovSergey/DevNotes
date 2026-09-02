@@ -34,8 +34,8 @@ const Course = sequelize.define('Course', {
     allowNull: false,
   },
   status: {
-    type: DataTypes.ENUM('draft', 'published'),
-    defaultValue: 'published',
+    type: DataTypes.ENUM('draft', 'pending', 'published', 'rejected'),
+    defaultValue: 'pending',
     allowNull: false,
   },
   categoryId: {

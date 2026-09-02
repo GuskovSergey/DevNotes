@@ -32,6 +32,11 @@ router.get('/admin/posts/pending', adminAuthMiddleware, adminController.getPendi
 router.post('/admin/posts/:id/approve', adminAuthMiddleware, doubleCsrfProtection, adminController.handleApprovePost);
 router.post('/admin/posts/:id/reject', adminAuthMiddleware, doubleCsrfProtection, adminController.handleRejectPost);
 
+// Protected Admin Course Moderation routes
+router.get('/admin/courses/pending', adminAuthMiddleware, adminController.getPendingCoursesPage);
+router.post('/admin/courses/:id/approve', adminAuthMiddleware, doubleCsrfProtection, adminController.handleApproveCourse);
+router.post('/admin/courses/:id/reject', adminAuthMiddleware, doubleCsrfProtection, adminController.handleRejectCourse);
+
 // Protected Admin Course & Lesson CRUD routes
 router.get('/admin/courses', adminAuthMiddleware, adminController.getAdminCoursesPage);
 router.get('/admin/courses/new', adminAuthMiddleware, adminController.getAdminAddCoursePage);

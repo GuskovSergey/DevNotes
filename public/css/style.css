@@ -659,39 +659,59 @@ a:hover {
   background: var(--bg-surface);
   border: 1px solid var(--border-light);
   border-radius: var(--radius-xl);
-  padding: 3rem 2.5rem;
+  padding: 3.5rem 2.5rem;
   max-width: 1240px;
   margin: 0 auto 2.2rem auto;
   box-shadow: var(--shadow-card);
-  transition: background-color 0.3s ease, border-color 0.3s ease;
+  transition: background-color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.dev-hero__body {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  width: 100%;
 }
 
 .dev-hero__badge {
   font-family: var(--font-mono);
   color: var(--primary-indigo);
-  font-size: 0.9rem;
+  font-size: 0.88rem;
   font-weight: 600;
-  margin-bottom: 1.2rem;
+  margin: 0 auto 1.4rem auto;
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: 0.6rem;
   background: var(--primary-indigo-light);
-  padding: 0.35rem 0.95rem;
+  padding: 0.4rem 1.1rem;
   border-radius: var(--radius-full);
   border: 1px solid var(--border-accent);
 }
 
 .dev-hero__heading {
-  font-size: clamp(2.2rem, 4.2vw, 3.2rem);
+  font-size: clamp(2.2rem, 4.5vw, 3.4rem);
   color: var(--text-main);
-  margin-bottom: 1rem;
+  margin: 0 auto 1.2rem auto;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  line-height: 1.18;
+  max-width: 900px;
+  text-align: center;
 }
 
 .dev-hero__sub {
   color: var(--text-muted);
-  font-size: 1.15rem;
+  font-size: 1.12rem;
   max-width: 720px;
-  margin-bottom: 2rem;
+  margin: 0 auto 2rem auto;
+  line-height: 1.65;
+  text-align: center;
 }
 
 /* Command Palette Search Box in dev-hero */
@@ -939,14 +959,15 @@ a:hover {
   justify-content: space-between;
   box-shadow: var(--shadow-sm);
   position: relative;
-  transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.25s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.25s cubic-bezier(0.16, 1, 0.3, 1);
   min-width: 0;
+  backdrop-filter: blur(12px);
 }
 
 .article-card:hover {
-  transform: translateY(-4px);
+  transform: translateY(-5px);
   border-color: var(--border-accent);
-  box-shadow: var(--shadow-hover);
+  box-shadow: 0 12px 30px rgba(99, 102, 241, 0.12);
 }
 
 .article-card__media-wrapper {

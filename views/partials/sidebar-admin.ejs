@@ -44,6 +44,18 @@
         <% } %>
       </a>
 
+      <a href="/admin/courses/pending" class="sidebar-nav__item <%= typeof activeTab !== 'undefined' && activeTab === 'course-queue' ? 'active' : '' %>">
+        <span>
+          <span class="sidebar-nav__icon">🎓</span>
+          Course Queue
+        </span>
+        <% if (typeof analytics !== 'undefined' && analytics.pendingCoursesCount > 0) { %>
+          <span class="sidebar-nav__badge" style="background: #4f46e5; color: #ffffff;">
+            <%= analytics.pendingCoursesCount %>
+          </span>
+        <% } %>
+      </a>
+
       <a href="/admin/courses" class="sidebar-nav__item <%= typeof activeTab !== 'undefined' && activeTab === 'courses' ? 'active' : '' %>">
         <span>
           <span class="sidebar-nav__icon">📚</span>

@@ -1,0 +1,92 @@
+<!-- FAQ Hero Banner -->
+<section class="dev-hero" style="margin-bottom: 2rem;">
+  <div class="dev-hero__body">
+    <div class="dev-hero__badge">
+      <span class="dev-hero__badge-dot"></span>
+      <span>💡 DevHub Community Interview FAQ &amp; Knowledge Base</span>
+    </div>
+
+    <h1 class="dev-hero__heading">Technical Interview Q&amp;A</h1>
+    <p class="dev-hero__sub">Frequently asked backend engineering interview questions, system architecture FAQs, and production-tested technical explanations.</p>
+
+    <!-- Metrics ribbon -->
+    <div style="display: flex; align-items: center; justify-content: center; gap: 1.8rem; margin-top: 1.4rem; flex-wrap: wrap; font-family: var(--font-mono); font-size: 0.85rem; color: var(--text-muted);">
+      <div style="display: flex; align-items: center; gap: 0.4rem;">
+        <span style="color: var(--primary-indigo); font-weight: 700;">Node.js &amp; Express</span>
+      </div>
+      <span>•</span>
+      <div style="display: flex; align-items: center; gap: 0.4rem;">
+        <span style="color: #10b981; font-weight: 700;">SQLite &amp; ORMs</span>
+      </div>
+      <span>•</span>
+      <div style="display: flex; align-items: center; gap: 0.4rem;">
+        <span style="color: #f59e0b; font-weight: 700;">System Architecture</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FAQ Questions List Container -->
+<div style="max-width: 1240px; margin: 0 auto; padding-bottom: 3.5rem;">
+  
+  <div style="display: flex; flex-direction: column; gap: 1.2rem;">
+    
+    <!-- Question 1 -->
+    <details style="background: var(--bg-surface); border: 1px solid var(--border-light); border-radius: var(--radius-xl); padding: 1.4rem 1.8rem; box-shadow: var(--shadow-sm);" open>
+      <summary style="font-size: 1.15rem; font-weight: 800; color: var(--text-main); cursor: pointer; outline: none; list-style: none; display: flex; justify-content: space-between; align-items: center;">
+        <span>❓ How does the Node.js Event Loop work, and how do you avoid blocking the main thread?</span>
+        <span style="color: var(--primary-indigo); font-size: 1.2rem; margin-left: 1rem;">▾</span>
+      </summary>
+      <div style="margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--border-light); color: var(--text-body); line-height: 1.65; font-size: 0.95rem;">
+        <p>Node.js runs on a single thread using non-blocking I/O powered by <strong>libuv</strong>. The event loop cycles through phases: <em>Timers &rarr; Pending Callbacks &rarr; Poll &rarr; Check &rarr; Close Callbacks</em>.</p>
+        <p>To avoid blocking the main event loop thread:</p>
+        <ul style="margin-left: 1.2rem; line-height: 1.6;">
+          <li>Offload heavy CPU computations (cryptography, image processing) to <strong>Worker Threads</strong> or async child processes.</li>
+          <li>Avoid synchronous fs methods like <code>readFileSync</code> inside HTTP route handlers.</li>
+          <li>Break giant arrays processing into micro-chunks using <code>setImmediate()</code>.</li>
+        </ul>
+      </div>
+    </details>
+
+    <!-- Question 2 -->
+    <details style="background: var(--bg-surface); border: 1px solid var(--border-light); border-radius: var(--radius-xl); padding: 1.4rem 1.8rem; box-shadow: var(--shadow-sm);">
+      <summary style="font-size: 1.15rem; font-weight: 800; color: var(--text-main); cursor: pointer; outline: none; list-style: none; display: flex; justify-content: space-between; align-items: center;">
+        <span>❓ What is the N+1 query problem in ORMs (Sequelize) and how is it resolved?</span>
+        <span style="color: var(--primary-indigo); font-size: 1.2rem; margin-left: 1rem;">▾</span>
+      </summary>
+      <div style="margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--border-light); color: var(--text-body); line-height: 1.65; font-size: 0.95rem;">
+        <p>The <strong>N+1 query problem</strong> occurs when an application executes 1 initial query to fetch N parent records, and then executes N subsequent queries inside a loop to fetch related child models.</p>
+        <p>In Sequelize, it is resolved using <strong>Eager Loading</strong> with <code>include</code>:</p>
+        <pre style="background: var(--bg-subtle); padding: 1rem; border-radius: var(--radius-lg); overflow-x: auto; font-family: var(--font-mono); font-size: 0.88rem; margin: 0.8rem 0;"><code>const posts = await Post.findAll({
+  include: [{ model: Category, as: 'category' }]
+});</code></pre>
+      </div>
+    </details>
+
+    <!-- Question 3 -->
+    <details style="background: var(--bg-surface); border: 1px solid var(--border-light); border-radius: var(--radius-xl); padding: 1.4rem 1.8rem; box-shadow: var(--shadow-sm);">
+      <summary style="font-size: 1.15rem; font-weight: 800; color: var(--text-main); cursor: pointer; outline: none; list-style: none; display: flex; justify-content: space-between; align-items: center;">
+        <span>❓ Why is Pino preferred over console.log in high-performance Express applications?</span>
+        <span style="color: var(--primary-indigo); font-size: 1.2rem; margin-left: 1rem;">▾</span>
+      </summary>
+      <div style="margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--border-light); color: var(--text-body); line-height: 1.65; font-size: 0.95rem;">
+        <p><code>console.log</code> in Node.js is synchronous when writing to stdout/stderr. Under heavy request concurrency, synchronous logging blocks the main looper thread and degrades LCP/INP performance metrics.</p>
+        <p><strong>Pino</strong> is up to 5x faster because it logs structured JSON asynchronously using internal sonic-boom stream buffers without blocking HTTP request execution.</p>
+      </div>
+    </details>
+
+    <!-- Question 4 -->
+    <details style="background: var(--bg-surface); border: 1px solid var(--border-light); border-radius: var(--radius-xl); padding: 1.4rem 1.8rem; box-shadow: var(--shadow-sm);">
+      <summary style="font-size: 1.15rem; font-weight: 800; color: var(--text-main); cursor: pointer; outline: none; list-style: none; display: flex; justify-content: space-between; align-items: center;">
+        <span>❓ What is the difference between Authentication (AuthN) and Authorization (AuthZ)?</span>
+        <span style="color: var(--primary-indigo); font-size: 1.2rem; margin-left: 1rem;">▾</span>
+      </summary>
+      <div style="margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--border-light); color: var(--text-body); line-height: 1.65; font-size: 0.95rem;">
+        <p><strong>Authentication (AuthN)</strong> verifies <em>who a user is</em> (e.g. validating username/password or JWT signature).</p>
+        <p><strong>Authorization (AuthZ)</strong> verifies <em>what actions the user is allowed to perform</em> (e.g. checking if <code>req.user.role === 'admin'</code> before granting access to moderation endpoints).</p>
+      </div>
+    </details>
+
+  </div>
+
+</div>

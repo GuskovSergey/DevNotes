@@ -8,6 +8,7 @@ const commentService = require('../services/commentService');
 const readingHistoryService = require('../services/readingHistoryService');
 const analyticsService = require('../services/analyticsService');
 const notificationService = require('../services/notificationService');
+const courseService = require('../services/courseService');
 const { User, Post, Comment } = require('../models');
 const catchAsync = require('../utils/catchAsync');
 const logger = require('../config/logger');
@@ -250,6 +251,210 @@ class UserController {
       posts,
       successMessage: req.query.success || null,
     });
+  });
+
+  // User Course Authoring Methods
+  getMyCoursesPage = catchAsync(async (req, res) => {
+    const courses = await courseService.getUserCourses(req.userId);
+    const user = await authService.getUserById(req.userId);
+
+    const locals = {
+      title: 'My Courses & Modules',
+      description: 'Manage your written courses, lessons, and check moderation status.',
+    };
+
+    res.render('my/courses', {
+      locals,
+      user,
+      activeTab: 'courses',
+      courses,
+      successMessage: req.query.success || null,
+    });
+  });
+
+  getCreateCoursePage = catchAsync(async (req, res) => {
+    const categories = await categoryService.getAllCategories();
+    const user = await authService.getUserById(req.userId);
+
+    res.render('my/course-editor', {
+      locals: { title: 'Create New Course Track' },
+      user,
+      categories,
+      course: null,
+      activeTab: 'courses',
+      errorMessage: null,
+    });
+  });
+
+  handleCreateCourse = catchAsync(async (req, res) => {
+    const { title, description, body, difficultyLevel, categoryId, estimatedHours } = req.body;
+    const coverImage = req.file ? req.file.filename : null;
+    const user = await authService.getUserById(req.userId);
+
+    const status = user.role === 'admin' ? 'published' : 'pending';
+
+    const course = await courseService.createCourse({
+      title,
+      description,
+      body,
+      coverImage,
+      difficultyLevel,
+      categoryId: categoryId ? parseInt(categoryId, 10) : null,
+      estimatedHours: estimatedHours ? parseFloat(estimatedHours) : 1.0,
+      userId: req.userId,
+      status,
+    });
+
+    const msg = status === 'published'
+      ? 'Course created and published successfully!'
+      : 'Course submitted successfully and is pending admin moderation.';
+
+    return res.redirect(`/my/courses/${course.id}/edit?success=` + encodeURIComponent(msg));
+  });
+
+  getEditMyCoursePage = catchAsync(async (req, res, next) => {
+    const { id } = req.params;
+    const course = await courseService.getUserCourseById(id, req.userId);
+
+    if (!course) {
+      const error = new Error('Course not found or access denied');
+      error.statusCode = 404;
+      return next(error);
+    }
+
+    const categories = await categoryService.getAllCategories();
+    const user = await authService.getUserById(req.userId);
+
+    res.render('my/course-editor', {
+      locals: { title: `Edit Course: ${course.title}` },
+      user,
+      categories,
+      course,
+      activeTab: 'courses',
+      successMessage: req.query.success || null,
+      errorMessage: null,
+    });
+  });
+
+  handleUpdateMyCourse = catchAsync(async (req, res, next) => {
+    const { id } = req.params;
+    const { title, description, body, difficultyLevel, categoryId, estimatedHours } = req.body;
+    const coverImage = req.file ? req.file.filename : null;
+    const user = await authService.getUserById(req.userId);
+
+    const existingCourse = await courseService.getUserCourseById(id, req.userId);
+    if (!existingCourse) {
+      const error = new Error('Course not found or access denied');
+      error.statusCode = 404;
+      return next(error);
+    }
+
+    const status = user.role === 'admin' ? 'published' : 'pending';
+
+    await courseService.updateCourse(id, {
+      title,
+      description,
+      body,
+      coverImage,
+      difficultyLevel,
+      categoryId: categoryId ? parseInt(categoryId, 10) : null,
+      estimatedHours: estimatedHours ? parseFloat(estimatedHours) : 1.0,
+      status,
+    });
+
+    const msg = status === 'published'
+      ? 'Course updated successfully!'
+      : 'Course updated and submitted for re-moderation.';
+
+    return res.redirect('/my/courses?success=' + encodeURIComponent(msg));
+  });
+
+  handleDeleteMyCourse = catchAsync(async (req, res) => {
+    const { id } = req.params;
+    await courseService.deleteCourse(id, req.userId);
+    return res.redirect('/my/courses?success=Course%20deleted%20successfully');
+  });
+
+  getCreateMyLessonPage = catchAsync(async (req, res, next) => {
+    const { courseId } = req.params;
+    const course = await courseService.getUserCourseById(courseId, req.userId);
+
+    if (!course) {
+      const error = new Error('Course not found or access denied');
+      error.statusCode = 404;
+      return next(error);
+    }
+
+    const user = await authService.getUserById(req.userId);
+
+    res.render('my/lesson-editor', {
+      locals: { title: `Add Lesson to ${course.title}` },
+      user,
+      course,
+      lesson: null,
+      activeTab: 'courses',
+      errorMessage: null,
+    });
+  });
+
+  handleCreateMyLesson = catchAsync(async (req, res) => {
+    const { courseId } = req.params;
+    const { title, body, order } = req.body;
+
+    const course = await courseService.getUserCourseById(courseId, req.userId);
+    if (!course) {
+      return res.redirect('/my/courses');
+    }
+
+    await courseService.createLesson(courseId, { title, body, order });
+    return res.redirect(`/my/courses/${courseId}/edit?success=Lesson%20added%20successfully`);
+  });
+
+  getEditMyLessonPage = catchAsync(async (req, res, next) => {
+    const { id } = req.params;
+    const lesson = await courseService.getUserLessonById(id, req.userId);
+
+    if (!lesson) {
+      const error = new Error('Lesson not found or access denied');
+      error.statusCode = 404;
+      return next(error);
+    }
+
+    const user = await authService.getUserById(req.userId);
+
+    res.render('my/lesson-editor', {
+      locals: { title: `Edit Lesson: ${lesson.title}` },
+      user,
+      course: lesson.course,
+      lesson,
+      activeTab: 'courses',
+      errorMessage: null,
+    });
+  });
+
+  handleUpdateMyLesson = catchAsync(async (req, res) => {
+    const { id } = req.params;
+    const { title, body, order } = req.body;
+
+    const lesson = await courseService.getUserLessonById(id, req.userId);
+    if (!lesson) {
+      return res.redirect('/my/courses');
+    }
+
+    await courseService.updateLesson(id, { title, body, order });
+    return res.redirect(`/my/courses/${lesson.courseId}/edit?success=Lesson%20updated%20successfully`);
+  });
+
+  handleDeleteMyLesson = catchAsync(async (req, res) => {
+    const { id } = req.params;
+    const lesson = await courseService.getUserLessonById(id, req.userId);
+    const courseId = lesson ? lesson.courseId : null;
+
+    if (lesson) {
+      await courseService.deleteLesson(id);
+    }
+
+    return res.redirect(courseId ? `/my/courses/${courseId}/edit?success=Lesson%20deleted` : '/my/courses');
   });
 
   getCreatePostPage = catchAsync(async (req, res) => {

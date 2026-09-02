@@ -10,7 +10,12 @@
     <ul>
       <li>
         <a href="/" class="<%= (typeof currentRoute !== 'undefined' && currentRoute === '/') ? 'active' : '' %>">
-          <span>Home</span>
+          <span>🏠 Home</span>
+        </a>
+      </li>
+      <li>
+        <a href="/posts" class="<%= (typeof currentRoute !== 'undefined' && currentRoute === '/posts') ? 'active' : '' %>">
+          <span>📝 Posts</span>
         </a>
       </li>
       <li>
@@ -18,35 +23,9 @@
           <span>📚 Courses</span>
         </a>
       </li>
-
-      <!-- Categories Custom Dropdown -->
-      <li class="header-dropdown left-align" id="categories-dropdown">
-        <button type="button" class="nav-dropdown-btn dropdown-trigger" aria-expanded="false" aria-haspopup="true">
-          <span>Categories</span>
-          <svg class="dropdown-chevron" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-            <polyline points="6 9 12 15 18 9"></polyline>
-          </svg>
-        </button>
-        <div class="dropdown-menu">
-          <% if (typeof categories !== 'undefined' && categories && categories.length > 0) { %>
-            <% categories.forEach(cat => { %>
-              <a href="/?category=<%= cat.slug %>" class="dropdown-item">
-                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--primary-indigo)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path></svg>
-                <span><%= cat.name %></span>
-              </a>
-            <% }) %>
-          <% } else { %>
-            <a href="/?category=development" class="dropdown-item">
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--primary-indigo)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"></polyline><polyline points="8 6 2 12 8 18"></polyline></svg>
-              <span>Development</span>
-            </a>
-          <% } %>
-        </div>
-      </li>
-
       <li>
-        <a href="/about" class="<%= (typeof currentRoute !== 'undefined' && currentRoute === '/about') ? 'active' : '' %>">
-          <span>About</span>
+        <a href="/faq" class="<%= (typeof currentRoute !== 'undefined' && currentRoute === '/faq') ? 'active' : '' %>">
+          <span>💡 FAQ</span>
         </a>
       </li>
     </ul>

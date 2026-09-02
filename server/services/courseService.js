@@ -153,7 +153,81 @@ class CourseService {
   }
 
   /**
-   * Administrative CRUD operations
+   * User cabinet course management methods
+   */
+  async getUserCourses(userId) {
+    const courses = await Course.findAll({
+      where: { userId },
+      include: [
+        { model: Category, as: 'category', attributes: ['id', 'name', 'slug'] },
+        { model: Lesson, as: 'lessons', attributes: ['id', 'title', 'order', 'status'] },
+      ],
+      order: [['createdAt', 'DESC']],
+    });
+    return CourseDto.formatMany(courses);
+  }
+
+  async getUserCourseById(id, userId) {
+    const course = await Course.findOne({
+      where: { id, userId },
+      include: [
+        { model: Category, as: 'category' },
+        { model: Lesson, as: 'lessons' },
+      ],
+    });
+    return CourseDto.formatOne(course);
+  }
+
+  async getUserLessonById(id, userId) {
+    const lesson = await Lesson.findByPk(id, {
+      include: [{ model: Course, as: 'course' }],
+    });
+    if (!lesson || lesson.course.userId !== userId) return null;
+    return lesson;
+  }
+
+  /**
+   * Admin moderation methods
+   */
+  async getPendingCourses() {
+    const courses = await Course.findAll({
+      where: { status: 'pending' },
+      include: [
+        { model: Category, as: 'category', attributes: ['id', 'name'] },
+        { model: User, as: 'author', attributes: ['id', 'username', 'displayName', 'avatarUrl'] },
+        { model: Lesson, as: 'lessons', attributes: ['id', 'title'] },
+      ],
+      order: [['createdAt', 'ASC']],
+    });
+    return CourseDto.formatMany(courses);
+  }
+
+  async getPendingCoursesCount() {
+    return await Course.count({ where: { status: 'pending' } });
+  }
+
+  async approveCourse(id) {
+    const course = await Course.findByPk(id, {
+      include: [{ model: User, as: 'author' }],
+    });
+    if (!course) return null;
+    await course.update({ status: 'published' });
+    logger.info({ courseId: id }, 'Course approved and published');
+    return course;
+  }
+
+  async rejectCourse(id) {
+    const course = await Course.findByPk(id, {
+      include: [{ model: User, as: 'author' }],
+    });
+    if (!course) return null;
+    await course.update({ status: 'rejected' });
+    logger.info({ courseId: id }, 'Course rejected');
+    return course;
+  }
+
+  /**
+   * Administrative & User CRUD operations
    */
   async getAllCoursesAdmin() {
     const courses = await Course.findAll({
@@ -176,7 +250,7 @@ class CourseService {
     return CourseDto.formatOne(course);
   }
 
-  async createCourse({ title, description, body, coverImage, difficultyLevel, categoryId, estimatedHours, userId }) {
+  async createCourse({ title, description, body, coverImage, difficultyLevel, categoryId, estimatedHours, userId, status }) {
     const slug = this.generateSlug(title) + '-' + Date.now().toString().slice(-4);
     const course = await Course.create({
       title,
@@ -188,13 +262,13 @@ class CourseService {
       categoryId: categoryId || null,
       estimatedHours: estimatedHours ? parseFloat(estimatedHours) : 1.0,
       userId: userId || null,
-      status: 'published',
+      status: status || 'published',
     });
-    logger.info({ courseId: course.id, title }, 'Created new course');
+    logger.info({ courseId: course.id, title, status: course.status }, 'Created new course');
     return course;
   }
 
-  async updateCourse(id, { title, description, body, coverImage, difficultyLevel, categoryId, estimatedHours }) {
+  async updateCourse(id, { title, description, body, coverImage, difficultyLevel, categoryId, estimatedHours, status }) {
     const course = await Course.findByPk(id);
     if (!course) return null;
 
@@ -208,15 +282,20 @@ class CourseService {
     };
 
     if (coverImage) updateData.coverImage = coverImage;
+    if (status) updateData.status = status;
 
     await course.update(updateData);
     logger.info({ courseId: id }, 'Updated course details');
     return course;
   }
 
-  async deleteCourse(id) {
-    const course = await Course.findByPk(id);
+  async deleteCourse(id, userId = null) {
+    const where = { id };
+    if (userId) where.userId = userId;
+
+    const course = await Course.findOne({ where });
     if (!course) return false;
+
     await Lesson.destroy({ where: { courseId: id } });
     await CourseProgress.destroy({ where: { courseId: id } });
     await course.destroy();
