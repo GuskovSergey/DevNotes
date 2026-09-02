@@ -1,92 +1,326 @@
-<!-- FAQ Hero Banner -->
-<section class="dev-hero" style="margin-bottom: 2rem;">
+<!-- FAQ Hero Banner (Stitch Glassmorphic Design) -->
+<section class="dev-hero" style="margin-bottom: 2rem; background: radial-gradient(circle at 50% -20%, rgba(99, 102, 241, 0.22) 0%, rgba(15, 19, 28, 0) 70%), var(--bg-surface);">
   <div class="dev-hero__body">
     <div class="dev-hero__badge">
       <span class="dev-hero__badge-dot"></span>
-      <span>💡 DevHub Community Interview FAQ &amp; Knowledge Base</span>
+      <span>💡 DevHub Technical Interview Q&amp;A &amp; Knowledge Base</span>
     </div>
 
     <h1 class="dev-hero__heading">Technical Interview Q&amp;A</h1>
-    <p class="dev-hero__sub">Frequently asked backend engineering interview questions, system architecture FAQs, and production-tested technical explanations.</p>
+    <p class="dev-hero__sub">Production-tested backend engineering interview questions, system architecture FAQs, and deep-dive technical explanations.</p>
 
     <!-- Metrics ribbon -->
     <div style="display: flex; align-items: center; justify-content: center; gap: 1.8rem; margin-top: 1.4rem; flex-wrap: wrap; font-family: var(--font-mono); font-size: 0.85rem; color: var(--text-muted);">
       <div style="display: flex; align-items: center; gap: 0.4rem;">
-        <span style="color: var(--primary-indigo); font-weight: 700;">Node.js &amp; Express</span>
+        <span style="color: var(--primary-indigo); font-weight: 700;">📚 <%= questions ? questions.length : 0 %> Questions</span>
       </div>
       <span>•</span>
       <div style="display: flex; align-items: center; gap: 0.4rem;">
-        <span style="color: #10b981; font-weight: 700;">SQLite &amp; ORMs</span>
+        <span style="color: #10b981; font-weight: 700;">🟢 Node.js Core</span>
       </div>
       <span>•</span>
       <div style="display: flex; align-items: center; gap: 0.4rem;">
-        <span style="color: #f59e0b; font-weight: 700;">System Architecture</span>
+        <span style="color: #f59e0b; font-weight: 700;">🗄️ Databases &amp; SQL</span>
+      </div>
+      <span>•</span>
+      <div style="display: flex; align-items: center; gap: 0.4rem;">
+        <span style="color: #ef4444; font-weight: 700;">🛡️ Security</span>
       </div>
     </div>
   </div>
 </section>
 
-<!-- FAQ Questions List Container -->
+<!-- Filter & Mode Control Bar -->
+<div style="max-width: 1240px; margin: 0 auto 2.2rem auto;">
+  
+  <form action="/faq" method="GET" style="display: flex; flex-direction: column; gap: 1.2rem; background: var(--bg-surface); border: 1px solid var(--border-light); border-radius: var(--radius-xl); padding: 1.6rem; box-shadow: var(--shadow-sm);">
+    
+    <!-- Top Row: Search Box & Difficulty Selector -->
+    <div style="display: flex; gap: 1rem; align-items: center; flex-wrap: wrap;">
+      
+      <!-- Search Input -->
+      <div style="flex: 1; min-width: 280px; position: relative;">
+        <input type="text" name="q" value="<%= searchQuery || '' %>" placeholder="Search questions (e.g. Event Loop, N+1, CSRF, SQLite)..." style="width: 100%; padding: 0.75rem 1rem 0.75rem 2.6rem; border-radius: var(--radius-lg); border: 1px solid var(--border-light); background: var(--bg-subtle); color: var(--text-main); font-size: 0.92rem; outline: none;">
+        <span style="position: absolute; left: 0.9rem; top: 50%; transform: translateY(-50%); color: var(--text-muted); font-size: 0.95rem;">🔍</span>
+      </div>
+
+      <!-- Difficulty Selector -->
+      <div style="display: flex; align-items: center; gap: 0.5rem;">
+        <label for="difficulty-select" style="font-size: 0.85rem; font-family: var(--font-mono); color: var(--text-muted); font-weight: 600;">Level:</label>
+        <select name="difficulty" id="difficulty-select" onchange="this.form.submit()" style="padding: 0.65rem 1rem; border-radius: var(--radius-lg); border: 1px solid var(--border-light); background: var(--bg-subtle); color: var(--text-main); font-size: 0.88rem; font-family: var(--font-mono); outline: none; cursor: pointer;">
+          <option value="All" <%= activeDifficulty === 'All' ? 'selected' : '' %>>All Levels</option>
+          <option value="Junior" <%= activeDifficulty === 'Junior' ? 'selected' : '' %>>🌱 Junior</option>
+          <option value="Mid" <%= activeDifficulty === 'Mid' ? 'selected' : '' %>>⚡ Mid</option>
+          <option value="Senior" <%= activeDifficulty === 'Senior' ? 'selected' : '' %>>🚀 Senior</option>
+        </select>
+      </div>
+
+      <button type="submit" class="btn" style="padding: 0.65rem 1.4rem; font-size: 0.88rem; border-radius: var(--radius-lg);">
+        Search
+      </button>
+
+      <% if (searchQuery || activeCategory !== 'All' || activeDifficulty !== 'All') { %>
+        <a href="/faq" class="btn" style="background: var(--bg-subtle); border: 1px solid var(--border-light); color: var(--text-muted); padding: 0.65rem 1.1rem; font-size: 0.85rem; border-radius: var(--radius-lg); text-decoration: none;">
+          Reset Filters ✕
+        </a>
+      <% } %>
+
+    </div>
+
+    <!-- Bottom Row: Category Tabs & View Mode Switcher -->
+    <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--border-light); padding-top: 1.2rem; flex-wrap: wrap; gap: 1rem;">
+      
+      <!-- Category Filter Pills -->
+      <div style="display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap;">
+        <a href="/faq?<%= activeDifficulty !== 'All' ? 'difficulty=' + activeDifficulty + '&' : '' %><%= searchQuery ? 'q=' + searchQuery : '' %>" class="category-pill <%= activeCategory === 'All' ? 'active' : '' %>" style="font-size: 0.82rem; padding: 0.35rem 0.85rem; text-decoration: none;">
+          All Topics
+        </a>
+
+        <% if (categories && categories.length > 0) { %>
+          <% categories.forEach(cat => { %>
+            <a href="/faq?category=<%= encodeURIComponent(cat) %><%= activeDifficulty !== 'All' ? '&difficulty=' + activeDifficulty : '' %><%= searchQuery ? '&q=' + searchQuery : '' %>" class="category-pill <%= activeCategory === cat ? 'active' : '' %>" style="font-size: 0.82rem; padding: 0.35rem 0.85rem; text-decoration: none;">
+              <%= cat %>
+            </a>
+          <% }) %>
+        <% } %>
+      </div>
+
+      <!-- Interactive Mode Toggle (Accordion vs Flashcards) -->
+      <div style="display: flex; background: var(--bg-subtle); border: 1px solid var(--border-light); border-radius: var(--radius-lg); padding: 0.2rem;">
+        <button type="button" id="mode-accordion-btn" class="btn" style="background: var(--bg-surface); color: var(--primary-indigo); border: none; font-size: 0.82rem; padding: 0.35rem 0.85rem; border-radius: var(--radius-md); box-shadow: var(--shadow-sm); font-weight: 700;">
+          📜 Accordion List
+        </button>
+        <button type="button" id="mode-flashcard-btn" class="btn" style="background: transparent; color: var(--text-muted); border: none; font-size: 0.82rem; padding: 0.35rem 0.85rem; border-radius: var(--radius-md); box-shadow: none; font-weight: 600;">
+          🃏 Flashcard Mode
+        </button>
+      </div>
+
+    </div>
+
+  </form>
+
+</div>
+
+<!-- Q&A Main Container -->
 <div style="max-width: 1240px; margin: 0 auto; padding-bottom: 3.5rem;">
   
-  <div style="display: flex; flex-direction: column; gap: 1.2rem;">
+  <!-- Mode 1: Accordion List View -->
+  <div id="faq-accordion-view" style="display: flex; flex-direction: column; gap: 1.2rem;">
     
-    <!-- Question 1 -->
-    <details style="background: var(--bg-surface); border: 1px solid var(--border-light); border-radius: var(--radius-xl); padding: 1.4rem 1.8rem; box-shadow: var(--shadow-sm);" open>
-      <summary style="font-size: 1.15rem; font-weight: 800; color: var(--text-main); cursor: pointer; outline: none; list-style: none; display: flex; justify-content: space-between; align-items: center;">
-        <span>❓ How does the Node.js Event Loop work, and how do you avoid blocking the main thread?</span>
-        <span style="color: var(--primary-indigo); font-size: 1.2rem; margin-left: 1rem;">▾</span>
-      </summary>
-      <div style="margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--border-light); color: var(--text-body); line-height: 1.65; font-size: 0.95rem;">
-        <p>Node.js runs on a single thread using non-blocking I/O powered by <strong>libuv</strong>. The event loop cycles through phases: <em>Timers &rarr; Pending Callbacks &rarr; Poll &rarr; Check &rarr; Close Callbacks</em>.</p>
-        <p>To avoid blocking the main event loop thread:</p>
-        <ul style="margin-left: 1.2rem; line-height: 1.6;">
-          <li>Offload heavy CPU computations (cryptography, image processing) to <strong>Worker Threads</strong> or async child processes.</li>
-          <li>Avoid synchronous fs methods like <code>readFileSync</code> inside HTTP route handlers.</li>
-          <li>Break giant arrays processing into micro-chunks using <code>setImmediate()</code>.</li>
-        </ul>
-      </div>
-    </details>
+    <% if (questions && questions.length > 0) { %>
+      <% questions.forEach((q, index) => { %>
+        <details style="background: var(--bg-surface); border: 1px solid var(--border-light); border-radius: var(--radius-xl); padding: 1.6rem 2rem; box-shadow: var(--shadow-sm); transition: border-color 0.2s;" <%= index === 0 ? 'open' : '' %>>
+          
+          <summary style="font-size: 1.15rem; font-weight: 800; color: var(--text-main); cursor: pointer; outline: none; list-style: none; display: flex; justify-content: space-between; align-items: flex-start; gap: 1rem;">
+            
+            <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+              <div style="display: flex; align-items: center; gap: 0.6rem; flex-wrap: wrap;">
+                <span class="tech-badge" style="font-size: 0.75rem; padding: 0.15rem 0.55rem; font-family: var(--font-mono); <%= q.difficulty === 'Senior' ? 'background: rgba(239, 68, 68, 0.18); color: #fca5a5; border-color: rgba(239, 68, 68, 0.3);' : (q.difficulty === 'Junior' ? 'background: rgba(16, 185, 129, 0.18); color: #6ee7b7; border-color: rgba(16, 185, 129, 0.3);' : 'background: rgba(129, 140, 248, 0.18); color: #a5b4fc; border-color: rgba(129, 140, 248, 0.3);') %>">
+                  <%= q.difficulty === 'Senior' ? '🚀 Senior' : (q.difficulty === 'Junior' ? '🌱 Junior' : '⚡ Mid') %>
+                </span>
 
-    <!-- Question 2 -->
-    <details style="background: var(--bg-surface); border: 1px solid var(--border-light); border-radius: var(--radius-xl); padding: 1.4rem 1.8rem; box-shadow: var(--shadow-sm);">
-      <summary style="font-size: 1.15rem; font-weight: 800; color: var(--text-main); cursor: pointer; outline: none; list-style: none; display: flex; justify-content: space-between; align-items: center;">
-        <span>❓ What is the N+1 query problem in ORMs (Sequelize) and how is it resolved?</span>
-        <span style="color: var(--primary-indigo); font-size: 1.2rem; margin-left: 1rem;">▾</span>
-      </summary>
-      <div style="margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--border-light); color: var(--text-body); line-height: 1.65; font-size: 0.95rem;">
-        <p>The <strong>N+1 query problem</strong> occurs when an application executes 1 initial query to fetch N parent records, and then executes N subsequent queries inside a loop to fetch related child models.</p>
-        <p>In Sequelize, it is resolved using <strong>Eager Loading</strong> with <code>include</code>:</p>
-        <pre style="background: var(--bg-subtle); padding: 1rem; border-radius: var(--radius-lg); overflow-x: auto; font-family: var(--font-mono); font-size: 0.88rem; margin: 0.8rem 0;"><code>const posts = await Post.findAll({
-  include: [{ model: Category, as: 'category' }]
-});</code></pre>
-      </div>
-    </details>
+                <span class="tech-badge" style="font-size: 0.75rem; padding: 0.15rem 0.55rem; background: var(--primary-indigo-light); color: var(--primary-indigo);">
+                  <%= q.category %>
+                </span>
+              </div>
 
-    <!-- Question 3 -->
-    <details style="background: var(--bg-surface); border: 1px solid var(--border-light); border-radius: var(--radius-xl); padding: 1.4rem 1.8rem; box-shadow: var(--shadow-sm);">
-      <summary style="font-size: 1.15rem; font-weight: 800; color: var(--text-main); cursor: pointer; outline: none; list-style: none; display: flex; justify-content: space-between; align-items: center;">
-        <span>❓ Why is Pino preferred over console.log in high-performance Express applications?</span>
-        <span style="color: var(--primary-indigo); font-size: 1.2rem; margin-left: 1rem;">▾</span>
-      </summary>
-      <div style="margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--border-light); color: var(--text-body); line-height: 1.65; font-size: 0.95rem;">
-        <p><code>console.log</code> in Node.js is synchronous when writing to stdout/stderr. Under heavy request concurrency, synchronous logging blocks the main looper thread and degrades LCP/INP performance metrics.</p>
-        <p><strong>Pino</strong> is up to 5x faster because it logs structured JSON asynchronously using internal sonic-boom stream buffers without blocking HTTP request execution.</p>
-      </div>
-    </details>
+              <span style="line-height: 1.35; color: var(--text-main);">
+                ❓ <%= q.question %>
+              </span>
+            </div>
 
-    <!-- Question 4 -->
-    <details style="background: var(--bg-surface); border: 1px solid var(--border-light); border-radius: var(--radius-xl); padding: 1.4rem 1.8rem; box-shadow: var(--shadow-sm);">
-      <summary style="font-size: 1.15rem; font-weight: 800; color: var(--text-main); cursor: pointer; outline: none; list-style: none; display: flex; justify-content: space-between; align-items: center;">
-        <span>❓ What is the difference between Authentication (AuthN) and Authorization (AuthZ)?</span>
-        <span style="color: var(--primary-indigo); font-size: 1.2rem; margin-left: 1rem;">▾</span>
-      </summary>
-      <div style="margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--border-light); color: var(--text-body); line-height: 1.65; font-size: 0.95rem;">
-        <p><strong>Authentication (AuthN)</strong> verifies <em>who a user is</em> (e.g. validating username/password or JWT signature).</p>
-        <p><strong>Authorization (AuthZ)</strong> verifies <em>what actions the user is allowed to perform</em> (e.g. checking if <code>req.user.role === 'admin'</code> before granting access to moderation endpoints).</p>
+            <span style="color: var(--primary-indigo); font-size: 1.2rem; flex-shrink: 0; margin-top: 0.2rem;">▾</span>
+          </summary>
+
+          <div style="margin-top: 1.2rem; padding-top: 1.2rem; border-top: 1px solid var(--border-light);" class="article-content">
+            <%- q.answerHtml %>
+          </div>
+
+          <!-- Question Footer Bar (Upvote AJAX) -->
+          <div style="margin-top: 1.4rem; padding-top: 1rem; border-top: 1px dashed var(--border-light); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.8rem;">
+            <div style="font-size: 0.82rem; font-family: var(--font-mono); color: var(--text-muted);">
+              Was this technical answer helpful?
+            </div>
+
+            <button type="button" class="btn faq-upvote-btn" data-id="<%= q.id %>" style="background: var(--bg-subtle); border: 1px solid var(--border-light); color: var(--text-main); font-size: 0.82rem; padding: 0.35rem 0.85rem; border-radius: var(--radius-lg); font-weight: 700;">
+              <span>👍 Helpful</span>
+              <span class="upvote-count" id="upvote-count-<%= q.id %>" style="color: var(--primary-indigo); margin-left: 0.3rem;"><%= q.upvotesCount %></span>
+            </button>
+          </div>
+
+        </details>
+      <% }) %>
+    <% } else { %>
+      <div style="background: var(--bg-surface); border: 1px dashed var(--border-light); border-radius: var(--radius-xl); padding: 3.5rem 2rem; text-align: center; color: var(--text-muted);">
+        <h3 style="font-size: 1.2rem; font-weight: 700; margin-bottom: 0.5rem;">No interview questions found</h3>
+        <p style="font-size: 0.9rem; margin-bottom: 1.2rem;">Try adjusting your search query or topic filter.</p>
+        <a href="/faq" class="btn" style="font-size: 0.88rem;">Reset Filters</a>
       </div>
-    </details>
+    <% } %>
 
   </div>
 
+  <!-- Mode 2: Flashcard Quiz Mode Container (Hidden by Default) -->
+  <div id="faq-flashcard-view" style="display: none;">
+    <% if (questions && questions.length > 0) { %>
+      <div style="background: var(--bg-surface); border: 1px solid var(--border-accent); border-radius: var(--radius-xl); padding: 2.8rem; box-shadow: 0 12px 35px rgba(0, 0, 0, 0.15); max-width: 860px; margin: 0 auto; text-align: center;">
+        
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; font-family: var(--font-mono); font-size: 0.85rem; color: var(--text-muted);">
+          <span id="flashcard-counter">Question 1 of <%= questions.length %></span>
+          <span id="flashcard-category" class="tech-badge" style="background: var(--primary-indigo-light); color: var(--primary-indigo);">Node.js Core</span>
+        </div>
+
+        <h2 id="flashcard-question" style="font-size: 1.5rem; font-weight: 800; color: var(--text-main); line-height: 1.35; margin-bottom: 2rem;">
+          Question Prompt
+        </h2>
+
+        <button type="button" id="flashcard-reveal-btn" class="btn" style="padding: 0.75rem 2rem; font-size: 0.95rem; border-radius: var(--radius-lg); margin-bottom: 1.5rem;">
+          💡 Reveal Model Answer
+        </button>
+
+        <div id="flashcard-answer-box" style="display: none; text-align: left; background: var(--bg-subtle); border: 1px solid var(--border-light); border-radius: var(--radius-xl); padding: 2rem; margin-top: 1.5rem; margin-bottom: 2rem;" class="article-content">
+          <!-- Dynamically populated answer -->
+        </div>
+
+        <!-- Flashcard Navigation Buttons -->
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 2rem; border-top: 1px solid var(--border-light); padding-top: 1.5rem;">
+          <button type="button" id="flashcard-prev-btn" class="btn" style="background: var(--bg-subtle); border: 1px solid var(--border-light); color: var(--text-main); font-size: 0.88rem; border-radius: var(--radius-lg);">
+            &larr; Previous
+          </button>
+          
+          <button type="button" id="flashcard-random-btn" class="btn" style="background: var(--bg-subtle); border: 1px solid var(--border-light); color: var(--primary-indigo); font-size: 0.88rem; border-radius: var(--radius-lg);">
+            🎲 Random Card
+          </button>
+
+          <button type="button" id="flashcard-next-btn" class="btn" style="font-size: 0.88rem; border-radius: var(--radius-lg);">
+            Next &rarr;
+          </button>
+        </div>
+
+      </div>
+    <% } %>
+  </div>
+
 </div>
+
+<!-- Flashcard Mode & Upvote Client-side Script -->
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    // 1. Upvote AJAX Handler
+    document.querySelectorAll('.faq-upvote-btn').forEach(btn => {
+      btn.addEventListener('click', async () => {
+        const questionId = btn.getAttribute('data-id');
+        const countSpan = document.getElementById(`upvote-count-${questionId}`);
+        try {
+          const res = await fetch(`/api/faq/${questionId}/upvote`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' }
+          });
+          const data = await res.json();
+          if (data.success && countSpan) {
+            countSpan.textContent = data.upvotesCount;
+            btn.style.borderColor = 'var(--border-accent)';
+            btn.style.color = 'var(--primary-indigo)';
+          }
+        } catch (err) {
+          console.error('Error upvoting question:', err);
+        }
+      });
+    });
+
+    // 2. View Mode Toggle (Accordion vs Flashcard)
+    const accordionBtn = document.getElementById('mode-accordion-btn');
+    const flashcardBtn = document.getElementById('mode-flashcard-btn');
+    const accordionView = document.getElementById('faq-accordion-view');
+    const flashcardView = document.getElementById('faq-flashcard-view');
+
+    if (accordionBtn && flashcardBtn && accordionView && flashcardView) {
+      accordionBtn.addEventListener('click', () => {
+        accordionView.style.display = 'flex';
+        flashcardView.style.display = 'none';
+        
+        accordionBtn.style.background = 'var(--bg-surface)';
+        accordionBtn.style.color = 'var(--primary-indigo)';
+        accordionBtn.style.fontWeight = '700';
+        accordionBtn.style.boxShadow = 'var(--shadow-sm)';
+
+        flashcardBtn.style.background = 'transparent';
+        flashcardBtn.style.color = 'var(--text-muted)';
+        flashcardBtn.style.fontWeight = '600';
+        flashcardBtn.style.boxShadow = 'none';
+      });
+
+      flashcardBtn.addEventListener('click', () => {
+        accordionView.style.display = 'none';
+        flashcardView.style.display = 'block';
+
+        flashcardBtn.style.background = 'var(--bg-surface)';
+        flashcardBtn.style.color = 'var(--primary-indigo)';
+        flashcardBtn.style.fontWeight = '700';
+        flashcardBtn.style.boxShadow = 'var(--shadow-sm)';
+
+        accordionBtn.style.background = 'transparent';
+        accordionBtn.style.color = 'var(--text-muted)';
+        accordionBtn.style.fontWeight = '600';
+        accordionBtn.style.boxShadow = 'none';
+
+        initFlashcards();
+      });
+    }
+
+    // 3. Flashcard Quiz Controller
+    const rawQuestions = <%- JSON.stringify(questions || []) %>;
+    let currentIndex = 0;
+
+    const counterSpan = document.getElementById('flashcard-counter');
+    const categorySpan = document.getElementById('flashcard-category');
+    const questionH2 = document.getElementById('flashcard-question');
+    const revealBtn = document.getElementById('flashcard-reveal-btn');
+    const answerBox = document.getElementById('flashcard-answer-box');
+    const prevBtn = document.getElementById('flashcard-prev-btn');
+    const nextBtn = document.getElementById('flashcard-next-btn');
+    const randomBtn = document.getElementById('flashcard-random-btn');
+
+    function initFlashcards() {
+      if (!rawQuestions || rawQuestions.length === 0) return;
+      showCard(currentIndex);
+    }
+
+    function showCard(idx) {
+      if (idx < 0) idx = rawQuestions.length - 1;
+      if (idx >= rawQuestions.length) idx = 0;
+      currentIndex = idx;
+
+      const q = rawQuestions[currentIndex];
+      if (counterSpan) counterSpan.textContent = `Question ${currentIndex + 1} of ${rawQuestions.length}`;
+      if (categorySpan) categorySpan.textContent = q.category || 'Core';
+      if (questionH2) questionH2.textContent = q.question;
+
+      if (answerBox) {
+        answerBox.innerHTML = q.answerHtml;
+        answerBox.style.display = 'none';
+      }
+
+      if (revealBtn) revealBtn.style.display = 'inline-flex';
+
+      // Re-trigger code blocks enhancement
+      if (window.hljs) {
+        answerBox.querySelectorAll('pre code').forEach(el => window.hljs.highlightElement(el));
+      }
+    }
+
+    if (revealBtn) {
+      revealBtn.addEventListener('click', () => {
+        if (answerBox) answerBox.style.display = 'block';
+        revealBtn.style.display = 'none';
+      });
+    }
+
+    if (prevBtn) prevBtn.addEventListener('click', () => showCard(currentIndex - 1));
+    if (nextBtn) nextBtn.addEventListener('click', () => showCard(currentIndex + 1));
+    if (randomBtn) randomBtn.addEventListener('click', () => {
+      const randIdx = Math.floor(Math.random() * rawQuestions.length);
+      showCard(randIdx);
+    });
+  });
+</script>

@@ -7,6 +7,7 @@ const likeService = require('../services/likeService');
 const readingHistoryService = require('../services/readingHistoryService');
 const notificationService = require('../services/notificationService');
 const courseService = require('../services/courseService');
+const faqService = require('../services/faqService');
 const { Post, Comment: CommentModel } = require('../models');
 const catchAsync = require('../utils/catchAsync');
 const logger = require('../config/logger');
@@ -305,17 +306,38 @@ class MainController {
   });
 
   getFaqPage = catchAsync(async (req, res) => {
+    const category = req.query.category || 'All';
+    const difficulty = req.query.difficulty || 'All';
+    const search = req.query.q || '';
+
+    const questions = await faqService.getAllQuestions({ category, difficulty, search });
+    const categories = await faqService.getCategories();
+
     const locals = {
-      title: 'Developer FAQ & Interview Q&A | DevHub Knowledge Base',
-      description: 'Frequently asked backend engineering interview questions, system architecture FAQs, and technical answers.',
+      title: 'Technical Interview Q&A & Knowledge Base | DevHub',
+      description: 'Frequently asked backend engineering interview questions, system architecture FAQs, and production-tested explanations.',
       currentRoute: '/faq',
     };
 
     res.render('faq', {
       locals,
+      questions,
+      categories,
+      activeCategory: category,
+      activeDifficulty: difficulty,
+      searchQuery: search,
       currentRoute: '/faq',
       currentUser: res.locals.currentUser || null,
     });
+  });
+
+  upvoteFaqQuestion = catchAsync(async (req, res) => {
+    const { id } = req.params;
+    const upvotesCount = await faqService.upvoteQuestion(id);
+    if (upvotesCount === null) {
+      return res.status(404).json({ success: false, message: 'Question not found' });
+    }
+    res.json({ success: true, upvotesCount });
   });
 }
 

@@ -15,6 +15,7 @@ const Notification = require('./Notification');
 const Course = require('./Course');
 const Lesson = require('./Lesson');
 const CourseProgress = require('./CourseProgress');
+const InterviewQuestion = require('./InterviewQuestion');
 
 // User <-> Post
 User.hasMany(Post, { foreignKey: 'userId', as: 'posts' });
@@ -112,4 +113,5 @@ module.exports = {
   Course,
   Lesson,
   CourseProgress,
+  InterviewQuestion,
 };

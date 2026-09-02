@@ -5,7 +5,8 @@ const commentService = require('../services/commentService');
 const tagService = require('../services/tagService');
 const notificationService = require('../services/notificationService');
 const courseService = require('../services/courseService');
-const { Lesson } = require('../models');
+const faqService = require('../services/faqService');
+const { Lesson, InterviewQuestion } = require('../models');
 const catchAsync = require('../utils/catchAsync');
 const logger = require('../config/logger');
 const { COOKIE_MAX_AGE } = require('../config/constants');
@@ -487,6 +488,63 @@ class AdminController {
   handleLogout = catchAsync(async (req, res) => {
     res.clearCookie('token');
     return res.redirect('/');
+  });
+
+  getFaqListPage = catchAsync(async (req, res) => {
+    const questions = await faqService.getAdminAllQuestions();
+    const locals = { title: 'Manage Technical Interview Q&A | Admin' };
+
+    res.render('admin/faq', {
+      locals,
+      questions,
+      layout: adminLayout,
+      activeTab: 'faq',
+      currentUser: res.locals.currentUser || null,
+    });
+  });
+
+  getAddFaqPage = catchAsync(async (req, res) => {
+    const locals = { title: 'Add New Interview Question | Admin' };
+
+    res.render('admin/add-faq', {
+      locals,
+      layout: adminLayout,
+      activeTab: 'faq',
+      currentUser: res.locals.currentUser || null,
+    });
+  });
+
+  createFaqQuestion = catchAsync(async (req, res) => {
+    await faqService.createQuestion(req.body);
+    res.redirect('/admin/faq');
+  });
+
+  getEditFaqPage = catchAsync(async (req, res) => {
+    const { id } = req.params;
+    const question = await InterviewQuestion.findByPk(id);
+    if (!question) return res.redirect('/admin/faq');
+
+    const locals = { title: `Edit Interview Question #${id} | Admin` };
+
+    res.render('admin/edit-faq', {
+      locals,
+      question: question.get({ plain: true }),
+      layout: adminLayout,
+      activeTab: 'faq',
+      currentUser: res.locals.currentUser || null,
+    });
+  });
+
+  updateFaqQuestion = catchAsync(async (req, res) => {
+    const { id } = req.params;
+    await faqService.updateQuestion(id, req.body);
+    res.redirect('/admin/faq');
+  });
+
+  deleteFaqQuestion = catchAsync(async (req, res) => {
+    const { id } = req.params;
+    await faqService.deleteQuestion(id);
+    res.redirect('/admin/faq');
   });
 }
 

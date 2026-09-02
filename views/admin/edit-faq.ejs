@@ -1,0 +1,68 @@
+<div class="dashboard__grid" style="grid-template-columns: 280px 1fr; gap: 2rem;">
+  
+  <%- include('../partials/sidebar-admin', { activeTab: 'faq' }) %>
+
+  <main class="dashboard__content">
+    
+    <div style="margin-bottom: 2rem;">
+      <a href="/admin/faq" style="font-size: 0.88rem; font-family: var(--font-mono); color: var(--text-muted); text-decoration: none; font-weight: 600;">
+        &larr; Back to Interview Q&amp;A List
+      </a>
+      <h1 style="font-size: 1.8rem; font-weight: 800; color: var(--text-main); margin: 0.5rem 0 0 0;">
+        ✏️ Edit Interview Question #<%= question.id %>
+      </h1>
+    </div>
+
+    <form action="/admin/faq/edit/<%= question.id %>" method="POST" style="background: var(--bg-surface); border: 1px solid var(--border-light); border-radius: var(--radius-xl); padding: 2.2rem; box-shadow: var(--shadow-sm); display: flex; flex-direction: column; gap: 1.5rem;">
+      <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+
+      <div>
+        <label for="question" style="display: block; font-weight: 700; color: var(--text-main); margin-bottom: 0.5rem;">Question Title *</label>
+        <input type="text" name="question" id="question" value="<%= question.question %>" required style="width: 100%; padding: 0.8rem 1rem; border-radius: var(--radius-lg); border: 1px solid var(--border-light); background: var(--bg-subtle); color: var(--text-main); font-size: 0.95rem; outline: none;">
+      </div>
+
+      <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1.2rem;">
+        <div>
+          <label for="category" style="display: block; font-weight: 700; color: var(--text-main); margin-bottom: 0.5rem;">Category *</label>
+          <select name="category" id="category" required style="width: 100%; padding: 0.8rem 1rem; border-radius: var(--radius-lg); border: 1px solid var(--border-light); background: var(--bg-subtle); color: var(--text-main); font-size: 0.92rem; outline: none;">
+            <option value="Node.js Core" <%= question.category === 'Node.js Core' ? 'selected' : '' %>>Node.js Core</option>
+            <option value="Databases & SQL" <%= question.category === 'Databases & SQL' ? 'selected' : '' %>>Databases &amp; SQL</option>
+            <option value="System Architecture" <%= question.category === 'System Architecture' ? 'selected' : '' %>>System Architecture</option>
+            <option value="Security & Web" <%= question.category === 'Security & Web' ? 'selected' : '' %>>Security &amp; Web</option>
+            <option value="Express & Frameworks" <%= question.category === 'Express & Frameworks' ? 'selected' : '' %>>Express &amp; Frameworks</option>
+          </select>
+        </div>
+
+        <div>
+          <label for="difficulty" style="display: block; font-weight: 700; color: var(--text-main); margin-bottom: 0.5rem;">Difficulty Level *</label>
+          <select name="difficulty" id="difficulty" required style="width: 100%; padding: 0.8rem 1rem; border-radius: var(--radius-lg); border: 1px solid var(--border-light); background: var(--bg-subtle); color: var(--text-main); font-size: 0.92rem; outline: none;">
+            <option value="Junior" <%= question.difficulty === 'Junior' ? 'selected' : '' %>>🌱 Junior</option>
+            <option value="Mid" <%= question.difficulty === 'Mid' ? 'selected' : '' %>>⚡ Mid</option>
+            <option value="Senior" <%= question.difficulty === 'Senior' ? 'selected' : '' %>>🚀 Senior</option>
+          </select>
+        </div>
+
+        <div>
+          <label for="order" style="display: block; font-weight: 700; color: var(--text-main); margin-bottom: 0.5rem;">Sort Order</label>
+          <input type="number" name="order" id="order" value="<%= question.order %>" style="width: 100%; padding: 0.8rem 1rem; border-radius: var(--radius-lg); border: 1px solid var(--border-light); background: var(--bg-subtle); color: var(--text-main); font-size: 0.92rem; outline: none;">
+        </div>
+      </div>
+
+      <div>
+        <label for="answer" style="display: block; font-weight: 700; color: var(--text-main); margin-bottom: 0.5rem;">Model Answer (Markdown / Code Enabled) *</label>
+        <textarea name="answer" id="answer" rows="12" required style="width: 100%; padding: 1rem; border-radius: var(--radius-lg); border: 1px solid var(--border-light); background: var(--bg-subtle); color: var(--text-main); font-family: var(--font-mono); font-size: 0.9rem; line-height: 1.6; outline: none; resize: vertical;"><%= question.answer %></textarea>
+      </div>
+
+      <div style="display: flex; gap: 1rem; justify-content: flex-end; margin-top: 1rem;">
+        <a href="/admin/faq" class="btn" style="background: var(--bg-subtle); border: 1px solid var(--border-light); color: var(--text-main); padding: 0.75rem 1.6rem; font-size: 0.9rem; border-radius: var(--radius-lg);">
+          Cancel
+        </a>
+        <button type="submit" class="btn" style="padding: 0.75rem 1.8rem; font-size: 0.9rem; font-weight: 700; border-radius: var(--radius-lg);">
+          Save Changes
+        </button>
+      </div>
+    </form>
+
+  </main>
+
+</div>

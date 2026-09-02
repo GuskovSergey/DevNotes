@@ -51,4 +51,12 @@ router.get('/admin/lessons/:id/edit', adminAuthMiddleware, adminController.getAd
 router.put('/admin/lessons/:id', adminAuthMiddleware, doubleCsrfProtection, adminController.handleAdminEditLesson);
 router.delete('/admin/lessons/:id', adminAuthMiddleware, doubleCsrfProtection, adminController.handleAdminDeleteLesson);
 
+// Protected Admin FAQ / Technical Interview Q&A routes
+router.get('/admin/faq', adminAuthMiddleware, adminController.getFaqListPage);
+router.get('/admin/faq/add', adminAuthMiddleware, doubleCsrfProtection, adminController.getAddFaqPage);
+router.post('/admin/faq/add', adminAuthMiddleware, doubleCsrfProtection, adminController.createFaqQuestion);
+router.get('/admin/faq/edit/:id', adminAuthMiddleware, doubleCsrfProtection, adminController.getEditFaqPage);
+router.post('/admin/faq/edit/:id', adminAuthMiddleware, doubleCsrfProtection, adminController.updateFaqQuestion);
+router.post('/admin/faq/delete/:id', adminAuthMiddleware, doubleCsrfProtection, adminController.deleteFaqQuestion);
+
 module.exports = router;
