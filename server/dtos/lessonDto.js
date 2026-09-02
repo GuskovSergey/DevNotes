@@ -36,6 +36,12 @@ class LessonDto {
         slug: course.slug,
         totalLessons: sortedLessons.length,
         currentOrder: lesson.order,
+        lessons: sortedLessons.map(l => ({
+          id: l.id,
+          title: l.title,
+          slug: l.slug,
+          order: l.order,
+        })),
       };
     } else {
       this.prevLesson = null;

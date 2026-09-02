@@ -7,6 +7,9 @@
   <title><%= locals.title %></title>
   <meta name="description" content="<%= locals.description %>">
   
+  <!-- Highlight.js Atom One Themes (Atom One Dark & Atom One Light) -->
+  <link id="hljs-theme-stylesheet" rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
+  
   <!-- Inline Synchronous Theme Initialization to prevent Theme Flash / FOUT -->
   <script>
     (function() {
@@ -14,6 +17,12 @@
       var prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
       var theme = saved || (prefersDark ? 'dark' : 'light');
       document.documentElement.setAttribute('data-theme', theme);
+      var hljsCss = document.getElementById('hljs-theme-stylesheet');
+      if (hljsCss) {
+        hljsCss.href = theme === 'dark' 
+          ? 'https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css'
+          : 'https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-light.min.css';
+      }
     })();
   </script>
 
@@ -23,7 +32,6 @@
   <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,300;0,400;0,500;0,700;0,900;1,400;1,700&family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
   
   <link rel="stylesheet" href="/css/style.css">
-  <!-- Highlight.js for Syntax Highlighting (IntelliJ Light & IntelliJ Darcula) -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
   <script type="text/javascript" defer src="/js/script.js"></script>
 </head>

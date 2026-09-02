@@ -27,6 +27,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
     document.documentElement.setAttribute('data-theme', theme);
     localStorage.setItem('theme', theme);
+
+    // Switch Highlight.js theme dynamically between Atom One Dark and Atom One Light
+    const hljsCss = document.getElementById('hljs-theme-stylesheet');
+    if (hljsCss) {
+      hljsCss.href = theme === 'dark'
+        ? 'https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css'
+        : 'https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-light.min.css';
+    }
     
     if (themeToggleBtn) {
       themeToggleBtn.innerHTML = theme === 'dark'
@@ -377,4 +385,64 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     });
   }
+
+  // --- 1-Click Code Block Copy & Language Header Enhancer ---
+  function enhanceCodeBlocks() {
+    const codeBlocks = document.querySelectorAll('.article-content pre code, .article-body pre code');
+    codeBlocks.forEach((codeEl) => {
+      const preEl = codeEl.parentElement;
+      if (!preEl || preEl.parentElement.classList.contains('code-block-wrapper')) return;
+
+      // Detect programming language class e.g. class="language-javascript"
+      let lang = 'CODE';
+      const classList = Array.from(codeEl.classList);
+      const langClass = classList.find(c => c.startsWith('language-') || c.startsWith('lang-'));
+      if (langClass) {
+        lang = langClass.replace(/^(language-|lang-)/, '').toUpperCase();
+      }
+
+      // Create wrapper container and header bar
+      const wrapper = document.createElement('div');
+      wrapper.className = 'code-block-wrapper';
+
+      const headerBar = document.createElement('div');
+      headerBar.className = 'code-header-bar';
+      headerBar.innerHTML = `
+        <div class="code-window-dots">
+          <span class="dot red"></span>
+          <span class="dot yellow"></span>
+          <span class="dot green"></span>
+          <span class="code-lang-badge">${lang}</span>
+        </div>
+        <button type="button" class="code-copy-btn" title="Copy code snippet">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+          <span class="copy-text">Copy</span>
+        </button>
+      `;
+
+      preEl.parentNode.insertBefore(wrapper, preEl);
+      wrapper.appendChild(headerBar);
+      wrapper.appendChild(preEl);
+
+      const copyBtn = headerBar.querySelector('.code-copy-btn');
+      const copyText = headerBar.querySelector('.copy-text');
+
+      copyBtn.addEventListener('click', async () => {
+        const textToCopy = codeEl.innerText;
+        try {
+          await navigator.clipboard.writeText(textToCopy);
+          copyBtn.classList.add('copied');
+          copyText.textContent = '✓ Copied!';
+          setTimeout(() => {
+            copyBtn.classList.remove('copied');
+            copyText.textContent = 'Copy';
+          }, 2000);
+        } catch (err) {
+          console.error('Failed to copy code snippet:', err);
+        }
+      });
+    });
+  }
+
+  enhanceCodeBlocks();
 });

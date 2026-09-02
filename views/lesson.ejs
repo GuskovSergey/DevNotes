@@ -42,17 +42,20 @@
       </div>
 
       <!-- Syllabus Module Links -->
-      <% if (lesson.course && lesson.course.totalLessons) { %>
+      <% if (lesson.course && lesson.course.lessons && lesson.course.lessons.length > 0) { %>
         <div style="display: flex; flex-direction: column; gap: 0.5rem; max-height: 520px; overflow-y: auto; padding-right: 0.2rem;">
           <div style="font-size: 0.75rem; font-family: var(--font-mono); color: var(--text-muted); font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.4rem;">
             Course Modules (<%= lesson.course.totalLessons %>)
           </div>
 
-          <!-- Note: The syllabus links dynamically map from course -->
-          <div style="display: flex; flex-direction: column; gap: 0.4rem;">
-            <div style="font-size: 0.85rem; font-family: var(--font-mono); color: var(--text-main); font-weight: 700; padding: 0.6rem 0.8rem; background: var(--primary-indigo-light); border-radius: var(--radius-md); border-left: 3px solid var(--primary-indigo);">
-              📖 Lesson <%= lesson.order %>: <%= lesson.title %>
-            </div>
+          <div style="display: flex; flex-direction: column; gap: 0.45rem;">
+            <% lesson.course.lessons.forEach(m => { %>
+              <% const isActive = m.slug === lesson.slug; %>
+              <a href="/courses/<%= lesson.course.slug %>/lessons/<%= m.slug %>" style="display: flex; align-items: center; gap: 0.6rem; text-decoration: none; padding: 0.65rem 0.85rem; border-radius: var(--radius-md); font-size: 0.85rem; font-family: var(--font-mono); transition: all 0.2s; <%= isActive ? 'background: var(--primary-indigo-light); color: var(--primary-indigo); font-weight: 700; border-left: 3px solid var(--primary-indigo);' : 'color: var(--text-main); background: var(--bg-subtle); border-left: 3px solid transparent;' %>" onmouseover="if(!<%= isActive %>) this.style.background='rgba(99, 102, 241, 0.08)'" onmouseout="if(!<%= isActive %>) this.style.background='var(--bg-subtle)'">
+                <span style="font-weight: 800; font-size: 0.78rem; opacity: 0.8;"><%= m.order %>.</span>
+                <span style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap;"><%= m.title %></span>
+              </a>
+            <% }) %>
           </div>
         </div>
       <% } %>
