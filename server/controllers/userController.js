@@ -5,6 +5,9 @@ const bookmarkService = require('../services/bookmarkService');
 const likeService = require('../services/likeService');
 const authService = require('../services/authService');
 const commentService = require('../services/commentService');
+const readingHistoryService = require('../services/readingHistoryService');
+const analyticsService = require('../services/analyticsService');
+const notificationService = require('../services/notificationService');
 const { User, Post, Comment } = require('../models');
 const catchAsync = require('../utils/catchAsync');
 const logger = require('../config/logger');
@@ -118,6 +121,7 @@ class UserController {
     const userPosts = await postService.getUserPosts(req.userId);
     const userBookmarks = await bookmarkService.getUserBookmarks(req.userId);
     const userLikes = await likeService.getUserLikedPosts(req.userId);
+    const analytics = await analyticsService.getAuthorAnalytics(req.userId);
 
     const locals = {
       title: 'My Profile & Account',
@@ -127,7 +131,9 @@ class UserController {
     res.render('account/index', {
       locals,
       user,
+      activeTab: 'overview',
       comments,
+      analytics,
       stats: {
         postsCount: userPosts.length,
         bookmarksCount: userBookmarks.length,
@@ -150,31 +156,47 @@ class UserController {
     res.render('account/edit-profile', {
       locals,
       user,
+      activeTab: 'settings',
       errorMessage: null,
     });
   });
 
   handleUpdateProfile = catchAsync(async (req, res) => {
-    const { displayName, email, bio } = req.body;
+    const { displayName, email, bio, githubUrl, twitterUrl, websiteUrl, oldPassword, newPassword } = req.body;
+    const avatarUrl = req.file ? `/uploads/${req.file.filename}` : undefined;
 
     if (req.validationErrors && req.validationErrors.length > 0) {
       const user = await authService.getUserById(req.userId);
       return res.status(400).render('account/edit-profile', {
-        locals: { title: 'Edit Profile' },
-        user: { ...user.toJSON(), displayName, email, bio },
+        locals: { title: 'Profile Settings' },
+        user: { ...user.toJSON(), displayName, email, bio, githubUrl, twitterUrl, websiteUrl },
         errorMessage: req.validationErrors[0],
       });
     }
 
     try {
-      await authService.updateProfile(req.userId, { displayName, email, bio });
-      return res.redirect('/account?success=Profile updated successfully!');
+      await authService.updateProfile(req.userId, {
+        displayName,
+        email,
+        bio,
+        githubUrl,
+        twitterUrl,
+        websiteUrl,
+        avatarUrl,
+      });
+
+      // Handle optional password change inside unified settings form
+      if (oldPassword && newPassword) {
+        await authService.changePassword(req.userId, oldPassword, newPassword);
+      }
+
+      return res.redirect('/account?success=Profile & Security settings updated successfully!');
     } catch (err) {
       const user = await authService.getUserById(req.userId);
       return res.status(err.statusCode || 400).render('account/edit-profile', {
-        locals: { title: 'Edit Profile' },
-        user: { ...user.toJSON(), displayName, email, bio },
-        errorMessage: err.message || 'Failed to update profile',
+        locals: { title: 'Profile Settings' },
+        user: { ...user.toJSON(), displayName, email, bio, githubUrl, twitterUrl, websiteUrl },
+        errorMessage: err.message || 'Failed to update profile settings',
       });
     }
   });
@@ -224,6 +246,7 @@ class UserController {
     res.render('my/posts', {
       locals,
       user,
+      activeTab: 'articles',
       posts,
       successMessage: req.query.success || null,
     });
@@ -245,7 +268,7 @@ class UserController {
   });
 
   handleCreatePost = catchAsync(async (req, res) => {
-    const { title, body, categoryId, tags: tagsInput } = req.body;
+    const { title, body, categoryId, difficultyLevel, tags: tagsInput } = req.body;
     const featuredImage = req.file ? req.file.filename : null;
     const user = await authService.getUserById(req.userId);
 
@@ -254,7 +277,7 @@ class UserController {
       return res.status(400).render('my/editor', {
         locals: { title: 'Write New Article' },
         categories,
-        post: { title, body, categoryId, tagsInput },
+        post: { title, body, categoryId, difficultyLevel, tagsInput },
         errorMessage: req.validationErrors[0],
       });
     }
@@ -270,6 +293,7 @@ class UserController {
       userId: req.userId,
       tags,
       status,
+      difficultyLevel: difficultyLevel || 'Intermediate',
     });
 
     const msg = status === 'published'
@@ -305,7 +329,7 @@ class UserController {
 
   handleUpdateMyPost = catchAsync(async (req, res, next) => {
     const { id } = req.params;
-    const { title, body, categoryId, tags: tagsInput } = req.body;
+    const { title, body, categoryId, difficultyLevel, tags: tagsInput } = req.body;
     const featuredImage = req.file ? req.file.filename : null;
     const user = await authService.getUserById(req.userId);
 
@@ -321,7 +345,7 @@ class UserController {
       return res.status(400).render('my/editor', {
         locals: { title: 'Edit Article' },
         categories,
-        post: { ...existingPost, title, body, categoryId },
+        post: { ...existingPost, title, body, categoryId, difficultyLevel },
         errorMessage: req.validationErrors[0],
       });
     }
@@ -336,6 +360,7 @@ class UserController {
       featuredImage,
       tags,
       status,
+      difficultyLevel: difficultyLevel || 'Intermediate',
     });
 
     const msg = status === 'published'
@@ -375,6 +400,7 @@ class UserController {
     res.render('my/bookmarks', {
       locals,
       user,
+      activeTab: 'bookmarks',
       posts: bookmarks,
     });
   });
@@ -391,8 +417,67 @@ class UserController {
     res.render('my/likes', {
       locals,
       user,
+      activeTab: 'likes',
       posts: likedPosts,
     });
+  });
+
+  getReadingHistoryPage = catchAsync(async (req, res) => {
+    const user = await authService.getUserById(req.userId);
+    const history = await readingHistoryService.getUserHistory(req.userId);
+
+    const locals = {
+      title: 'Reading History',
+      description: 'View articles you have recently read on DevHub.',
+    };
+
+    res.render('my/history', {
+      locals,
+      user,
+      activeTab: 'history',
+      history,
+    });
+  });
+
+  getNotificationsPage = catchAsync(async (req, res) => {
+    const user = await authService.getUserById(req.userId);
+    const notifications = await notificationService.getUserNotifications(req.userId);
+
+    // Auto mark as read when user views notifications page
+    await notificationService.markAllAsRead(req.userId);
+
+    const locals = {
+      title: 'Notifications',
+      description: 'View your activity notifications and system alerts.',
+    };
+
+    res.render('my/notifications', {
+      locals,
+      user,
+      activeTab: 'notifications',
+      notifications,
+    });
+  });
+
+  apiGetNotifications = catchAsync(async (req, res) => {
+    const notifications = await notificationService.getUserNotifications(req.userId);
+    const unreadCount = await notificationService.getUnreadCount(req.userId);
+    return res.json({ success: true, notifications, unreadCount });
+  });
+
+  apiMarkAllNotificationsRead = catchAsync(async (req, res) => {
+    await notificationService.markAllAsRead(req.userId);
+    return res.json({ success: true });
+  });
+
+  handleMarkAllNotificationsRead = catchAsync(async (req, res) => {
+    await notificationService.markAllAsRead(req.userId);
+    return res.redirect('/my/notifications');
+  });
+
+  handleClearHistory = catchAsync(async (req, res) => {
+    await readingHistoryService.clearUserHistory(req.userId);
+    return res.redirect('/my/history');
   });
 
   handleToggleLike = catchAsync(async (req, res) => {

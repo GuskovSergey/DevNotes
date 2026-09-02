@@ -1,5 +1,6 @@
 const authService = require('../services/authService');
 const categoryService = require('../services/categoryService');
+const notificationService = require('../services/notificationService');
 const logger = require('../config/logger');
 
 // Strict Admin-only Middleware
@@ -26,6 +27,7 @@ const adminAuthMiddleware = async (req, res, next) => {
     req.userId = user.id;
     req.userRole = user.role;
     res.locals.currentUser = user;
+    res.locals.unreadNotificationsCount = await notificationService.getUnreadCount(user.id);
     return next();
   } catch (error) {
     logger.warn({ err: error.message }, 'Invalid authentication token during admin check');
@@ -54,6 +56,7 @@ const userAuthMiddleware = async (req, res, next) => {
     req.userId = user.id;
     req.userRole = user.role;
     res.locals.currentUser = user;
+    res.locals.unreadNotificationsCount = await notificationService.getUnreadCount(user.id);
     return next();
   } catch (error) {
     logger.warn({ err: error.message }, 'Invalid user authentication token');
@@ -62,7 +65,7 @@ const userAuthMiddleware = async (req, res, next) => {
   }
 };
 
-// Soft/Optional Authentication Middleware (attaches currentUser & categories to locals)
+// Soft/Optional Authentication Middleware (attaches currentUser & categories & notifications to locals)
 const optionalAuthMiddleware = async (req, res, next) => {
   const token = req.cookies ? req.cookies.token : null;
 
@@ -74,6 +77,7 @@ const optionalAuthMiddleware = async (req, res, next) => {
         req.userId = user.id;
         req.userRole = user.role;
         res.locals.currentUser = user;
+        res.locals.unreadNotificationsCount = await notificationService.getUnreadCount(user.id);
       }
     } catch (error) {
       res.clearCookie('token');
@@ -82,6 +86,7 @@ const optionalAuthMiddleware = async (req, res, next) => {
 
   if (!res.locals.currentUser) {
     res.locals.currentUser = null;
+    res.locals.unreadNotificationsCount = 0;
   }
 
   try {

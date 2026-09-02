@@ -1,4 +1,4 @@
-<!-- Clean Hero Section -->
+<!-- Clean Developer Portal Hero Section -->
 <section class="dev-hero">
   <div class="dev-hero__body">
     <div class="dev-hero__badge">
@@ -6,173 +6,300 @@
       <span>🚀 Node.js Architecture &amp; Database Engineering</span>
     </div>
 
-    <h1 class="dev-hero__heading">Production-Grade Backend Architecture &amp; Node.js Patterns</h1>
-    <p class="dev-hero__sub">In-depth guides, architectural breakdowns, and practical tutorials for building robust Server-Side Rendered applications with Express &amp; SQLite.</p>
+    <h1 class="dev-hero__heading">Production Backend Architecture &amp; Express Patterns</h1>
+    <p class="dev-hero__sub">In-depth architectural guides, performance benchmarks, and production-ready Node.js &amp; SQLite patterns for modern backend engineers.</p>
 
-    <!-- Command Palette Style Search Box -->
-    <form action="/search" method="POST" class="dev-hero__search-box">
-      <input type="hidden" name="_csrf" value="<%= csrfToken %>">
-      <svg class="dev-hero__search-icon" width="20" height="20" viewBox="0 0 17 17" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <path d="M7.79167 13.4583C10.9213 13.4583 13.4583 10.9213 13.4583 7.79167C13.4583 4.66205 10.9213 2.125 7.79167 2.125C4.66205 2.125 2.125 4.66205 2.125 7.79167C2.125 10.9213 4.66205 13.4583 7.79167 13.4583Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-        <path d="M14.875 14.875L11.7938 11.7938" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-      </svg>
-      <input type="search" name="searchTerm" placeholder="Search architecture patterns, tutorials, SQL..." required>
-      <kbd class="shortcut-badge">⌘K</kbd>
-      <button type="submit" class="btn">Search</button>
-    </form>
-
-    <div class="tech-badges">
-      <span class="tech-badge">#nodejs</span>
-      <span class="tech-badge">#express-mvc</span>
-      <span class="tech-badge">#sqlite3</span>
-      <span class="tech-badge">#sequelize</span>
-      <span class="tech-badge">#pino-logger</span>
-      <span class="tech-badge">#async-await</span>
+    <!-- Platform Stats Ribbon -->
+    <div style="display: flex; align-items: center; justify-content: center; gap: 1.8rem; margin-top: 1.5rem; flex-wrap: wrap; font-family: var(--font-mono); font-size: 0.85rem; color: var(--text-muted);">
+      <div style="display: flex; align-items: center; gap: 0.4rem;">
+        <span style="color: var(--primary-indigo); font-weight: 700;">15+</span>
+        <span>Tech Guides</span>
+      </div>
+      <span>•</span>
+      <div style="display: flex; align-items: center; gap: 0.4rem;">
+        <span style="color: #10b981; font-weight: 700;">4.2k+</span>
+        <span>Article Reads</span>
+      </div>
+      <span>•</span>
+      <div style="display: flex; align-items: center; gap: 0.4rem;">
+        <span style="color: #f59e0b; font-weight: 700;">100%</span>
+        <span>Open Source</span>
+      </div>
     </div>
   </div>
 </section>
 
-<!-- Category Pills Filter -->
-<section class="categories-nav">
-  <h3>Filter by Topic</h3>
+<!-- Topic Pills Filter (Full width alignment above two-column layout) -->
+<section class="categories-nav" style="max-width: 1240px; margin: 0 auto 1.8rem auto;">
   <div class="categories-pills">
     <a href="/" class="category-pill <%= !activeCategory ? 'active' : '' %>">All Topics</a>
-    <% categories.forEach(cat => { %>
-      <a href="/?category=<%= cat.slug %>" class="category-pill <%= activeCategory === cat.slug ? 'active' : '' %>">
-        #<%= cat.name.toLowerCase() %>
-      </a>
-    <% }) %>
+    <% if (typeof categories !== 'undefined' && categories) { %>
+      <% categories.forEach(cat => { %>
+        <a href="/?category=<%= cat.slug %>" class="category-pill <%= activeCategory === cat.slug ? 'active' : '' %>">
+          #<%= cat.name.toLowerCase() %>
+        </a>
+      <% }) %>
+    <% } %>
   </div>
 </section>
 
-<!-- Featured Hero Post (if present & page 1 & no filter) -->
-<% if (data.length > 0 && !activeCategory && current === 1) { %>
-  <% const featuredPost = data[0]; %>
-  <section style="margin-bottom: 2.5rem;">
-    <div class="featured-post-card">
-      <div>
-        <span class="featured-post-card__tag">🔥 Featured Post</span>
-        
-        <h2 class="featured-post-card__title">
-          <a href="/post/<%= featuredPost._id %>"><%= featuredPost.title %></a>
-        </h2>
-
-        <p class="featured-post-card__excerpt">
-          <%= featuredPost.body %>
-        </p>
-
-        <div class="featured-post-card__meta">
-          <span><%= featuredPost.createdAtFormatted %></span>
-          <span>•</span>
-          <span>⏱ <%= featuredPost.readingTime %></span>
-          <span>•</span>
-          <span>👁 <%= featuredPost.viewsCount %> views</span>
-          <% if (featuredPost.category) { %>
-            <span class="article-card__badge" style="margin-left: auto;"><%= featuredPost.category.name %></span>
-          <% } %>
-        </div>
-      </div>
-
-      <% if (featuredPost.featuredImage) { %>
-        <img src="<%= featuredPost.featuredImage %>" alt="<%= featuredPost.title %>" class="featured-post-card__cover">
-      <% } else { %>
-        <div style="background: linear-gradient(135deg, #0f172a 0%, #4f46e5 100%); height: 280px; border-radius: var(--radius-lg); display: flex; align-items: center; justify-content: center; font-family: var(--font-mono); color: white; font-size: 1.5rem; font-weight: bold; padding: 2rem; text-align: center;">
-          &lt;NodeJs / Architecture&gt;
-        </div>
-      <% } %>
-    </div>
-  </section>
-<% } %>
-
-<!-- Articles Grid -->
-<section class="articles">
-  <h2 class="articles__heading">
-    <%= activeCategory ? 'Topic Articles' : 'Recent Articles' %>
-  </h2>
-
-  <% const gridPosts = (!activeCategory && current === 1 && data.length > 1) ? data.slice(1) : data; %>
-
-  <% if (gridPosts.length === 0) { %>
-    <div style="background: var(--bg-surface); border: 1px dashed var(--border-light); padding: 3rem; border-radius: var(--radius-lg); text-align: center; color: var(--text-muted);">
-      No articles found in this category yet.
-    </div>
-  <% } else { %>
-    <ul class="article-grid">
-      <% gridPosts.forEach(post => { %>
-        <li class="article-card">
-          <div class="article-card__media-wrapper">
-            <% if (post.category) { %>
-              <span class="article-card__badge-floating"><%= post.category.name %></span>
-            <% } %>
-
-            <% if (post.featuredImage) { %>
-              <img src="<%= post.featuredImage %>" alt="<%= post.title %>" class="article-card__cover">
-            <% } else { %>
-              <div class="article-card__placeholder">
-                <span>&lt;DevHub / Article&gt;</span>
-              </div>
-            <% } %>
-          </div>
-
-          <div class="article-card__body">
-            <div class="article-card__meta-top">
-              <span><%= post.createdAtFormatted %></span>
-              <span>•</span>
-              <span>⏱ <%= post.readingTime %></span>
-              <span>•</span>
-              <span>👁 <%= post.viewsCount %> views</span>
-            </div>
-
-            <h3 class="article-card__title">
-              <a href="/post/<%= post._id %>"><%= post.title %></a>
-            </h3>
-
-            <p class="article-card__excerpt">
-              <%= post.body %>
-            </p>
-
-            <% if (post.tags && post.tags.length > 0) { %>
-              <div class="article-card__tags">
-                <% post.tags.slice(0, 3).forEach(tag => { %>
-                  <a href="/tag/<%= tag.slug %>" class="tech-badge" style="text-decoration: none; font-size: 0.7rem; padding: 0.15rem 0.55rem;">
-                    #<%= tag.name %>
-                  </a>
-                <% }) %>
-                <% if (post.tags.length > 3) { %>
-                  <span class="tech-badge" style="font-size: 0.7rem; padding: 0.15rem 0.55rem;">+<%= post.tags.length - 3 %></span>
+<!-- Two-Column Layout (Main Feed + Platform Sidebar) -->
+<div class="home-layout">
+  
+  <!-- Left Main Feed (70%) -->
+  <div class="home-main">
+    
+    <!-- Featured Hero Post (if present & page 1 & no filter) -->
+    <% if (data.length > 0 && !activeCategory && current === 1) { %>
+      <% const featuredPost = data[0]; %>
+      <section style="margin-bottom: 2.2rem;">
+        <div class="featured-post-card">
+          <div style="display: flex; flex-direction: column; justify-content: space-between; min-width: 0;">
+            <div>
+              <div style="display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.8rem; flex-wrap: wrap;">
+                <span class="featured-post-card__tag">🔥 Featured Guide</span>
+                <% if (featuredPost.category) { %>
+                  <span class="category-pill" style="font-size: 0.75rem; padding: 0.18rem 0.6rem;"><%= featuredPost.category.name %></span>
                 <% } %>
               </div>
-            <% } %>
+              
+              <h2 class="featured-post-card__title">
+                <a href="/post/<%= featuredPost._id %>"><%= featuredPost.title %></a>
+              </h2>
+
+              <p class="featured-post-card__excerpt">
+                <%= featuredPost.bodySnippet %>
+              </p>
+            </div>
+
+            <div class="featured-post-card__meta">
+              <% if (featuredPost.author) { %>
+                <div style="display: flex; align-items: center; gap: 0.5rem; margin-right: 0.6rem; min-width: 0;">
+                  <div style="width: 26px; height: 26px; border-radius: 50%; background: linear-gradient(135deg, var(--primary-indigo) 0%, #10b981 100%); color: white; display: flex; align-items: center; justify-content: center; font-size: 0.72rem; font-weight: 800; overflow: hidden; flex-shrink: 0;">
+                    <% if (featuredPost.author.avatarUrl) { %>
+                      <img src="<%= featuredPost.author.avatarUrl %>" alt="Author" style="width: 100%; height: 100%; object-fit: cover;">
+                    <% } else { %>
+                      <%= (featuredPost.author.displayName || featuredPost.author.username).charAt(0).toUpperCase() %>
+                    <% } %>
+                  </div>
+                  <span style="font-weight: 600; color: var(--text-main); font-size: 0.88rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;"><%= featuredPost.author.displayName || featuredPost.author.username %></span>
+                </div>
+                <span>•</span>
+              <% } %>
+              <span><%= featuredPost.createdAtFormatted %></span>
+              <span>•</span>
+              <span>⏱ <%= featuredPost.readingTime %></span>
+              <span>•</span>
+              <span>👁 <%= featuredPost.viewsCount %> views</span>
+            </div>
           </div>
 
-          <div class="article-card__footer">
-            <a href="/post/<%= post._id %>" class="article-card__read-link">
-              <span>Read Article</span>
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                <line x1="5" y1="12" x2="19" y2="12"></line>
-                <polyline points="12 5 19 12 12 19"></polyline>
-              </svg>
+          <% if (featuredPost.featuredImage) { %>
+            <img src="<%= featuredPost.featuredImage %>" alt="<%= featuredPost.title %>" class="featured-post-card__cover">
+          <% } else { %>
+            <div style="background: linear-gradient(135deg, #0f172a 0%, #312e81 50%, #4f46e5 100%); height: 250px; border-radius: var(--radius-lg); display: flex; align-items: center; justify-content: center; font-family: var(--font-mono); color: white; font-size: 1.3rem; font-weight: bold; padding: 1.5rem; text-align: center; box-shadow: var(--shadow-sm);">
+              &lt;NodeJs / Architecture&gt;
+            </div>
+          <% } %>
+        </div>
+      </section>
+    <% } %>
+
+    <!-- Articles Grid -->
+    <section class="articles">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.2rem;">
+        <h2 class="articles__heading" style="margin-bottom: 0;">
+          <%= activeCategory ? 'Category: #' + activeCategory : 'Recent Publications' %>
+        </h2>
+      </div>
+
+      <% const gridPosts = (!activeCategory && current === 1 && data.length > 1) ? data.slice(1) : data; %>
+
+      <% if (gridPosts.length === 0) { %>
+        <div style="background: var(--bg-surface); border: 1px dashed var(--border-light); padding: 3.5rem 2rem; border-radius: var(--radius-xl); text-align: center; color: var(--text-muted);">
+          <div style="font-size: 2.5rem; margin-bottom: 0.6rem;">📝</div>
+          <h3 style="font-size: 1.2rem; color: var(--text-main); margin-bottom: 0.3rem;">No articles found</h3>
+          <p style="margin: 0;">No published articles found in this topic yet.</p>
+        </div>
+      <% } else { %>
+        <div class="article-grid">
+          <% gridPosts.forEach(post => { %>
+            <article class="article-card">
+              <div class="article-card__media-wrapper">
+                <% if (post.category) { %>
+                  <span class="article-card__badge-floating"><%= post.category.name %></span>
+                <% } %>
+
+                <% if (post.featuredImage) { %>
+                  <img src="<%= post.featuredImage %>" alt="<%= post.title %>" class="article-card__cover">
+                <% } else { %>
+                  <div class="article-card__placeholder">
+                    <span>&lt;DevHub / Article&gt;</span>
+                  </div>
+                <% } %>
+              </div>
+
+              <div class="article-card__body">
+                <div class="article-card__meta-top">
+                  <span class="tech-badge" style="font-size: 0.7rem; padding: 0.12rem 0.5rem; font-family: var(--font-mono); <%= post.difficultyLevel === 'Advanced' ? 'background: rgba(239, 68, 68, 0.15); color: #dc2626; border-color: rgba(239, 68, 68, 0.3);' : (post.difficultyLevel === 'Beginner' ? 'background: rgba(16, 185, 129, 0.15); color: #10b981; border-color: rgba(16, 185, 129, 0.3);' : 'background: var(--primary-indigo-light); color: var(--primary-indigo); border-color: var(--border-accent);') %>">
+                    <%= post.difficultyLevel === 'Advanced' ? '🚀 Advanced' : (post.difficultyLevel === 'Beginner' ? '🌱 Beginner' : '⚡ Intermediate') %>
+                  </span>
+                  <span>•</span>
+                  <span><%= post.createdAtFormatted %></span>
+                  <span>•</span>
+                  <span>⏱ <%= post.readingTime %></span>
+                  <span>•</span>
+                  <span>👁 <%= post.viewsCount %></span>
+                </div>
+
+                <h3 class="article-card__title">
+                  <a href="/post/<%= post._id %>"><%= post.title %></a>
+                </h3>
+
+                <p class="article-card__excerpt">
+                  <%= post.bodySnippet %>
+                </p>
+
+                <% if (post.tags && post.tags.length > 0) { %>
+                  <div class="article-card__tags">
+                    <% post.tags.slice(0, 3).forEach(tag => { %>
+                      <a href="/tag/<%= tag.slug %>" class="tech-badge" style="text-decoration: none; font-size: 0.7rem; padding: 0.15rem 0.5rem;">
+                        #<%= tag.name %>
+                      </a>
+                    <% }) %>
+                  </div>
+                <% } %>
+              </div>
+
+              <div class="article-card__footer">
+                <% if (post.author) { %>
+                  <div style="display: flex; align-items: center; gap: 0.5rem; min-width: 0;">
+                    <div style="width: 24px; height: 24px; border-radius: 50%; background: linear-gradient(135deg, var(--primary-indigo) 0%, #10b981 100%); color: white; display: flex; align-items: center; justify-content: center; font-size: 0.7rem; font-weight: 800; overflow: hidden; flex-shrink: 0;">
+                      <% if (post.author.avatarUrl) { %>
+                        <img src="<%= post.author.avatarUrl %>" alt="Author" style="width: 100%; height: 100%; object-fit: cover;">
+                      <% } else { %>
+                        <%= (post.author.displayName || post.author.username).charAt(0).toUpperCase() %>
+                      <% } %>
+                    </div>
+                    <span style="font-size: 0.82rem; font-weight: 600; color: var(--text-main); overflow: hidden; text-overflow: ellipsis; white-space: nowrap;"><%= post.author.displayName || post.author.username %></span>
+                  </div>
+                <% } %>
+
+                <a href="/post/<%= post._id %>" class="article-card__read-link" style="margin-left: auto;">
+                  <span>Read</span>
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="5" y1="12" x2="19" y2="12"></line>
+                    <polyline points="12 5 19 12 12 19"></polyline>
+                  </svg>
+                </a>
+              </div>
+            </article>
+          <% }) %>
+        </div>
+      <% } %>
+
+      <% if (nextPage !== null) { %>
+        <div style="text-align: center; margin-top: 2.2rem;">
+          <a href="/?page=<%= nextPage %><%= activeCategory ? '&category=' + activeCategory : '' %>" class="pagination">&lt; Older Articles</a>
+        </div>
+      <% } %>
+    </section>
+
+  </div>
+
+  <!-- Right Platform Sidebar (30%) - Positioned at exact same level as featured-post-card! -->
+  <aside class="home-sidebar">
+    
+    <!-- Widget 1: Popular Articles -->
+    <% if (typeof popularPosts !== 'undefined' && popularPosts && popularPosts.length > 0) { %>
+      <div class="home-widget">
+        <h3 class="home-widget__title">
+          <span>🔥 Popular Articles</span>
+        </h3>
+        <div style="display: flex; flex-direction: column; gap: 0.9rem;">
+          <% popularPosts.forEach((pp, idx) => { %>
+            <div style="display: flex; gap: 0.8rem; align-items: flex-start; min-width: 0;">
+              <span style="font-family: var(--font-mono); font-size: 0.85rem; font-weight: 800; color: var(--primary-indigo); background: var(--primary-indigo-light); width: 26px; height: 26px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                #<%= idx + 1 %>
+              </span>
+              <div style="flex: 1; min-width: 0;">
+                <a href="/post/<%= pp._id %>" style="font-weight: 700; font-size: 0.92rem; color: var(--text-main); text-decoration: none; line-height: 1.35; display: block; margin-bottom: 0.2rem; overflow-wrap: break-word; word-break: break-word;" onmouseover="this.style.color='var(--primary-indigo)'" onmouseout="this.style.color='var(--text-main)'">
+                  <%= pp.title %>
+                </a>
+                <div style="font-size: 0.78rem; color: var(--text-muted); font-family: var(--font-mono);">
+                  <span>👁 <%= (pp.viewsCount || 0).toLocaleString() %> reads</span>
+                </div>
+              </div>
+            </div>
+          <% }) %>
+        </div>
+      </div>
+    <% } %>
+
+    <!-- Widget 2: Trending Tech Tags -->
+    <% if (typeof popularTags !== 'undefined' && popularTags && popularTags.length > 0) { %>
+      <div class="home-widget">
+        <h3 class="home-widget__title">
+          <span>🏷️ Trending Topics</span>
+        </h3>
+        <div style="display: flex; flex-wrap: wrap; gap: 0.45rem;">
+          <% popularTags.forEach(tag => { %>
+            <a href="/tag/<%= tag.slug %>" class="tech-badge" style="text-decoration: none; font-size: 0.78rem; padding: 0.3rem 0.7rem; transition: transform 0.2s;" onmouseover="this.style.transform='translateY(-1px)'" onmouseout="this.style.transform='translateY(0)'">
+              #<%= tag.name %>
             </a>
-          </div>
-        </li>
-      <% }) %>
-    </ul>
-  <% } %>
+          <% }) %>
+        </div>
+      </div>
+    <% } %>
 
-  <% if (nextPage !== null) { %>
-    <div style="text-align: center; margin-top: 2rem;">
-      <a href="/?page=<%= nextPage %><%= activeCategory ? '&category=' + activeCategory : '' %>" class="pagination">&lt; Older Articles</a>
+    <!-- Widget 3: Top Community Authors -->
+    <% if (typeof topAuthors !== 'undefined' && topAuthors && topAuthors.length > 0) { %>
+      <div class="home-widget">
+        <h3 class="home-widget__title">
+          <span>✍️ Top Authors</span>
+        </h3>
+        <div style="display: flex; flex-direction: column; gap: 0.8rem;">
+          <% topAuthors.forEach(author => { %>
+            <a href="/profile/<%= author.username %>" style="display: flex; align-items: center; justify-content: space-between; text-decoration: none; padding: 0.4rem; border-radius: var(--radius-lg); transition: background 0.2s; min-width: 0;" onmouseover="this.style.background='var(--bg-subtle)'" onmouseout="this.style.background='transparent'">
+              <div style="display: flex; align-items: center; gap: 0.65rem; min-width: 0;">
+                <div style="width: 34px; height: 34px; border-radius: 50%; background: linear-gradient(135deg, var(--primary-indigo) 0%, #10b981 100%); color: white; display: flex; align-items: center; justify-content: center; font-size: 0.9rem; font-weight: 800; overflow: hidden; flex-shrink: 0;">
+                  <% if (author.avatarUrl) { %>
+                    <img src="<%= author.avatarUrl %>" alt="Author" style="width: 100%; height: 100%; object-fit: cover;">
+                  <% } else { %>
+                    <%= (author.displayName || author.username).charAt(0).toUpperCase() %>
+                  <% } %>
+                </div>
+                <div style="flex: 1; min-width: 0;">
+                  <div style="font-size: 0.88rem; font-weight: 700; color: var(--text-main); line-height: 1.2; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;"><%= author.displayName || author.username %></div>
+                  <div style="font-size: 0.75rem; color: var(--text-muted); font-family: var(--font-mono); overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">@<%= author.username %></div>
+                </div>
+              </div>
+              <span class="tech-badge" style="font-size: 0.72rem; padding: 0.15rem 0.5rem; font-family: var(--font-mono); flex-shrink: 0;">
+                <%= author.articlesCount %> posts
+              </span>
+            </a>
+          <% }) %>
+        </div>
+      </div>
+    <% } %>
+
+    <!-- Widget 4: Developer Digest Newsletter -->
+    <div class="home-widget" style="background: linear-gradient(135deg, var(--bg-surface) 0%, var(--primary-indigo-light) 100%); border-color: var(--border-accent);">
+      <h3 class="home-widget__title" style="margin-bottom: 0.4rem;">
+        <span>📬 Developer Digest</span>
+      </h3>
+      <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1rem; line-height: 1.4; overflow-wrap: break-word;">
+        Hand-picked Node.js architecture guides and SQLite performance tips delivered weekly.
+      </p>
+
+      <form onsubmit="event.preventDefault(); alert('Thank you for subscribing to the Developer Digest!');" style="display: flex; flex-direction: column; gap: 0.6rem;">
+        <input type="email" placeholder="your.email@dev.com" required style="padding: 0.6rem 0.9rem; border-radius: var(--radius-lg); border: 1px solid var(--border-light); font-size: 0.88rem; outline: none; background: var(--bg-surface); color: var(--text-main);">
+        <button type="submit" class="btn" style="padding: 0.6rem; font-size: 0.88rem; border-radius: var(--radius-lg); justify-content: center; width: 100%;">
+          Subscribe
+        </button>
+      </form>
     </div>
-  <% } %>
-</section>
 
-<!-- Developer Newsletter Box -->
-<section class="newsletter-box">
-  <h3>📬 Developer Weekly Digest</h3>
-  <p>Get hand-picked Node.js architecture guides, Express MVC best practices, and SQLite performance tips delivered straight to your inbox.</p>
-  
-  <form onsubmit="event.preventDefault(); alert('Thank you for subscribing to the Developer Digest!');" class="newsletter-form">
-    <input type="email" placeholder="enter.your.email@dev.com" required>
-    <button type="submit" class="btn" style="border-radius: var(--radius-full);">Subscribe</button>
-  </form>
-</section>
+  </aside>
+
+</div>

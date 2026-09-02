@@ -1,154 +1,188 @@
-<div style="max-width: 1040px; margin: 0 auto; padding-bottom: 3.5rem;">
+<div style="max-width: 1240px; margin: 0 auto; padding-bottom: 3.5rem;">
   
-  <!-- Back Link -->
+  <!-- Back Link Bar -->
   <div style="margin-bottom: 1.5rem;">
     <a href="/" style="display: inline-flex; align-items: center; gap: 0.4rem; color: var(--text-muted); font-size: 0.9rem; text-decoration: none; font-weight: 600;">
       &larr; Back to Articles
     </a>
   </div>
 
-  <!-- Author Profile Hero Card -->
-  <div class="cabinet-hero" style="margin-bottom: 2rem;">
-    <div class="cabinet-hero__banner">
-      &lt;DevHub / Author Profile&gt;
-    </div>
-
-    <div class="cabinet-hero__body">
-      <div class="cabinet-avatar-wrapper">
-        <div class="cabinet-avatar" style="width: 76px; height: 76px; font-size: 2rem;">
-          <%= (profileUser.displayName || profileUser.username).charAt(0).toUpperCase() %>
-          <div class="cabinet-avatar__status" title="Active Author"></div>
-        </div>
-
-        <div style="display: flex; gap: 0.6rem;">
-          <span class="tech-badge" style="background: var(--primary-indigo-light); color: var(--primary-indigo); border-color: var(--border-accent); font-size: 0.85rem; padding: 0.35rem 0.9rem;">
-            ✍️ Verified Author
-          </span>
-        </div>
-      </div>
-
-      <div class="cabinet-user-title">
-        <h1 style="display: flex; align-items: center; gap: 0.8rem; flex-wrap: wrap;">
-          <span><%= profileUser.displayName || profileUser.username %></span>
-          <% if (profileUser.role === 'admin') { %>
-            <span class="role-badge role-badge--admin">👑 Admin</span>
+  <!-- Two-Column Author Profile Layout -->
+  <div style="display: flex; gap: 2.2rem; align-items: flex-start; flex-wrap: wrap;">
+    
+    <!-- Left Author Sidebar (300px) -->
+    <aside style="width: 300px; flex-shrink: 0;" class="profile-sidebar">
+      <div style="background: var(--bg-surface); border: 1px solid var(--border-light); border-radius: var(--radius-xl); padding: 1.8rem 1.6rem; box-shadow: var(--shadow-sm); display: flex; flex-direction: column; align-items: center; text-align: center;">
+        
+        <!-- Author Avatar -->
+        <div style="width: 96px; height: 96px; border-radius: 50%; background: linear-gradient(135deg, var(--primary-indigo) 0%, #10b981 100%); color: #ffffff; display: flex; align-items: center; justify-content: center; font-size: 2.5rem; font-weight: 800; font-family: var(--font-heading); box-shadow: var(--shadow-sm); margin-bottom: 1rem; overflow: hidden; border: 4px solid var(--bg-surface); position: relative;">
+          <% if (profileUser.avatarUrl) { %>
+            <img src="<%= profileUser.avatarUrl %>" alt="Avatar" style="width: 100%; height: 100%; object-fit: cover;">
           <% } else { %>
-            <span class="role-badge role-badge--user">⚡ Community Author</span>
+            <%= (profileUser.displayName || profileUser.username).charAt(0).toUpperCase() %>
           <% } %>
-        </h1>
+        </div>
 
-        <div class="cabinet-user-meta" style="font-size: 0.95rem;">
+        <!-- Author Name & Handle -->
+        <h1 style="font-size: 1.4rem; font-weight: 800; color: var(--text-main); line-height: 1.2; margin: 0 0 0.3rem 0;">
+          <%= profileUser.displayName || profileUser.username %>
+        </h1>
+        <div style="font-size: 0.88rem; color: var(--text-muted); font-family: var(--font-mono); margin-bottom: 0.8rem;">
           @<%= profileUser.username %>
         </div>
 
-        <p style="color: var(--text-dim); font-size: 0.88rem; margin-top: 0.4rem; font-family: var(--font-mono);">
-          Member since <%= new Date(profileUser.createdAt).toLocaleDateString('en-US', { day: 'numeric', month: 'short', year: 'numeric' }) %>
-        </p>
+        <!-- Role & Status Badges -->
+        <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; justify-content: center; margin-bottom: 1rem;">
+          <% if (profileUser.role === 'admin') { %>
+            <span class="role-badge role-badge--admin">👑 Admin</span>
+          <% } else { %>
+            <span class="role-badge role-badge--user">⚡ Verified Author</span>
+          <% } %>
+        </div>
 
+        <!-- Joined Date -->
+        <div style="font-size: 0.8rem; color: var(--text-dim); font-family: var(--font-mono); margin-bottom: 1.2rem;">
+          Member since <%= new Date(profileUser.createdAt).toLocaleDateString('en-US', { day: 'numeric', month: 'short', year: 'numeric' }) %>
+        </div>
+
+        <!-- Developer Bio -->
         <% if (profileUser.bio) { %>
-          <div style="margin-top: 1.2rem; padding-top: 1rem; border-top: 1px solid var(--border-light); color: var(--text-body); font-size: 1.05rem; line-height: 1.6; max-width: 720px;">
+          <p style="color: var(--text-body); font-size: 0.92rem; line-height: 1.55; margin: 0 0 1.2rem 0; padding-top: 1rem; border-top: 1px solid var(--border-light); width: 100%; text-align: left;">
             <%= profileUser.bio %>
+          </p>
+        <% } %>
+
+        <!-- Social Media Badges -->
+        <% if (profileUser.githubUrl || profileUser.twitterUrl || profileUser.websiteUrl) { %>
+          <div style="display: flex; gap: 0.6rem; flex-wrap: wrap; justify-content: center; padding-top: 1rem; border-top: 1px solid var(--border-light); width: 100%;">
+            <% if (profileUser.githubUrl) { %>
+              <a href="<%= profileUser.githubUrl %>" target="_blank" rel="noopener noreferrer" class="tech-badge" style="text-decoration: none; color: var(--text-main); font-size: 0.8rem; padding: 0.3rem 0.75rem;">
+                🐙 GitHub
+              </a>
+            <% } %>
+            <% if (profileUser.twitterUrl) { %>
+              <a href="<%= profileUser.twitterUrl %>" target="_blank" rel="noopener noreferrer" class="tech-badge" style="text-decoration: none; color: #1da1f2; font-size: 0.8rem; padding: 0.3rem 0.75rem;">
+                🐦 Twitter
+              </a>
+            <% } %>
+            <% if (profileUser.websiteUrl) { %>
+              <a href="<%= profileUser.websiteUrl %>" target="_blank" rel="noopener noreferrer" class="tech-badge" style="text-decoration: none; color: var(--primary-indigo); font-size: 0.8rem; padding: 0.3rem 0.75rem;">
+                🌐 Website
+              </a>
+            <% } %>
           </div>
         <% } %>
-      </div>
-    </div>
-  </div>
 
-  <!-- Author Stats KPI Grid -->
-  <div class="stats-grid" style="margin-bottom: 2.5rem;">
-    <div class="stat-card">
-      <div class="stat-card__icon">
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
-          <polyline points="14 2 14 8 20 8"></polyline>
-        </svg>
       </div>
-      <div>
-        <div class="stat-card__number"><%= stats.totalArticles %></div>
-        <div class="stat-card__label">Published Articles</div>
-      </div>
-    </div>
+    </aside>
 
-    <div class="stat-card">
-      <div class="stat-card__icon" style="background: rgba(79, 70, 229, 0.15); color: var(--primary-indigo);">
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
-          <circle cx="12" cy="12" r="3"></circle>
-        </svg>
-      </div>
-      <div>
-        <div class="stat-card__number"><%= stats.totalViews %></div>
-        <div class="stat-card__label">Total Article Reads</div>
-      </div>
-    </div>
-
-    <div class="stat-card">
-      <div class="stat-card__icon" style="background: rgba(16, 185, 129, 0.15); color: #10b981;">
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
-        </svg>
-      </div>
-      <div>
-        <div class="stat-card__number"><%= stats.totalComments %></div>
-        <div class="stat-card__label">Community Discussions</div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Published Articles Header -->
-  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
-    <h2 style="font-size: 1.6rem; color: var(--text-main); font-weight: 800; letter-spacing: -0.02em;">
-      Articles by <%= profileUser.displayName || profileUser.username %>
-    </h2>
-  </div>
-
-  <% if (posts.length === 0) { %>
-    <div style="background: var(--bg-surface); border: 1px dashed var(--border-light); padding: 3.5rem 2rem; border-radius: var(--radius-xl); text-align: center; color: var(--text-muted);">
-      <div style="font-size: 2.5rem; margin-bottom: 0.8rem;">📝</div>
-      <h3 style="font-size: 1.2rem; color: var(--text-main); margin-bottom: 0.4rem;">No published articles yet</h3>
-      <p style="margin: 0;">This author hasn't published any public articles yet.</p>
-    </div>
-  <% } else { %>
-    <div class="articles-grid" style="display: flex; flex-direction: column; gap: 1.5rem;">
-      <% posts.forEach(post => { %>
-        <article class="article-card">
-          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.8rem; flex-wrap: wrap; gap: 0.6rem;">
-            <% if (post.category) { %>
-              <span class="category-pill"><%= post.category.name %></span>
-            <% } %>
-
-            <div style="display: flex; gap: 0.8rem; font-size: 0.82rem; color: var(--text-dim); font-family: var(--font-mono);">
-              <span><%= post.createdAtFormatted %></span>
-              <span>•</span>
-              <span><%= post.readingTime %></span>
-            </div>
+    <!-- Right Main Content Area -->
+    <main style="flex: 1; min-width: 0;">
+      
+      <!-- KPI Stats Band (3 Cards) -->
+      <div class="stats-grid" style="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); margin-bottom: 2rem;">
+        <div class="stat-card">
+          <div class="stat-card__icon" style="background: rgba(79, 70, 229, 0.15); color: var(--primary-indigo);">
+            📝
           </div>
+          <div>
+            <div class="stat-card__number"><%= stats.totalArticles %></div>
+            <div class="stat-card__label">Published Articles</div>
+          </div>
+        </div>
 
-          <h2 class="article-card__title" style="margin-bottom: 0.6rem;">
-            <a href="/post/<%= post.id %>"><%= post.title %></a>
+        <div class="stat-card">
+          <div class="stat-card__icon" style="background: rgba(16, 185, 129, 0.15); color: #10b981;">
+            👁
+          </div>
+          <div>
+            <div class="stat-card__number"><%= stats.totalViews.toLocaleString() %></div>
+            <div class="stat-card__label">Total Article Reads</div>
+          </div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-card__icon" style="background: rgba(245, 158, 11, 0.15); color: #f59e0b;">
+            💬
+          </div>
+          <div>
+            <div class="stat-card__number"><%= stats.totalComments %></div>
+            <div class="stat-card__label">Discussions</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Published Articles Section -->
+      <div class="dashboard-section" style="margin-bottom: 0;">
+        <div class="dashboard-section__header">
+          <h2 class="dashboard-section__title">
+            <span>📝 Articles by <%= profileUser.displayName || profileUser.username %></span>
           </h2>
+          <span class="tech-badge" style="background: var(--primary-indigo-light); color: var(--primary-indigo); border-color: var(--border-accent); font-size: 0.8rem;">
+            <%= posts.length %> Publications
+          </span>
+        </div>
 
-          <p class="article-card__excerpt" style="margin-bottom: 1.2rem;">
-            <%= post.bodySnippet %>
-          </p>
-
-          <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
-            <% if (post.tags && post.tags.length > 0) { %>
-              <div style="display: flex; gap: 0.4rem; flex-wrap: wrap;">
-                <% post.tags.forEach(t => { %>
-                  <a href="/tag/<%= t.slug %>" class="tech-badge" style="text-decoration: none; font-size: 0.75rem; padding: 0.2rem 0.6rem;">#<%= t.name %></a>
-                <% }) %>
-              </div>
-            <% } %>
-
-            <a href="/post/<%= post.id %>" class="btn" style="padding: 0.5rem 1.2rem; font-size: 0.88rem; margin-left: auto;">
-              <span>Read Article</span>
-              &rarr;
-            </a>
+        <% if (posts.length === 0) { %>
+          <div style="background: var(--bg-subtle); border: 1px dashed var(--border-light); padding: 3.5rem 2rem; border-radius: var(--radius-xl); text-align: center; color: var(--text-muted);">
+            <div style="font-size: 2.5rem; margin-bottom: 0.8rem;">📝</div>
+            <h3 style="font-size: 1.2rem; color: var(--text-main); margin-bottom: 0.4rem;">No published articles yet</h3>
+            <p style="margin: 0; font-size: 0.9rem;">This author hasn't published any public articles yet.</p>
           </div>
-        </article>
-      <% }) %>
-    </div>
-  <% } %>
+        <% } else { %>
+          <div style="display: flex; flex-direction: column; gap: 1.2rem;">
+            <% posts.forEach(post => { %>
+              <article class="article-card" style="padding: 1.5rem 1.8rem; box-shadow: none; border-color: var(--border-light);">
+                
+                <div style="display: flex; align-items: center; justify-content: space-between; gap: 0.8rem; margin-bottom: 0.6rem; flex-wrap: wrap;">
+                  <div style="display: flex; align-items: center; gap: 0.6rem; flex-wrap: wrap;">
+                    <% if (post.category) { %>
+                      <span class="category-pill" style="font-size: 0.72rem; padding: 0.15rem 0.55rem;"><%= post.category.name %></span>
+                    <% } %>
+                    <span class="tech-badge" style="font-size: 0.7rem; padding: 0.12rem 0.5rem; font-family: var(--font-mono); <%= post.difficultyLevel === 'Advanced' ? 'background: rgba(239, 68, 68, 0.15); color: #dc2626; border-color: rgba(239, 68, 68, 0.3);' : (post.difficultyLevel === 'Beginner' ? 'background: rgba(16, 185, 129, 0.15); color: #10b981; border-color: rgba(16, 185, 129, 0.3);' : 'background: var(--primary-indigo-light); color: var(--primary-indigo); border-color: var(--border-accent);') %>">
+                      <%= post.difficultyLevel === 'Advanced' ? '🚀 Advanced' : (post.difficultyLevel === 'Beginner' ? '🌱 Beginner' : '⚡ Intermediate') %>
+                    </span>
+                  </div>
+
+                  <div style="display: flex; gap: 0.7rem; font-size: 0.78rem; color: var(--text-dim); font-family: var(--font-mono);">
+                    <span><%= post.createdAtFormatted %></span>
+                    <span>•</span>
+                    <span>⏱ <%= post.readingTime %></span>
+                    <span>•</span>
+                    <span>👁 <%= post.viewsCount %> views</span>
+                  </div>
+                </div>
+
+                <h2 style="font-size: 1.25rem; font-weight: 700; margin-bottom: 0.5rem; line-height: 1.4; overflow-wrap: break-word; word-break: break-word;">
+                  <a href="/post/<%= post.id %>" style="color: var(--text-main); text-decoration: none;"><%= post.title %></a>
+                </h2>
+
+                <p style="color: var(--text-muted); font-size: 0.92rem; line-height: 1.55; margin-bottom: 1rem; overflow-wrap: break-word; word-break: break-word;">
+                  <%= post.bodySnippet %>
+                </p>
+
+                <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+                  <% if (post.tags && post.tags.length > 0) { %>
+                    <div style="display: flex; gap: 0.4rem; flex-wrap: wrap;">
+                      <% post.tags.forEach(t => { %>
+                        <a href="/tag/<%= t.slug %>" class="tech-badge" style="text-decoration: none; font-size: 0.72rem; padding: 0.15rem 0.55rem;">#<%= t.name %></a>
+                      <% }) %>
+                    </div>
+                  <% } %>
+
+                  <a href="/post/<%= post.id %>" class="btn" style="padding: 0.55rem 1.2rem; font-size: 0.88rem; margin-left: auto;">
+                    <span>Read Article</span>
+                    &rarr;
+                  </a>
+                </div>
+              </article>
+            <% }) %>
+          </div>
+        <% } %>
+
+      </div>
+
+    </main>
+  </div>
 
 </div>

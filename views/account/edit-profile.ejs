@@ -1,92 +1,171 @@
-<div class="cabinet-container" style="max-width: 680px; margin: 0 auto;">
+<div class="dashboard">
+  
+  <!-- Sidebar Navigation -->
+  <%- include('../partials/sidebar-cabinet', { user, activeTab: 'settings' }) %>
 
-  <!-- Header Navigation Link -->
-  <div style="margin-bottom: 1.5rem;">
-    <a href="/account" style="color: var(--text-muted); text-decoration: none; font-size: 0.9rem; font-weight: 500; display: inline-flex; align-items: center; gap: 0.4rem;">
-      &larr; Back to Cabinet Profile
-    </a>
-  </div>
-
-  <div class="auth-card" style="box-shadow: var(--shadow-md);">
+  <!-- Main Content Area -->
+  <main class="dashboard__content">
     
-    <!-- Hero Banner -->
-    <div class="auth-card__logo-area">
-      <div style="font-family: var(--font-mono); font-size: 0.85rem; color: var(--primary-indigo); background: var(--primary-indigo-light); display: inline-block; padding: 0.25rem 0.75rem; border-radius: var(--radius-full); margin-bottom: 0.8rem; font-weight: 600;">
-        &lt;DevHub / Edit Profile&gt;
+    <div class="dashboard-section">
+      <div class="dashboard-section__header" style="border-bottom: 1px solid var(--border-light); padding-bottom: 1rem; margin-bottom: 1.8rem;">
+        <div>
+          <h1 class="dashboard-section__title">
+            <span>⚙️ Profile &amp; Security Settings</span>
+          </h1>
+          <p style="color: var(--text-muted); font-size: 0.9rem; margin: 0.3rem 0 0 0;">Update your developer profile details, avatar, social accounts, and password.</p>
+        </div>
       </div>
-      <h2 style="font-size: 1.6rem; color: var(--text-main); margin-bottom: 0.3rem;">Edit Public Profile</h2>
-      <p style="color: var(--text-muted); font-size: 0.9rem;">Update your display name, developer bio, and contact email.</p>
+
+      <!-- Error Message Banner -->
+      <% if (typeof errorMessage !== 'undefined' && errorMessage) { %>
+        <div style="background: #fef2f2; border: 1px solid #fecaca; color: #dc2626; padding: 0.85rem 1.1rem; border-radius: var(--radius-lg); margin-bottom: 1.5rem; font-size: 0.9rem; font-weight: 500; display: flex; align-items: center; gap: 0.5rem;">
+          <span>⚠️</span>
+          <span><%= errorMessage %></span>
+        </div>
+      <% } %>
+
+      <!-- Unified Form for Updating Profile & Password -->
+      <form action="/account/profile?_method=PUT" method="POST" enctype="multipart/form-data">
+        <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+
+        <!-- SECTION 1: PUBLIC DEVELOPER PROFILE -->
+        <div style="margin-bottom: 2rem;">
+          <h3 style="font-size: 1.1rem; font-weight: 700; color: var(--text-main); margin-bottom: 1.2rem; display: flex; align-items: center; gap: 0.5rem; border-bottom: 1px solid var(--border-light); padding-bottom: 0.6rem;">
+            <span>👤 Public Developer Profile</span>
+          </h3>
+
+          <!-- Avatar Image Upload & Preview -->
+          <div class="auth-field">
+            <label for="avatar">Profile Avatar</label>
+            <div style="display: flex; align-items: center; gap: 1.2rem; margin-top: 0.4rem; flex-wrap: wrap;">
+              <div style="width: 64px; height: 64px; border-radius: 50%; background: linear-gradient(135deg, var(--primary-indigo) 0%, #10b981 100%); color: white; display: flex; align-items: center; justify-content: center; font-size: 1.6rem; font-weight: 800; overflow: hidden; flex-shrink: 0; border: 2px solid var(--border-accent);">
+                <% if (user.avatarUrl) { %>
+                  <img src="<%= user.avatarUrl %>" alt="Avatar" style="width: 100%; height: 100%; object-fit: cover;">
+                <% } else { %>
+                  <%= (user.displayName || user.username).charAt(0).toUpperCase() %>
+                <% } %>
+              </div>
+              <div style="flex: 1; min-width: 220px;">
+                <input type="file" id="avatar" name="avatar" accept="image/*" style="font-size: 0.85rem; color: var(--text-muted);">
+                <span style="font-size: 0.78rem; color: var(--text-dim); display: block; margin-top: 0.25rem;">Supported formats: JPG, PNG, WEBP. Max size: 2MB.</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Display Name Input -->
+          <div class="auth-field" style="margin-top: 1.2rem;">
+            <label for="displayName">Full Name / Display Name</label>
+            <div class="auth-input-wrapper">
+              <input type="text" id="displayName" name="displayName" value="<%= user.displayName || '' %>" placeholder="e.g. Alexey Ivanov" required>
+              <span class="auth-input-icon">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                  <circle cx="12" cy="7" r="4"></circle>
+                </svg>
+              </span>
+            </div>
+          </div>
+
+          <!-- Email Address Input -->
+          <div class="auth-field">
+            <label for="email">Email Address</label>
+            <div class="auth-input-wrapper">
+              <input type="email" id="email" name="email" value="<%= user.email || '' %>" placeholder="alexey@example.com" required>
+              <span class="auth-input-icon">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
+                  <polyline points="22,6 12,13 2,6"></polyline>
+                </svg>
+              </span>
+            </div>
+          </div>
+
+          <!-- Developer Bio Input -->
+          <div class="auth-field">
+            <label for="bio">Developer Bio (Short About You)</label>
+            <div class="auth-input-wrapper" style="height: auto;">
+              <textarea id="bio" name="bio" rows="3" placeholder="Backend developer specializing in Node.js, Express & PostgreSQL..." style="width: 100%; padding: 0.85rem 1rem 0.85rem 2.75rem; border: 1px solid var(--border-light); border-radius: var(--radius-lg); background: var(--bg-surface); color: var(--text-main); font-family: var(--font-body); font-size: 0.95rem; resize: vertical; outline: none;"><%= user.bio || '' %></textarea>
+              <span class="auth-input-icon" style="top: 1.1rem; transform: none;">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                  <polyline points="14 2 14 8 20 8"></polyline>
+                </svg>
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <!-- SECTION 2: SOCIAL LINKS -->
+        <div style="margin-bottom: 2rem;">
+          <h3 style="font-size: 1.1rem; font-weight: 700; color: var(--text-main); margin-bottom: 1.2rem; display: flex; align-items: center; gap: 0.5rem; border-bottom: 1px solid var(--border-light); padding-bottom: 0.6rem;">
+            <span>🌐 Social Links</span>
+          </h3>
+
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem;">
+            <div class="auth-field" style="margin-bottom: 0;">
+              <label for="githubUrl">GitHub Profile URL</label>
+              <div class="auth-input-wrapper">
+                <input type="url" id="githubUrl" name="githubUrl" value="<%= user.githubUrl || '' %>" placeholder="https://github.com/username">
+                <span class="auth-input-icon">🐙</span>
+              </div>
+            </div>
+
+            <div class="auth-field" style="margin-bottom: 0;">
+              <label for="twitterUrl">Twitter / X URL</label>
+              <div class="auth-input-wrapper">
+                <input type="url" id="twitterUrl" name="twitterUrl" value="<%= user.twitterUrl || '' %>" placeholder="https://twitter.com/username">
+                <span class="auth-input-icon">🐦</span>
+              </div>
+            </div>
+
+            <div class="auth-field" style="margin-bottom: 0;">
+              <label for="websiteUrl">Personal Website</label>
+              <div class="auth-input-wrapper">
+                <input type="url" id="websiteUrl" name="websiteUrl" value="<%= user.websiteUrl || '' %>" placeholder="https://yourdomain.dev">
+                <span class="auth-input-icon">🌐</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- SECTION 3: SECURITY & PASSWORD UPDATE -->
+        <div style="margin-bottom: 2rem;">
+          <h3 style="font-size: 1.1rem; font-weight: 700; color: var(--text-main); margin-bottom: 0.4rem; display: flex; align-items: center; gap: 0.5rem; border-bottom: 1px solid var(--border-light); padding-bottom: 0.6rem;">
+            <span>🔒 Security &amp; Password</span>
+          </h3>
+          <p style="font-size: 0.82rem; color: var(--text-muted); margin-bottom: 1.2rem;">Leave password fields blank if you do not wish to change your password.</p>
+
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1.2rem;">
+            <div class="auth-field" style="margin-bottom: 0;">
+              <label for="oldPassword">Current Password</label>
+              <div class="auth-input-wrapper">
+                <input type="password" id="oldPassword" name="oldPassword" placeholder="••••••••">
+                <span class="auth-input-icon">🔑</span>
+              </div>
+            </div>
+
+            <div class="auth-field" style="margin-bottom: 0;">
+              <label for="newPassword">New Password</label>
+              <div class="auth-input-wrapper">
+                <input type="password" id="newPassword" name="newPassword" placeholder="Minimum 6 characters">
+                <span class="auth-input-icon">✨</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div style="display: flex; gap: 1rem; margin-top: 2rem; border-top: 1px solid var(--border-light); padding-top: 1.5rem;">
+          <button type="submit" class="btn" style="flex: 1; padding: 0.8rem; font-size: 0.98rem; border-radius: var(--radius-lg); justify-content: center;">
+            <span>Save Settings</span>
+            &rarr;
+          </button>
+          <a href="/account" class="btn" style="background: var(--bg-subtle); border: 1px solid var(--border-light); color: var(--text-main); box-shadow: none; padding: 0.8rem 1.4rem; font-size: 0.92rem; border-radius: var(--radius-lg); text-decoration: none;">
+            Cancel
+          </a>
+        </div>
+      </form>
     </div>
 
-    <!-- Error Message Banner -->
-    <% if (typeof errorMessage !== 'undefined' && errorMessage) { %>
-      <div style="background: #fef2f2; border: 1px solid #fecaca; color: #dc2626; padding: 0.85rem 1.1rem; border-radius: var(--radius-lg); margin-bottom: 1.5rem; font-size: 0.9rem; text-align: center; font-weight: 500; display: flex; align-items: center; justify-content: center; gap: 0.5rem;">
-        <span>⚠️</span>
-        <span><%= errorMessage %></span>
-      </div>
-    <% } %>
-
-    <!-- Form for Updating Profile -->
-    <form action="/account/profile?_method=PUT" method="POST">
-      <input type="hidden" name="_csrf" value="<%= csrfToken %>">
-
-      <!-- Display Name Input -->
-      <div class="auth-field">
-        <label for="displayName">Full Name / Display Name</label>
-        <div class="auth-input-wrapper">
-          <input type="text" id="displayName" name="displayName" value="<%= user.displayName || '' %>" placeholder="e.g. Alexey Ivanov" required>
-          <span class="auth-input-icon">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-              <circle cx="12" cy="7" r="4"></circle>
-            </svg>
-          </span>
-        </div>
-      </div>
-
-      <!-- Email Address Input -->
-      <div class="auth-field">
-        <label for="email">Email Address</label>
-        <div class="auth-input-wrapper">
-          <input type="email" id="email" name="email" value="<%= user.email || '' %>" placeholder="alexey@example.com" required>
-          <span class="auth-input-icon">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
-              <polyline points="22,6 12,13 2,6"></polyline>
-            </svg>
-          </span>
-        </div>
-      </div>
-
-      <!-- Developer Bio Input -->
-      <div class="auth-field">
-        <label for="bio">Developer Bio (Short About You)</label>
-        <div class="auth-input-wrapper" style="height: auto;">
-          <textarea id="bio" name="bio" rows="4" placeholder="Backend developer specializing in Node.js, Express & PostgreSQL..." style="width: 100%; padding: 0.85rem 1rem 0.85rem 2.75rem; border: 1px solid var(--border-light); border-radius: var(--radius-lg); background: var(--bg-surface); color: var(--text-main); font-family: var(--font-body); font-size: 0.95rem; resize: vertical; outline: none; transition: border-color 0.2s;"><%= user.bio || '' %></textarea>
-          <span class="auth-input-icon" style="top: 1.1rem; transform: none;">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
-              <polyline points="14 2 14 8 20 8"></polyline>
-              <line x1="16" y1="13" x2="8" y2="13"></line>
-              <line x1="16" y1="17" x2="8" y2="17"></line>
-              <polyline points="10 9 9 9 8 9"></polyline>
-            </svg>
-          </span>
-        </div>
-        <span style="font-size: 0.78rem; color: var(--text-muted); margin-top: 0.3rem; display: block;">Max 500 characters. Will be displayed on your personal profile card.</span>
-      </div>
-
-      <!-- Action Buttons -->
-      <div style="display: flex; gap: 1rem; margin-top: 2rem;">
-        <button type="submit" class="btn" style="flex: 1; padding: 0.85rem; font-size: 1rem; border-radius: var(--radius-lg); justify-content: center;">
-          <span>Save Changes</span>
-          &rarr;
-        </button>
-        <a href="/account" class="btn" style="background: var(--bg-subtle); border: 1px solid var(--border-light); color: var(--text-main); box-shadow: none; padding: 0.85rem 1.4rem; font-size: 0.95rem; border-radius: var(--radius-lg); text-decoration: none;">
-          Cancel
-        </a>
-      </div>
-    </form>
-
-  </div>
+  </main>
 </div>

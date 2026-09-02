@@ -212,8 +212,8 @@
           <input type="text" id="articleTitle" class="editor-input" placeholder="e.g. Production-Grade Microservices with Express & SQLite" name="title" value="<%= post ? post.title : '' %>" required style="font-size: 1.15rem; font-weight: 700; padding: 1rem 1.4rem;">
         </div>
 
-        <!-- Category & Cover Image Grid Group -->
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.6rem;" class="editor-group">
+        <!-- Category, Difficulty & Cover Image Grid Group -->
+        <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1.2rem;" class="editor-group">
           <div>
             <label for="categoryId" class="editor-label">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--primary-indigo);"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path></svg>
@@ -224,6 +224,18 @@
               <% categories.forEach(cat => { %>
                 <option value="<%= cat.id %>" <%= (post && post.categoryId === cat.id) ? 'selected' : '' %>><%= cat.name %></option>
               <% }) %>
+            </select>
+          </div>
+
+          <div>
+            <label for="difficultyLevel" class="editor-label">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--primary-indigo);"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>
+              <span>Difficulty Level</span>
+            </label>
+            <select name="difficultyLevel" class="editor-select">
+              <option value="Beginner" <%= (post && post.difficultyLevel === 'Beginner') ? 'selected' : '' %>>🌱 Beginner</option>
+              <option value="Intermediate" <%= (!post || !post.difficultyLevel || post.difficultyLevel === 'Intermediate') ? 'selected' : '' %>>⚡ Intermediate</option>
+              <option value="Advanced" <%= (post && post.difficultyLevel === 'Advanced') ? 'selected' : '' %>>🚀 Advanced</option>
             </select>
           </div>
 

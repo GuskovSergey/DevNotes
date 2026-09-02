@@ -3,6 +3,7 @@ const postService = require('../services/postService');
 const categoryService = require('../services/categoryService');
 const commentService = require('../services/commentService');
 const tagService = require('../services/tagService');
+const notificationService = require('../services/notificationService');
 const catchAsync = require('../utils/catchAsync');
 const logger = require('../config/logger');
 const { COOKIE_MAX_AGE } = require('../config/constants');
@@ -247,13 +248,35 @@ class AdminController {
 
   handleApprovePost = catchAsync(async (req, res) => {
     const { id } = req.params;
+    const post = await postService.getPostById(id);
     await postService.approvePost(id);
+
+    if (post && post.author && post.author.id) {
+      await notificationService.createNotification({
+        userId: post.author.id,
+        type: 'moderation_approved',
+        message: `Your article "${post.title}" has been approved and published! 🎉`,
+        link: `/post/${id}`,
+      });
+    }
+
     return res.redirect('/admin/posts/pending');
   });
 
   handleRejectPost = catchAsync(async (req, res) => {
     const { id } = req.params;
+    const post = await postService.getPostById(id);
     await postService.rejectPost(id);
+
+    if (post && post.author && post.author.id) {
+      await notificationService.createNotification({
+        userId: post.author.id,
+        type: 'moderation_rejected',
+        message: `Your article "${post.title}" was rejected during moderation.`,
+        link: `/my/posts`,
+      });
+    }
+
     return res.redirect('/admin/posts/pending');
   });
 

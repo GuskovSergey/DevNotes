@@ -187,7 +187,7 @@ class PostService {
     return true;
   }
 
-  async createPost({ title, body, categoryId = null, featuredImage = null, userId = null, tags = [], status = 'published' }) {
+  async createPost({ title, body, categoryId = null, featuredImage = null, userId = null, tags = [], status = 'published', difficultyLevel = 'Intermediate' }) {
     const newPost = await Post.create({
       title,
       body,
@@ -195,6 +195,7 @@ class PostService {
       featuredImage,
       userId,
       status,
+      difficultyLevel,
     });
 
     if (tags.length > 0) {
@@ -204,7 +205,7 @@ class PostService {
     return newPost;
   }
 
-  async updatePost(id, { title, body, categoryId = null, featuredImage = null, tags = null, status = null }) {
+  async updatePost(id, { title, body, categoryId = null, featuredImage = null, tags = null, status = null, difficultyLevel = null }) {
     const post = await Post.findByPk(id);
     if (!post) {
       return null;
@@ -222,6 +223,10 @@ class PostService {
 
     if (status) {
       updateData.status = status;
+    }
+
+    if (difficultyLevel) {
+      updateData.difficultyLevel = difficultyLevel;
     }
 
     await post.update(updateData);
@@ -246,6 +251,41 @@ class PostService {
 
     await post.destroy();
     return true;
+  }
+
+  async getPopularPosts(limit = 3) {
+    const rows = await Post.findAll({
+      where: { status: 'published' },
+      include: [
+        { model: Category, as: 'category' },
+        { model: User, as: 'author', attributes: ['id', 'username', 'displayName', 'avatarUrl'] },
+      ],
+      order: [['viewsCount', 'DESC']],
+      limit,
+    });
+    return PostDto.formatMany(rows);
+  }
+
+  async getTopAuthors(limit = 4) {
+    const authors = await User.findAll({
+      attributes: ['id', 'username', 'displayName', 'avatarUrl', 'bio'],
+      include: [
+        {
+          model: Post,
+          as: 'posts',
+          where: { status: 'published' },
+          attributes: ['id'],
+        },
+      ],
+    });
+    return authors
+      .map(author => ({
+        ...author.toJSON(),
+        articlesCount: author.posts ? author.posts.length : 0,
+      }))
+      .filter(author => author.articlesCount > 0)
+      .sort((a, b) => b.articlesCount - a.articlesCount)
+      .slice(0, limit);
   }
 
   async getTotalCount() {

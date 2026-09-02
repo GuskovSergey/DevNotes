@@ -82,6 +82,10 @@ class AuthService {
 
     if (displayName) user.displayName = displayName;
     if (bio !== undefined) user.bio = bio;
+    if (githubUrl !== undefined) user.githubUrl = githubUrl;
+    if (twitterUrl !== undefined) user.twitterUrl = twitterUrl;
+    if (websiteUrl !== undefined) user.websiteUrl = websiteUrl;
+    if (avatarUrl !== undefined) user.avatarUrl = avatarUrl;
 
     await user.save();
     return user;

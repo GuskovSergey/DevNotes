@@ -9,6 +9,8 @@ const PostTag = require('./PostTag');
 const Bookmark = require('./Bookmark');
 const PostLike = require('./PostLike');
 const Series = require('./Series');
+const ReadingHistory = require('./ReadingHistory');
+const Notification = require('./Notification');
 
 // User <-> Post
 User.hasMany(Post, { foreignKey: 'userId', as: 'posts' });
@@ -50,6 +52,18 @@ PostLike.belongsTo(User, { foreignKey: 'userId', as: 'user' });
 Post.hasMany(PostLike, { foreignKey: 'postId', as: 'likes' });
 PostLike.belongsTo(Post, { foreignKey: 'postId', as: 'post' });
 
+// User <-> ReadingHistory
+User.hasMany(ReadingHistory, { foreignKey: 'userId', as: 'readingHistory' });
+ReadingHistory.belongsTo(User, { foreignKey: 'userId', as: 'user' });
+
+// Post <-> ReadingHistory
+Post.hasMany(ReadingHistory, { foreignKey: 'postId', as: 'readingHistory' });
+ReadingHistory.belongsTo(Post, { foreignKey: 'postId', as: 'post' });
+
+// User <-> Notification
+User.hasMany(Notification, { foreignKey: 'userId', as: 'notifications' });
+Notification.belongsTo(User, { foreignKey: 'userId', as: 'user' });
+
 // Post <-> Tag (Many-to-Many through PostTag)
 Post.belongsToMany(Tag, { through: PostTag, foreignKey: 'postId', as: 'tags' });
 Tag.belongsToMany(Post, { through: PostTag, foreignKey: 'tagId', as: 'posts' });
@@ -65,4 +79,6 @@ module.exports = {
   Bookmark,
   PostLike,
   Series,
+  ReadingHistory,
+  Notification,
 };

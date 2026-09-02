@@ -41,6 +41,18 @@ const User = sequelize.define('User', {
     type: DataTypes.STRING,
     allowNull: true,
   },
+  githubUrl: {
+    type: DataTypes.STRING,
+    allowNull: true,
+  },
+  twitterUrl: {
+    type: DataTypes.STRING,
+    allowNull: true,
+  },
+  websiteUrl: {
+    type: DataTypes.STRING,
+    allowNull: true,
+  },
 }, {
   tableName: 'users',
   timestamps: true,

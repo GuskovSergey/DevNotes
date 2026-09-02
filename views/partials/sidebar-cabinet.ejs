@@ -1,0 +1,127 @@
+<aside class="dashboard__sidebar">
+  <div class="sidebar-card">
+    
+    <!-- Sidebar Profile Card -->
+    <div class="sidebar-profile">
+      <div class="sidebar-profile__avatar">
+        <% if (user.avatarUrl) { %>
+          <img src="<%= user.avatarUrl %>" alt="Avatar" style="width: 100%; height: 100%; object-fit: cover;">
+        <% } else { %>
+          <%= (user.displayName || user.username).charAt(0).toUpperCase() %>
+        <% } %>
+      </div>
+
+      <div class="sidebar-profile__name">
+        <%= user.displayName || user.username %>
+      </div>
+      <div class="sidebar-profile__username">
+        @<%= user.username %>
+      </div>
+
+      <div style="margin-top: 0.5rem;">
+        <% if (user.role === 'admin') { %>
+          <span class="role-badge role-badge--admin">👑 Admin</span>
+        <% } else { %>
+          <span class="role-badge role-badge--user">⚡ Developer</span>
+        <% } %>
+      </div>
+
+      <!-- Social Links Row -->
+      <% if (user.githubUrl || user.twitterUrl || user.websiteUrl) { %>
+        <div style="display: flex; gap: 0.5rem; margin-top: 0.8rem; justify-content: center;">
+          <% if (user.githubUrl) { %>
+            <a href="<%= user.githubUrl %>" target="_blank" rel="noopener noreferrer" title="GitHub Profile" style="color: var(--text-main); font-size: 1.1rem; text-decoration: none; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.15)'" onmouseout="this.style.transform='scale(1)'">
+              🐙
+            </a>
+          <% } %>
+          <% if (user.twitterUrl) { %>
+            <a href="<%= user.twitterUrl %>" target="_blank" rel="noopener noreferrer" title="Twitter / X" style="color: #1da1f2; font-size: 1.1rem; text-decoration: none; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.15)'" onmouseout="this.style.transform='scale(1)'">
+              🐦
+            </a>
+          <% } %>
+          <% if (user.websiteUrl) { %>
+            <a href="<%= user.websiteUrl %>" target="_blank" rel="noopener noreferrer" title="Website" style="color: var(--primary-indigo); font-size: 1.1rem; text-decoration: none; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.15)'" onmouseout="this.style.transform='scale(1)'">
+              🌐
+            </a>
+          <% } %>
+        </div>
+      <% } %>
+    </div>
+
+    <!-- Sidebar Navigation Menu -->
+    <nav class="sidebar-nav">
+      <a href="/account" class="sidebar-nav__item <%= typeof activeTab !== 'undefined' && activeTab === 'overview' ? 'active' : '' %>">
+        <span>
+          <span class="sidebar-nav__icon">📊</span>
+          Overview
+        </span>
+      </a>
+
+      <a href="/my/posts" class="sidebar-nav__item <%= typeof activeTab !== 'undefined' && activeTab === 'articles' ? 'active' : '' %>">
+        <span>
+          <span class="sidebar-nav__icon">📝</span>
+          My Articles
+        </span>
+      </a>
+
+      <a href="/my/bookmarks" class="sidebar-nav__item <%= typeof activeTab !== 'undefined' && activeTab === 'bookmarks' ? 'active' : '' %>">
+        <span>
+          <span class="sidebar-nav__icon">🔖</span>
+          Bookmarks
+        </span>
+      </a>
+
+      <a href="/my/likes" class="sidebar-nav__item <%= typeof activeTab !== 'undefined' && activeTab === 'likes' ? 'active' : '' %>">
+        <span>
+          <span class="sidebar-nav__icon">❤️</span>
+          Liked Posts
+        </span>
+      </a>
+
+      <a href="/my/history" class="sidebar-nav__item <%= typeof activeTab !== 'undefined' && activeTab === 'history' ? 'active' : '' %>">
+        <span>
+          <span class="sidebar-nav__icon">🕒</span>
+          History
+        </span>
+      </a>
+
+      <a href="/my/notifications" class="sidebar-nav__item <%= typeof activeTab !== 'undefined' && activeTab === 'notifications' ? 'active' : '' %>">
+        <span>
+          <span class="sidebar-nav__icon">🔔</span>
+          Notifications
+        </span>
+        <% if (typeof unreadNotificationsCount !== 'undefined' && unreadNotificationsCount > 0) { %>
+          <span class="sidebar-nav__badge" style="background: #ef4444; color: #ffffff;">
+            <%= unreadNotificationsCount %>
+          </span>
+        <% } %>
+      </a>
+
+      <a href="/account/edit" class="sidebar-nav__item <%= typeof activeTab !== 'undefined' && activeTab === 'settings' ? 'active' : '' %>">
+        <span>
+          <span class="sidebar-nav__icon">⚙️</span>
+          Settings
+        </span>
+      </a>
+
+      <% if (user.role === 'admin') { %>
+        <div style="border-top: 1px solid var(--border-light); margin: 0.4rem 0;"></div>
+        <a href="/dashboard" class="sidebar-nav__item">
+          <span>
+            <span class="sidebar-nav__icon">🛡️</span>
+            Admin Dashboard
+          </span>
+        </a>
+      <% } %>
+
+      <div style="border-top: 1px solid var(--border-light); margin: 0.4rem 0;"></div>
+      <a href="/auth/logout" class="sidebar-nav__item" style="color: #dc2626;">
+        <span>
+          <span class="sidebar-nav__icon">🚪</span>
+          Sign Out
+        </span>
+      </a>
+    </nav>
+
+  </div>
+</aside>

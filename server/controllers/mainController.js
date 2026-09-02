@@ -4,6 +4,9 @@ const commentService = require('../services/commentService');
 const tagService = require('../services/tagService');
 const bookmarkService = require('../services/bookmarkService');
 const likeService = require('../services/likeService');
+const readingHistoryService = require('../services/readingHistoryService');
+const notificationService = require('../services/notificationService');
+const { Post, Comment: CommentModel } = require('../models');
 const catchAsync = require('../utils/catchAsync');
 const logger = require('../config/logger');
 
@@ -11,12 +14,15 @@ class MainController {
   getHomePage = catchAsync(async (req, res) => {
     const categorySlug = req.query.category || null;
     const locals = {
-      title: 'NodeJs Blog',
-      description: 'Simple Blog created with NodeJs, Express & SQLite.',
+      title: 'DevHub — Production Backend Architecture & Node.js Engineering',
+      description: 'Production-grade backend architecture, Express MVC patterns, SQLite performance tuning, and technical tutorials.',
     };
 
     const { data, current, nextPage } = await postService.getPaginatedPosts(req.query.page, 10, categorySlug);
     const categories = await categoryService.getAllCategories();
+    const popularPosts = await postService.getPopularPosts(3);
+    const popularTags = await tagService.getAllTags();
+    const topAuthors = await postService.getTopAuthors(4);
 
     res.render('index', {
       locals,
@@ -24,6 +30,9 @@ class MainController {
       current,
       nextPage,
       categories,
+      popularPosts,
+      popularTags: popularTags.slice(0, 8),
+      topAuthors,
       activeCategory: categorySlug,
       currentRoute: '/',
     });
@@ -38,6 +47,10 @@ class MainController {
       const error = new Error('Post not found');
       error.statusCode = 404;
       return next(error);
+    }
+
+    if (res.locals.currentUser) {
+      await readingHistoryService.recordVisit(res.locals.currentUser.id, id);
     }
 
     const isBookmarked = res.locals.currentUser
@@ -83,7 +96,7 @@ class MainController {
       return res.redirect(`/post/${id}?commentError=1`);
     }
 
-    await commentService.addComment({
+    const newComment = await commentService.addComment({
       postId: parseInt(id, 10),
       authorName: authorName.trim(),
       authorEmail: authorEmail.trim(),
@@ -91,6 +104,33 @@ class MainController {
       userId,
       parentId: parentId ? parseInt(parentId, 10) : null,
     });
+
+    // Send Notification to Post Author or Parent Comment Author
+    try {
+      const targetPost = await Post.findByPk(id);
+      if (targetPost && targetPost.userId && targetPost.userId !== userId) {
+        await notificationService.createNotification({
+          userId: targetPost.userId,
+          type: 'comment',
+          message: `New comment on your article "${targetPost.title}"`,
+          link: `/post/${id}`,
+        });
+      }
+
+      if (parentId) {
+        const parentComment = await CommentModel.findByPk(parentId);
+        if (parentComment && parentComment.userId && parentComment.userId !== userId) {
+          await notificationService.createNotification({
+            userId: parentComment.userId,
+            type: 'reply',
+            message: `New reply to your comment on "${targetPost ? targetPost.title : 'an article'}"`,
+            link: `/post/${id}`,
+          });
+        }
+      }
+    } catch (notifErr) {
+      logger.warn({ err: notifErr.message }, 'Failed to create notification for comment');
+    }
 
     logger.info({ postId: id, userId, parentId }, 'New comment submitted for moderation');
     return res.redirect(`/post/${id}?commentAdded=1`);

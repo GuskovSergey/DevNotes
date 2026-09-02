@@ -9,6 +9,10 @@ class PostDto {
     this.bodyHtml = post.body ? marked.parse(post.body) : '';
     this.status = post.status || 'published';
     
+    // Clean text snippet for excerpts (strips markdown syntax & caps length)
+    const cleanText = post.body ? post.body.replace(/[#*`_~>[\]()!|-]/g, ' ').replace(/\s+/g, ' ').trim() : '';
+    this.bodySnippet = cleanText.length > 150 ? cleanText.substring(0, 150) + '...' : cleanText;
+
     // Reading time calculation (~180 words per min)
     const wordCount = post.body ? post.body.trim().split(/\s+/).length : 0;
     const minutes = Math.max(1, Math.ceil(wordCount / 180));
