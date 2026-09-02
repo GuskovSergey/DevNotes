@@ -77,6 +77,7 @@ app.use(attachCsrfToken);
 app.use('/', require('./server/routes/main'));
 app.use('/', require('./server/routes/admin'));
 app.use('/', require('./server/routes/user'));
+app.use('/', require('./server/routes/courseRoutes'));
 
 // 404 Handler
 app.use((req, res, next) => {

@@ -1,0 +1,125 @@
+<!-- Hero Banner for Courses Hub -->
+<section class="dev-hero" style="margin-bottom: 2rem;">
+  <div class="dev-hero__body">
+    <div class="dev-hero__badge">
+      <span class="dev-hero__badge-dot"></span>
+      <span>🎓 DevHub Engineering Academy &amp; Knowledge Base</span>
+    </div>
+
+    <h1 class="dev-hero__heading">Production Engineering Courses</h1>
+    <p class="dev-hero__sub">Structured, text-based architectural courses and deep-dive technical modules built for backend engineers and system architects.</p>
+
+    <!-- Academy Metrics Ribbon -->
+    <div style="display: flex; align-items: center; justify-content: center; gap: 1.8rem; margin-top: 1.4rem; flex-wrap: wrap; font-family: var(--font-mono); font-size: 0.85rem; color: var(--text-muted);">
+      <div style="display: flex; align-items: center; gap: 0.4rem;">
+        <span style="color: var(--primary-indigo); font-weight: 700;"><%= courses.length %></span>
+        <span>Active Courses</span>
+      </div>
+      <span>•</span>
+      <div style="display: flex; align-items: center; gap: 0.4rem;">
+        <span style="color: #10b981; font-weight: 700;">100%</span>
+        <span>Text &amp; Code Based</span>
+      </div>
+      <span>•</span>
+      <div style="display: flex; align-items: center; gap: 0.4rem;">
+        <span style="color: #f59e0b; font-weight: 700;">Self-Paced</span>
+        <span>Learning Tracks</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Courses Catalog Section -->
+<div style="max-width: 1240px; margin: 0 auto; padding-bottom: 3.5rem;">
+  
+  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.8rem; flex-wrap: wrap; gap: 1rem;">
+    <h2 style="font-size: 1.6rem; font-weight: 800; color: var(--text-main); margin: 0;">
+      Available Learning Paths
+    </h2>
+  </div>
+
+  <% if (courses.length === 0) { %>
+    <div style="background: var(--bg-surface); border: 1px dashed var(--border-light); padding: 4rem 2rem; border-radius: var(--radius-xl); text-align: center; color: var(--text-muted);">
+      <div style="font-size: 3rem; margin-bottom: 0.8rem;">📚</div>
+      <h3 style="font-size: 1.3rem; color: var(--text-main); margin-bottom: 0.4rem; font-weight: 700;">No Courses Available Yet</h3>
+      <p style="margin: 0; font-size: 0.95rem;">Our engineering courses are being prepared. Check back soon!</p>
+    </div>
+  <% } else { %>
+    <div class="article-grid" style="grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));">
+      <% courses.forEach(course => { %>
+        <article class="article-card" style="display: flex; flex-direction: column; justify-content: space-between;">
+          <div>
+            <div class="article-card__media-wrapper" style="height: 190px;">
+              <span class="article-card__badge-floating" style="background: var(--bg-surface); color: var(--primary-indigo); border-color: var(--border-accent);">
+                📚 <%= course.lessonsCount %> Lesson<%= course.lessonsCount !== 1 ? 's' : '' %>
+              </span>
+
+              <% if (course.coverImage) { %>
+                <img src="<%= course.coverImage %>" alt="<%= course.title %>" class="article-card__cover">
+              <% } else { %>
+                <div class="article-card__placeholder" style="background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #4f46e5 100%);">
+                  <span style="color: #ffffff; font-size: 1.2rem; text-align: center; padding: 1rem;">&lt;Course / Module&gt;</span>
+                </div>
+              <% } %>
+            </div>
+
+            <div class="article-card__body">
+              <div class="article-card__meta-top">
+                <span class="tech-badge" style="font-size: 0.7rem; padding: 0.12rem 0.5rem; font-family: var(--font-mono); <%= course.difficultyLevel === 'Advanced' ? 'background: rgba(239, 68, 68, 0.15); color: #dc2626; border-color: rgba(239, 68, 68, 0.3);' : (course.difficultyLevel === 'Beginner' ? 'background: rgba(16, 185, 129, 0.15); color: #10b981; border-color: rgba(16, 185, 129, 0.3);' : 'background: var(--primary-indigo-light); color: var(--primary-indigo); border-color: var(--border-accent);') %>">
+                  <%= course.difficultyLevel === 'Advanced' ? '🚀 Advanced' : (course.difficultyLevel === 'Beginner' ? '🌱 Beginner' : '⚡ Intermediate') %>
+                </span>
+                <span>•</span>
+                <span>⏱ <%= course.estimatedTime %></span>
+                <% if (course.category) { %>
+                  <span>•</span>
+                  <span>#<%= course.category.name.toLowerCase() %></span>
+                <% } %>
+              </div>
+
+              <h3 class="article-card__title">
+                <a href="/courses/<%= course.slug %>"><%= course.title %></a>
+              </h3>
+
+              <p class="article-card__excerpt" style="-webkit-line-clamp: 3;">
+                <%= course.descriptionSnippet %>
+              </p>
+
+              <% if (currentUser && course.progressPercent > 0) { %>
+                <div style="margin-top: 0.8rem;">
+                  <div style="display: flex; justify-content: space-between; font-size: 0.75rem; font-family: var(--font-mono); color: var(--text-muted); margin-bottom: 0.3rem;">
+                    <span>Course Progress</span>
+                    <span style="font-weight: 700; color: var(--primary-indigo);"><%= course.progressPercent %>%</span>
+                  </div>
+                  <div style="width: 100%; height: 6px; background: var(--bg-subtle); border-radius: var(--radius-full); overflow: hidden;">
+                    <div style="width: <%= course.progressPercent %>%; height: 100%; background: linear-gradient(90deg, var(--primary-indigo) 0%, #10b981 100%);"></div>
+                  </div>
+                </div>
+              <% } %>
+            </div>
+          </div>
+
+          <div class="article-card__footer" style="padding: 1rem 1.4rem;">
+            <% if (course.author) { %>
+              <div style="display: flex; align-items: center; gap: 0.5rem; min-width: 0;">
+                <div style="width: 24px; height: 24px; border-radius: 50%; background: linear-gradient(135deg, var(--primary-indigo) 0%, #10b981 100%); color: white; display: flex; align-items: center; justify-content: center; font-size: 0.7rem; font-weight: 800; overflow: hidden; flex-shrink: 0;">
+                  <% if (course.author.avatarUrl) { %>
+                    <img src="<%= course.author.avatarUrl %>" alt="Author" style="width: 100%; height: 100%; object-fit: cover;">
+                  <% } else { %>
+                    <%= (course.author.displayName || course.author.username).charAt(0).toUpperCase() %>
+                  <% } %>
+                </div>
+                <span style="font-size: 0.82rem; font-weight: 600; color: var(--text-main); overflow: hidden; text-overflow: ellipsis; white-space: nowrap;"><%= course.author.displayName || course.author.username %></span>
+              </div>
+            <% } %>
+
+            <a href="/courses/<%= course.slug %>" class="btn" style="padding: 0.45rem 1.1rem; font-size: 0.85rem; margin-left: auto; border-radius: var(--radius-lg);">
+              <span>Start Track</span>
+              &rarr;
+            </a>
+          </div>
+        </article>
+      <% }) %>
+    </div>
+  <% } %>
+
+</div>

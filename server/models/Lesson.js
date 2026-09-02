@@ -1,47 +1,41 @@
 const { DataTypes } = require('sequelize');
 const sequelize = require('../config/database');
 
-const Comment = sequelize.define('Comment', {
+const Lesson = sequelize.define('Lesson', {
   id: {
     type: DataTypes.INTEGER,
     primaryKey: true,
     autoIncrement: true,
   },
-  postId: {
+  courseId: {
     type: DataTypes.INTEGER,
-    allowNull: true,
+    allowNull: false,
   },
-  lessonId: {
-    type: DataTypes.INTEGER,
-    allowNull: true,
-  },
-  userId: {
-    type: DataTypes.INTEGER,
-    allowNull: true,
-  },
-  authorName: {
+  title: {
     type: DataTypes.STRING,
     allowNull: false,
   },
-  authorEmail: {
+  slug: {
     type: DataTypes.STRING,
     allowNull: false,
   },
-  content: {
+  body: {
     type: DataTypes.TEXT,
     allowNull: false,
   },
-  isApproved: {
-    type: DataTypes.BOOLEAN,
-    defaultValue: false,
-  },
-  parentId: {
+  order: {
     type: DataTypes.INTEGER,
-    allowNull: true,
+    defaultValue: 1,
+    allowNull: false,
+  },
+  status: {
+    type: DataTypes.ENUM('draft', 'published'),
+    defaultValue: 'published',
+    allowNull: false,
   },
 }, {
-  tableName: 'comments',
+  tableName: 'lessons',
   timestamps: true,
 });
 
-module.exports = Comment;
+module.exports = Lesson;

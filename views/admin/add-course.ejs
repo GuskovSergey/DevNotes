@@ -1,0 +1,86 @@
+<div class="dashboard">
+  
+  <%- include('../partials/sidebar-admin', { currentUser, activeTab: 'courses', analytics: typeof analytics !== 'undefined' ? analytics : {} }) %>
+
+  <main class="dashboard__content">
+    <div class="dashboard-section">
+      
+      <div class="dashboard-section__header">
+        <div>
+          <h1 class="dashboard-section__title">
+            <span>📚 Create New Engineering Course</span>
+          </h1>
+          <p style="color: var(--text-muted); font-size: 0.88rem; margin: 0.2rem 0 0 0;">Add a new structured text-based learning track.</p>
+        </div>
+
+        <a href="/admin/courses" class="btn" style="background: var(--bg-subtle); border: 1px solid var(--border-light); color: var(--text-main); padding: 0.45rem 1rem; font-size: 0.85rem; box-shadow: none;">
+          &larr; Back to Courses
+        </a>
+      </div>
+
+      <div style="background: var(--bg-surface); border: 1px solid var(--border-light); padding: 2.2rem; border-radius: var(--radius-xl); box-shadow: var(--shadow-sm);">
+
+        <% if (typeof errorMessage !== 'undefined' && errorMessage) { %>
+          <div style="background: #fef2f2; border: 1px solid #fecaca; color: #dc2626; padding: 0.8rem 1.1rem; border-radius: var(--radius-lg); margin-bottom: 1.5rem; font-weight: 500; font-size: 0.9rem;">
+            ⚠️ <%= errorMessage %>
+          </div>
+        <% } %>
+
+        <form action="/admin/courses" method="POST" enctype="multipart/form-data">
+          <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+
+          <div style="margin-bottom: 1.2rem;">
+            <label for="title" style="display: block; font-size: 0.88rem; font-weight: 700; color: var(--text-main); margin-bottom: 0.4rem;">Course Title *</label>
+            <input type="text" placeholder="e.g. Node.js Production Architecture & Systems Engineering" name="title" required style="width: 100%; padding: 0.75rem 1rem; border-radius: var(--radius-lg); border: 1px solid var(--border-light); font-size: 0.95rem; background: var(--bg-surface); color: var(--text-main); outline: none;">
+          </div>
+
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.2rem; margin-bottom: 1.2rem;">
+            <div>
+              <label for="difficultyLevel" style="display: block; font-size: 0.88rem; font-weight: 700; color: var(--text-main); margin-bottom: 0.4rem;">Difficulty Level</label>
+              <select name="difficultyLevel" style="width: 100%; padding: 0.75rem 1rem; border-radius: var(--radius-lg); border: 1px solid var(--border-light); font-size: 0.92rem; background: var(--bg-surface); color: var(--text-main); outline: none;">
+                <option value="Beginner">🌱 Beginner</option>
+                <option value="Intermediate" selected>⚡ Intermediate</option>
+                <option value="Advanced">🚀 Advanced</option>
+              </select>
+            </div>
+
+            <div>
+              <label for="estimatedHours" style="display: block; font-size: 0.88rem; font-weight: 700; color: var(--text-main); margin-bottom: 0.4rem;">Estimated Hours</label>
+              <input type="number" step="0.5" min="0.5" name="estimatedHours" value="2.5" style="width: 100%; padding: 0.75rem 1rem; border-radius: var(--radius-lg); border: 1px solid var(--border-light); font-size: 0.92rem; background: var(--bg-surface); color: var(--text-main); outline: none;">
+            </div>
+
+            <div>
+              <label for="categoryId" style="display: block; font-size: 0.88rem; font-weight: 700; color: var(--text-main); margin-bottom: 0.4rem;">Category</label>
+              <select name="categoryId" style="width: 100%; padding: 0.75rem 1rem; border-radius: var(--radius-lg); border: 1px solid var(--border-light); font-size: 0.92rem; background: var(--bg-surface); color: var(--text-main); outline: none;">
+                <option value="">-- Select Category --</option>
+                <% categories.forEach(cat => { %>
+                  <option value="<%= cat.id %>"><%= cat.name %></option>
+                <% }) %>
+              </select>
+            </div>
+          </div>
+
+          <div style="margin-bottom: 1.2rem;">
+            <label for="coverImage" style="display: block; font-size: 0.88rem; font-weight: 700; color: var(--text-main); margin-bottom: 0.4rem;">Course Banner Image</label>
+            <input type="file" name="coverImage" accept="image/*" style="width: 100%; padding: 0.6rem; border-radius: var(--radius-lg); border: 1px solid var(--border-light); font-size: 0.88rem; background: var(--bg-surface); color: var(--text-main);">
+          </div>
+
+          <div style="margin-bottom: 1.2rem;">
+            <label for="description" style="display: block; font-size: 0.88rem; font-weight: 700; color: var(--text-main); margin-bottom: 0.4rem;">Short Summary / Description *</label>
+            <textarea name="description" rows="3" placeholder="Brief summary of what developers will master in this track..." required style="width: 100%; padding: 0.85rem; border-radius: var(--radius-lg); border: 1px solid var(--border-light); font-size: 0.92rem; background: var(--bg-surface); color: var(--text-main); outline: none; resize: vertical;"></textarea>
+          </div>
+
+          <div style="margin-bottom: 1.5rem;">
+            <label for="body" style="display: block; font-size: 0.88rem; font-weight: 700; color: var(--text-main); margin-bottom: 0.4rem;">Full Overview &amp; Prerequisites (Markdown Supported)</label>
+            <textarea name="body" rows="8" placeholder="Detailed syllabus, course overview, objectives..." style="width: 100%; padding: 0.85rem; border-radius: var(--radius-lg); border: 1px solid var(--border-light); font-size: 0.92rem; font-family: var(--font-mono); background: var(--bg-surface); color: var(--text-main); outline: none; resize: vertical;"></textarea>
+          </div>
+
+          <button type="submit" class="btn" style="width: 100%; padding: 0.8rem; font-size: 0.95rem; font-weight: 700; justify-content: center; border-radius: var(--radius-lg);">
+            <span>🚀 Publish Course Track</span>
+          </button>
+        </form>
+
+      </div>
+    </div>
+  </main>
+</div>

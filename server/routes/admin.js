@@ -32,4 +32,18 @@ router.get('/admin/posts/pending', adminAuthMiddleware, adminController.getPendi
 router.post('/admin/posts/:id/approve', adminAuthMiddleware, doubleCsrfProtection, adminController.handleApprovePost);
 router.post('/admin/posts/:id/reject', adminAuthMiddleware, doubleCsrfProtection, adminController.handleRejectPost);
 
+// Protected Admin Course & Lesson CRUD routes
+router.get('/admin/courses', adminAuthMiddleware, adminController.getAdminCoursesPage);
+router.get('/admin/courses/new', adminAuthMiddleware, adminController.getAdminAddCoursePage);
+router.post('/admin/courses', adminAuthMiddleware, upload.single('coverImage'), doubleCsrfProtection, adminController.handleAdminAddCourse);
+router.get('/admin/courses/:id/edit', adminAuthMiddleware, adminController.getAdminEditCoursePage);
+router.put('/admin/courses/:id', adminAuthMiddleware, upload.single('coverImage'), doubleCsrfProtection, adminController.handleAdminEditCourse);
+router.delete('/admin/courses/:id', adminAuthMiddleware, doubleCsrfProtection, adminController.handleAdminDeleteCourse);
+
+router.get('/admin/courses/:courseId/lessons/new', adminAuthMiddleware, adminController.getAdminAddLessonPage);
+router.post('/admin/courses/:courseId/lessons', adminAuthMiddleware, doubleCsrfProtection, adminController.handleAdminAddLesson);
+router.get('/admin/lessons/:id/edit', adminAuthMiddleware, adminController.getAdminEditLessonPage);
+router.put('/admin/lessons/:id', adminAuthMiddleware, doubleCsrfProtection, adminController.handleAdminEditLesson);
+router.delete('/admin/lessons/:id', adminAuthMiddleware, doubleCsrfProtection, adminController.handleAdminDeleteLesson);
+
 module.exports = router;

@@ -1,42 +1,71 @@
-<div style="max-width: 800px; margin: 0 auto;">
-  <a href="/dashboard" style="display: inline-block; color: var(--text-muted); margin-bottom: 1.5rem; font-weight: 500;">&larr; Back to Dashboard</a>
+<div class="dashboard">
+  
+  <!-- Sidebar Navigation for Admin -->
+  <%- include('../partials/sidebar-admin', { currentUser, activeTab: 'add-post', analytics: typeof analytics !== 'undefined' ? analytics : {} }) %>
 
-  <div style="background: var(--bg-surface); border: 1px solid var(--border-light); padding: 2.8rem; border-radius: var(--radius-xl); box-shadow: var(--shadow-card);">
-    <h2 style="margin-bottom: 1.5rem; color: var(--text-main);">Add New Article</h2>
-
-    <% if (typeof errorMessage !== 'undefined' && errorMessage) { %>
-      <div style="background: #fef2f2; border: 1px solid #fecaca; color: #dc2626; padding: 0.8rem; border-radius: var(--radius-md); margin-bottom: 1.5rem; font-weight: 500;">
-        <%= errorMessage %>
+  <!-- Main Content Area -->
+  <main class="dashboard__content">
+    
+    <div class="dashboard-section">
+      <div class="dashboard-section__header">
+        <div>
+          <h1 class="dashboard-section__title">
+            <span>✏️ Create New Technical Article</span>
+          </h1>
+          <p style="color: var(--text-muted); font-size: 0.88rem; margin: 0.2rem 0 0 0;">Publish production architecture guides directly as an administrator.</p>
+        </div>
       </div>
-    <% } %>
 
-    <form action="/add-post" method="POST" enctype="multipart/form-data">
-      <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+      <div style="background: var(--bg-surface); border: 1px solid var(--border-light); padding: 2.2rem; border-radius: var(--radius-xl); box-shadow: var(--shadow-sm);">
 
-      <label for="title" style="display: block; font-size: 0.9rem; font-weight: 600; color: var(--text-main); margin-bottom: 0.4rem;">Title</label>
-      <input type="text" placeholder="Article Title" name="title" required>
+        <% if (typeof errorMessage !== 'undefined' && errorMessage) { %>
+          <div style="background: #fef2f2; border: 1px solid #fecaca; color: #dc2626; padding: 0.8rem 1.1rem; border-radius: var(--radius-lg); margin-bottom: 1.5rem; font-weight: 500; font-size: 0.9rem;">
+            ⚠️ <%= errorMessage %>
+          </div>
+        <% } %>
 
-      <label for="categoryId" style="display: block; font-size: 0.9rem; font-weight: 600; color: var(--text-main); margin-bottom: 0.4rem;">Category</label>
-      <select name="categoryId">
-        <option value="">-- Select Category --</option>
-        <% categories.forEach(cat => { %>
-          <option value="<%= cat.id %>"><%= cat.name %></option>
-        <% }) %>
-      </select>
+        <form action="/add-post" method="POST" enctype="multipart/form-data">
+          <input type="hidden" name="_csrf" value="<%= csrfToken %>">
 
-      <label for="featuredImage" style="display: block; font-size: 0.9rem; font-weight: 600; color: var(--text-main); margin-bottom: 0.4rem;">Cover Image</label>
-      <input type="file" name="featuredImage" accept="image/*">
+          <div style="margin-bottom: 1.2rem;">
+            <label for="title" style="display: block; font-size: 0.88rem; font-weight: 700; color: var(--text-main); margin-bottom: 0.4rem;">Article Title *</label>
+            <input type="text" placeholder="e.g. Building High-Performance Express APIs with SQLite" name="title" required style="width: 100%; padding: 0.75rem 1rem; border-radius: var(--radius-lg); border: 1px solid var(--border-light); font-size: 0.95rem; background: var(--bg-surface); color: var(--text-main); outline: none;">
+          </div>
 
-      <label for="tags" style="display: block; font-size: 0.9rem; font-weight: 600; color: var(--text-main); margin-bottom: 0.4rem;">Tags</label>
-      <input type="text" name="tags" placeholder="e.g. nodejs, express, sqlite (comma-separated)">
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1.2rem; margin-bottom: 1.2rem;">
+            <div>
+              <label for="categoryId" style="display: block; font-size: 0.88rem; font-weight: 700; color: var(--text-main); margin-bottom: 0.4rem;">Category</label>
+              <select name="categoryId" style="width: 100%; padding: 0.75rem 1rem; border-radius: var(--radius-lg); border: 1px solid var(--border-light); font-size: 0.92rem; background: var(--bg-surface); color: var(--text-main); outline: none;">
+                <option value="">-- Select Category --</option>
+                <% categories.forEach(cat => { %>
+                  <option value="<%= cat.id %>"><%= cat.name %></option>
+                <% }) %>
+              </select>
+            </div>
 
-      <label for="body" style="display: block; font-size: 0.9rem; font-weight: 600; color: var(--text-main); margin-bottom: 0.4rem;">Content</label>
-      <textarea name="body" rows="12" placeholder="Write your article content here..." required></textarea>
+            <div>
+              <label for="featuredImage" style="display: block; font-size: 0.88rem; font-weight: 700; color: var(--text-main); margin-bottom: 0.4rem;">Cover Image</label>
+              <input type="file" name="featuredImage" accept="image/*" style="width: 100%; padding: 0.6rem; border-radius: var(--radius-lg); border: 1px solid var(--border-light); font-size: 0.88rem; background: var(--bg-surface); color: var(--text-main);">
+            </div>
+          </div>
 
-      <button type="submit" class="btn" style="width: 100%; margin-top: 1rem;">
-        <span>Publish Article</span>
-        &rarr;
-      </button>
-    </form>
-  </div>
+          <div style="margin-bottom: 1.2rem;">
+            <label for="tags" style="display: block; font-size: 0.88rem; font-weight: 700; color: var(--text-main); margin-bottom: 0.4rem;">Tags (comma-separated)</label>
+            <input type="text" name="tags" placeholder="e.g. nodejs, express, sqlite, architecture" style="width: 100%; padding: 0.75rem 1rem; border-radius: var(--radius-lg); border: 1px solid var(--border-light); font-size: 0.92rem; background: var(--bg-surface); color: var(--text-main); outline: none;">
+          </div>
+
+          <div style="margin-bottom: 1.5rem;">
+            <label for="body" style="display: block; font-size: 0.88rem; font-weight: 700; color: var(--text-main); margin-bottom: 0.4rem;">Content (Markdown Supported) *</label>
+            <textarea name="body" rows="14" placeholder="Write full article body content using Markdown formatting..." required style="width: 100%; padding: 1rem; border-radius: var(--radius-lg); border: 1px solid var(--border-light); font-size: 0.92rem; font-family: var(--font-mono); background: var(--bg-surface); color: var(--text-main); line-height: 1.5; outline: none; resize: vertical;"></textarea>
+          </div>
+
+          <button type="submit" class="btn" style="width: 100%; padding: 0.8rem; font-size: 0.95rem; font-weight: 700; justify-content: center; border-radius: var(--radius-lg);">
+            <span>🚀 Publish Article</span>
+          </button>
+        </form>
+
+      </div>
+    </div>
+
+  </main>
 </div>

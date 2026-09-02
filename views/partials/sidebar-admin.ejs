@@ -1,0 +1,112 @@
+<aside class="dashboard__sidebar">
+  <div class="sidebar-card">
+    
+    <!-- Admin Profile Card -->
+    <div class="sidebar-profile">
+      <div class="sidebar-profile__avatar" style="background: linear-gradient(135deg, #0f172a 0%, #4f46e5 100%);">
+        <% if (currentUser && currentUser.avatarUrl) { %>
+          <img src="<%= currentUser.avatarUrl %>" alt="Avatar" style="width: 100%; height: 100%; object-fit: cover;">
+        <% } else { %>
+          👑
+        <% } %>
+      </div>
+
+      <div class="sidebar-profile__name">
+        <%= currentUser ? (currentUser.displayName || currentUser.username) : 'Administrator' %>
+      </div>
+      <div class="sidebar-profile__username">
+        @<%= currentUser ? currentUser.username : 'admin' %>
+      </div>
+
+      <div style="margin-top: 0.5rem;">
+        <span class="role-badge role-badge--admin">👑 Admin Console</span>
+      </div>
+    </div>
+
+    <!-- Admin Navigation Menu -->
+    <nav class="sidebar-nav">
+      <a href="/dashboard" class="sidebar-nav__item <%= typeof activeTab !== 'undefined' && activeTab === 'overview' ? 'active' : '' %>">
+        <span>
+          <span class="sidebar-nav__icon">📊</span>
+          Overview
+        </span>
+      </a>
+
+      <a href="/admin/posts/pending" class="sidebar-nav__item <%= typeof activeTab !== 'undefined' && activeTab === 'queue' ? 'active' : '' %>">
+        <span>
+          <span class="sidebar-nav__icon">⏳</span>
+          Article Queue
+        </span>
+        <% if (typeof analytics !== 'undefined' && analytics.pendingPostsCount > 0) { %>
+          <span class="sidebar-nav__badge" style="background: #d46b08; color: #ffffff;">
+            <%= analytics.pendingPostsCount %>
+          </span>
+        <% } %>
+      </a>
+
+      <a href="/admin/courses" class="sidebar-nav__item <%= typeof activeTab !== 'undefined' && activeTab === 'courses' ? 'active' : '' %>">
+        <span>
+          <span class="sidebar-nav__icon">📚</span>
+          Manage Courses
+        </span>
+      </a>
+
+      <a href="/admin/comments" class="sidebar-nav__item <%= typeof activeTab !== 'undefined' && activeTab === 'comments' ? 'active' : '' %>">
+        <span>
+          <span class="sidebar-nav__icon">💬</span>
+          Comments Queue
+        </span>
+        <% if (typeof analytics !== 'undefined' && analytics.pendingCommentsCount > 0) { %>
+          <span class="sidebar-nav__badge" style="background: #059669; color: #ffffff;">
+            <%= analytics.pendingCommentsCount %>
+          </span>
+        <% } %>
+      </a>
+
+      <a href="/admin/categories" class="sidebar-nav__item <%= typeof activeTab !== 'undefined' && activeTab === 'categories' ? 'active' : '' %>">
+        <span>
+          <span class="sidebar-nav__icon">📁</span>
+          Categories
+        </span>
+      </a>
+
+      <a href="/admin/tags" class="sidebar-nav__item <%= typeof activeTab !== 'undefined' && activeTab === 'tags' ? 'active' : '' %>">
+        <span>
+          <span class="sidebar-nav__icon">🏷️</span>
+          Tags
+        </span>
+      </a>
+
+      <a href="/admin/users" class="sidebar-nav__item <%= typeof activeTab !== 'undefined' && activeTab === 'users' ? 'active' : '' %>">
+        <span>
+          <span class="sidebar-nav__icon">👥</span>
+          User Management
+        </span>
+      </a>
+
+      <a href="/add-post" class="sidebar-nav__item <%= typeof activeTab !== 'undefined' && activeTab === 'add-post' ? 'active' : '' %>">
+        <span>
+          <span class="sidebar-nav__icon">✏️</span>
+          Write Article
+        </span>
+      </a>
+
+      <div style="border-top: 1px solid var(--border-light); margin: 0.4rem 0;"></div>
+
+      <a href="/" target="_blank" class="sidebar-nav__item">
+        <span>
+          <span class="sidebar-nav__icon">👁️</span>
+          View Site ↗
+        </span>
+      </a>
+
+      <a href="/logout" class="sidebar-nav__item" style="color: #dc2626;">
+        <span>
+          <span class="sidebar-nav__icon">🚪</span>
+          Logout
+        </span>
+      </a>
+    </nav>
+
+  </div>
+</aside>

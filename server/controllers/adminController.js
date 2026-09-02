@@ -4,6 +4,8 @@ const categoryService = require('../services/categoryService');
 const commentService = require('../services/commentService');
 const tagService = require('../services/tagService');
 const notificationService = require('../services/notificationService');
+const courseService = require('../services/courseService');
+const { Lesson } = require('../models');
 const catchAsync = require('../utils/catchAsync');
 const logger = require('../config/logger');
 const { COOKIE_MAX_AGE } = require('../config/constants');
@@ -81,6 +83,7 @@ class AdminController {
     res.render('admin/dashboard', {
       locals,
       data,
+      activeTab: 'overview',
       analytics: {
         totalPosts,
         totalViews,
@@ -102,6 +105,7 @@ class AdminController {
     res.render('admin/add-post', {
       locals,
       categories,
+      activeTab: 'add-post',
       layout: adminLayout,
       errorMessage: null,
     });
@@ -211,9 +215,14 @@ class AdminController {
 
     const comments = await commentService.getAllComments();
 
+    const pendingCommentsCount = await commentService.getPendingCount();
+    const pendingPostsCount = await postService.getPendingCount();
+
     res.render('admin/comments', {
       locals,
       comments,
+      activeTab: 'comments',
+      analytics: { pendingCommentsCount, pendingPostsCount },
       layout: adminLayout,
     });
   });
@@ -239,9 +248,14 @@ class AdminController {
 
     const posts = await postService.getPendingPosts();
 
+    const pendingCommentsCount = await commentService.getPendingCount();
+    const pendingPostsCount = await postService.getPendingCount();
+
     res.render('admin/pending-posts', {
       locals,
       posts,
+      activeTab: 'queue',
+      analytics: { pendingCommentsCount, pendingPostsCount },
       layout: adminLayout,
     });
   });
@@ -278,6 +292,143 @@ class AdminController {
     }
 
     return res.redirect('/admin/posts/pending');
+  });
+
+  // Course Administration Methods
+  getAdminCoursesPage = catchAsync(async (req, res) => {
+    const courses = await courseService.getAllCoursesAdmin();
+    const pendingCommentsCount = await commentService.getPendingCount();
+    const pendingPostsCount = await postService.getPendingCount();
+
+    res.render('admin/courses', {
+      locals: { title: 'Manage Courses | DevHub Admin' },
+      courses,
+      activeTab: 'courses',
+      analytics: { pendingCommentsCount, pendingPostsCount },
+      layout: adminLayout,
+    });
+  });
+
+  getAdminAddCoursePage = catchAsync(async (req, res) => {
+    const categories = await categoryService.getAllCategories();
+    res.render('admin/add-course', {
+      locals: { title: 'Add New Course | DevHub Admin' },
+      categories,
+      activeTab: 'courses',
+      layout: adminLayout,
+      errorMessage: null,
+    });
+  });
+
+  handleAdminAddCourse = catchAsync(async (req, res) => {
+    const { title, description, body, difficultyLevel, categoryId, estimatedHours } = req.body;
+    const coverImage = req.file ? req.file.filename : null;
+
+    await courseService.createCourse({
+      title,
+      description,
+      body,
+      coverImage,
+      difficultyLevel,
+      categoryId: categoryId ? parseInt(categoryId, 10) : null,
+      estimatedHours: estimatedHours ? parseFloat(estimatedHours) : 1.0,
+      userId: req.userId,
+    });
+
+    return res.redirect('/admin/courses');
+  });
+
+  getAdminEditCoursePage = catchAsync(async (req, res, next) => {
+    const { id } = req.params;
+    const course = await courseService.getCourseById(id);
+    if (!course) return next(new Error('Course not found'));
+
+    const categories = await categoryService.getAllCategories();
+    res.render('admin/edit-course', {
+      locals: { title: `Edit Course: ${course.title}` },
+      course,
+      categories,
+      activeTab: 'courses',
+      layout: adminLayout,
+      errorMessage: null,
+    });
+  });
+
+  handleAdminEditCourse = catchAsync(async (req, res) => {
+    const { id } = req.params;
+    const { title, description, body, difficultyLevel, categoryId, estimatedHours } = req.body;
+    const coverImage = req.file ? req.file.filename : null;
+
+    await courseService.updateCourse(id, {
+      title,
+      description,
+      body,
+      coverImage,
+      difficultyLevel,
+      categoryId: categoryId ? parseInt(categoryId, 10) : null,
+      estimatedHours: estimatedHours ? parseFloat(estimatedHours) : 1.0,
+    });
+
+    return res.redirect(`/admin/courses/${id}/edit`);
+  });
+
+  handleAdminDeleteCourse = catchAsync(async (req, res) => {
+    const { id } = req.params;
+    await courseService.deleteCourse(id);
+    return res.redirect('/admin/courses');
+  });
+
+  getAdminAddLessonPage = catchAsync(async (req, res, next) => {
+    const { courseId } = req.params;
+    const course = await courseService.getCourseById(courseId);
+    if (!course) return next(new Error('Course not found'));
+
+    res.render('admin/add-lesson', {
+      locals: { title: `Add Lesson to ${course.title}` },
+      course,
+      activeTab: 'courses',
+      layout: adminLayout,
+      errorMessage: null,
+    });
+  });
+
+  handleAdminAddLesson = catchAsync(async (req, res) => {
+    const { courseId } = req.params;
+    const { title, body, order } = req.body;
+
+    await courseService.createLesson(courseId, { title, body, order });
+    return res.redirect(`/admin/courses/${courseId}/edit`);
+  });
+
+  getAdminEditLessonPage = catchAsync(async (req, res, next) => {
+    const { id } = req.params;
+    const lesson = await Lesson.findByPk(id);
+    if (!lesson) return next(new Error('Lesson not found'));
+
+    res.render('admin/edit-lesson', {
+      locals: { title: `Edit Lesson: ${lesson.title}` },
+      lesson,
+      activeTab: 'courses',
+      layout: adminLayout,
+      errorMessage: null,
+    });
+  });
+
+  handleAdminEditLesson = catchAsync(async (req, res) => {
+    const { id } = req.params;
+    const { title, body, order } = req.body;
+
+    const lesson = await courseService.updateLesson(id, { title, body, order });
+    return res.redirect(`/admin/courses/${lesson ? lesson.courseId : ''}/edit`);
+  });
+
+  handleAdminDeleteLesson = catchAsync(async (req, res) => {
+    const { id } = req.params;
+    const lesson = await Lesson.findByPk(id);
+    const courseId = lesson ? lesson.courseId : null;
+    await courseService.deleteLesson(id);
+
+    return res.redirect(courseId ? `/admin/courses/${courseId}/edit` : '/admin/courses');
   });
 
   handleLogout = catchAsync(async (req, res) => {

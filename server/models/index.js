@@ -12,6 +12,10 @@ const Series = require('./Series');
 const ReadingHistory = require('./ReadingHistory');
 const Notification = require('./Notification');
 
+const Course = require('./Course');
+const Lesson = require('./Lesson');
+const CourseProgress = require('./CourseProgress');
+
 // User <-> Post
 User.hasMany(Post, { foreignKey: 'userId', as: 'posts' });
 Post.belongsTo(User, { foreignKey: 'userId', as: 'author' });
@@ -27,6 +31,10 @@ Post.belongsTo(Series, { foreignKey: 'seriesId', as: 'series' });
 // Post <-> Comment
 Post.hasMany(Comment, { foreignKey: 'postId', as: 'comments' });
 Comment.belongsTo(Post, { foreignKey: 'postId', as: 'post' });
+
+// Lesson <-> Comment (Optional lesson discussions)
+Lesson.hasMany(Comment, { foreignKey: 'lessonId', as: 'comments' });
+Comment.belongsTo(Lesson, { foreignKey: 'lessonId', as: 'lesson' });
 
 // Comment <-> Comment (Threaded Replies)
 Comment.hasMany(Comment, { foreignKey: 'parentId', as: 'replies' });
@@ -68,6 +76,26 @@ Notification.belongsTo(User, { foreignKey: 'userId', as: 'user' });
 Post.belongsToMany(Tag, { through: PostTag, foreignKey: 'postId', as: 'tags' });
 Tag.belongsToMany(Post, { through: PostTag, foreignKey: 'tagId', as: 'posts' });
 
+// Course Associations
+User.hasMany(Course, { foreignKey: 'userId', as: 'courses' });
+Course.belongsTo(User, { foreignKey: 'userId', as: 'author' });
+
+Category.hasMany(Course, { foreignKey: 'categoryId', as: 'courses' });
+Course.belongsTo(Category, { foreignKey: 'categoryId', as: 'category' });
+
+Course.hasMany(Lesson, { foreignKey: 'courseId', as: 'lessons' });
+Lesson.belongsTo(Course, { foreignKey: 'courseId', as: 'course' });
+
+// CourseProgress Associations
+User.hasMany(CourseProgress, { foreignKey: 'userId', as: 'courseProgress' });
+CourseProgress.belongsTo(User, { foreignKey: 'userId', as: 'user' });
+
+Course.hasMany(CourseProgress, { foreignKey: 'courseId', as: 'progressRecords' });
+CourseProgress.belongsTo(Course, { foreignKey: 'courseId', as: 'course' });
+
+Lesson.hasMany(CourseProgress, { foreignKey: 'lessonId', as: 'progressRecords' });
+CourseProgress.belongsTo(Lesson, { foreignKey: 'lessonId', as: 'lesson' });
+
 module.exports = {
   sequelize,
   User,
@@ -81,4 +109,7 @@ module.exports = {
   Series,
   ReadingHistory,
   Notification,
+  Course,
+  Lesson,
+  CourseProgress,
 };
