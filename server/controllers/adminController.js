@@ -588,6 +588,21 @@ class AdminController {
     await faqService.rejectAnswer(id, reason);
     res.redirect('/admin/faq/pending');
   });
+
+  getUsersPage = catchAsync(async (req, res) => {
+    const users = await authService.getAllUsers();
+    const pendingCommentsCount = await commentService.getPendingCount();
+    const pendingPostsCount = await postService.getPendingCount();
+    const pendingCoursesCount = await courseService.getPendingCoursesCount();
+
+    res.render('admin/users', {
+      locals: { title: 'User Management | DevHub Admin' },
+      users,
+      activeTab: 'users',
+      analytics: { pendingCommentsCount, pendingPostsCount, pendingCoursesCount },
+      layout: adminLayout,
+    });
+  });
 }
 
 module.exports = new AdminController();

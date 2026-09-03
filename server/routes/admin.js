@@ -64,4 +64,7 @@ router.get('/admin/faq/edit/:id', adminAuthMiddleware, doubleCsrfProtection, adm
 router.post('/admin/faq/edit/:id', adminAuthMiddleware, doubleCsrfProtection, adminController.updateFaqQuestion);
 router.post('/admin/faq/delete/:id', adminAuthMiddleware, doubleCsrfProtection, adminController.deleteFaqQuestion);
 
+// Protected Admin User Management route
+router.get('/admin/users', adminAuthMiddleware, adminController.getUsersPage);
+
 module.exports = router;

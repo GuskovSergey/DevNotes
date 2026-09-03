@@ -339,6 +339,25 @@ class MainController {
     }
     res.json({ success: true, upvotesCount });
   });
+
+  apiGetFaq = catchAsync(async (req, res) => {
+    const category = req.query.category || 'All';
+    const difficulty = req.query.difficulty || 'All';
+    const search = req.query.q || '';
+
+    const questions = await faqService.getAllQuestions({ category, difficulty, search });
+    const categories = await faqService.getCategories();
+
+    res.json({
+      success: true,
+      questions,
+      categories,
+      totalCount: questions.length,
+      activeCategory: category,
+      activeDifficulty: difficulty,
+      searchQuery: search,
+    });
+  });
 }
 
 module.exports = new MainController();

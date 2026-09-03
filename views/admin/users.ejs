@@ -1,0 +1,160 @@
+<div class="dashboard">
+  
+  <!-- Sidebar Navigation for Admin -->
+  <%- include('../partials/sidebar-admin', { currentUser, activeTab: 'users', analytics }) %>
+
+  <!-- Main Content Area -->
+  <main class="dashboard__content">
+    
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.8rem; flex-wrap: wrap; gap: 1rem;">
+      <div>
+        <h1 style="font-size: 1.8rem; font-weight: 800; color: var(--text-main); margin: 0 0 0.3rem 0;">
+          👥 User Account Management
+        </h1>
+        <p style="color: var(--text-muted); font-size: 0.9rem; margin: 0;">
+          View, monitor, and manage community developers, authors, and system administrators.
+        </p>
+      </div>
+
+      <span class="status-pill status-pill--approved" style="font-size: 0.85rem; padding: 0.35rem 0.85rem;">
+        👥 <%= users ? users.length : 0 %> User<%= (users && users.length !== 1) ? 's' : '' %> Registered
+      </span>
+    </div>
+
+    <!-- Summary Stats Ribbon -->
+    <div class="faq-stats-grid" style="margin-bottom: 2.2rem;">
+      <div class="stat-card">
+        <div class="stat-card__icon" style="background: var(--primary-indigo-light); color: var(--primary-indigo);">👥</div>
+        <div>
+          <div class="stat-card__val"><%= users ? users.length : 0 %></div>
+          <div class="stat-card__label">Registered Accounts</div>
+        </div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-card__icon" style="background: rgba(245, 158, 11, 0.16); color: #d97706;">👑</div>
+        <div>
+          <div class="stat-card__val" style="color: #d97706;"><%= users ? users.filter(u => u.role === 'admin').length : 0 %></div>
+          <div class="stat-card__label">System Admins</div>
+        </div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-card__icon" style="background: rgba(16, 185, 129, 0.16); color: var(--accent-emerald);">⚡</div>
+        <div>
+          <div class="stat-card__val" style="color: var(--accent-emerald);"><%= users ? users.filter(u => u.role !== 'admin').length : 0 %></div>
+          <div class="stat-card__label">Community Developers</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Live Search & Filter Bar -->
+    <div style="background: var(--bg-surface); border: 1px solid var(--border-light); border-radius: var(--radius-xl); padding: 1.2rem 1.4rem; margin-bottom: 1.5rem; display: flex; justify-content: space-between; align-items: center; gap: 1rem; flex-wrap: wrap;">
+      <div style="position: relative; flex: 1; max-width: 420px;">
+        <span style="position: absolute; left: 0.9rem; top: 50%; transform: translateY(-50%); color: var(--text-muted); pointer-events: none;">🔍</span>
+        <input type="text" id="user-search-input" placeholder="Search by name, username, or email..." style="width: 100%; height: 42px; padding: 0 1rem 0 2.6rem; border-radius: var(--radius-lg); border: 1px solid var(--border-light); background: var(--bg-subtle); color: var(--text-main); font-size: 0.9rem; outline: none; transition: all 0.2s ease;" onfocus="this.style.borderColor='var(--primary-indigo)'" onblur="this.style.borderColor='var(--border-light)'">
+      </div>
+
+      <div style="font-family: var(--font-mono); font-size: 0.8rem; color: var(--text-muted);">
+        Showing <span id="visible-users-count"><%= users ? users.length : 0 %></span> accounts
+      </div>
+    </div>
+
+    <!-- Users Table Container -->
+    <div style="background: var(--bg-surface); border: 1px solid var(--border-light); border-radius: var(--radius-xl); box-shadow: var(--shadow-sm); overflow: hidden;">
+      
+      <table style="width: 100%; border-collapse: collapse; text-align: left;">
+        <thead>
+          <tr style="background: var(--bg-subtle); border-bottom: 1px solid var(--border-light); font-family: var(--font-mono); font-size: 0.78rem; text-transform: uppercase; color: var(--text-muted); letter-spacing: 0.05em;">
+            <th style="padding: 1rem 1.4rem;">User</th>
+            <th style="padding: 1rem 1.4rem;">Email</th>
+            <th style="padding: 1rem 1.4rem;">Role</th>
+            <th style="padding: 1rem 1.4rem;">Joined Date</th>
+          </tr>
+        </thead>
+        <tbody id="users-table-body">
+          <% if (!users || users.length === 0) { %>
+            <tr>
+              <td colspan="4" style="padding: 3rem; text-align: center; color: var(--text-muted);">
+                No registered users found.
+              </td>
+            </tr>
+          <% } else { %>
+            <% users.forEach(user => { %>
+              <tr class="user-row" style="border-bottom: 1px solid var(--border-light); transition: background 0.15s ease;" onmouseover="this.style.background='var(--bg-subtle)'" onmouseout="this.style.background='transparent'">
+                
+                <td style="padding: 1.1rem 1.4rem;">
+                  <div style="display: flex; align-items: center; gap: 0.8rem;">
+                    <div class="faq-author-avatar" style="width: 38px; height: 38px; font-size: 0.95rem; flex-shrink: 0;">
+                      <% if (user.avatarUrl) { %>
+                        <img src="<%= user.avatarUrl %>" alt="Avatar" style="width: 100%; height: 100%; object-fit: cover;">
+                      <% } else { %>
+                        <%= (user.displayName || user.username).charAt(0).toUpperCase() %>
+                      <% } %>
+                    </div>
+                    <div>
+                      <strong style="color: var(--text-main); font-size: 0.98rem; display: block;"><%= user.displayName || user.username %></strong>
+                      <span style="color: var(--text-muted); font-size: 0.8rem; font-family: var(--font-mono);">@<%= user.username %></span>
+                    </div>
+                  </div>
+                </td>
+
+                <td style="padding: 1.1rem 1.4rem; font-family: var(--font-mono); font-size: 0.86rem; color: var(--text-body);">
+                  <%= user.email %>
+                </td>
+
+                <td style="padding: 1.1rem 1.4rem;">
+                  <% if (user.role === 'admin') { %>
+                    <span class="tech-badge" style="font-size: 0.74rem; padding: 0.18rem 0.6rem; background: #fffbe6; color: #d46b08; border-color: #ffe58f; font-weight: 700;">
+                      👑 System Admin
+                    </span>
+                  <% } else { %>
+                    <span class="tech-badge" style="font-size: 0.74rem; padding: 0.18rem 0.6rem; background: var(--primary-indigo-light); color: var(--primary-indigo);">
+                      ⚡ Developer
+                    </span>
+                  <% } %>
+                </td>
+
+                <td style="padding: 1.1rem 1.4rem; font-family: var(--font-mono); font-size: 0.82rem; color: var(--text-muted);">
+                  <%= new Date(user.createdAt).toDateString() %>
+                </td>
+
+              </tr>
+            <% }) %>
+          <% } %>
+        </tbody>
+      </table>
+
+    </div>
+
+  </main>
+</div>
+
+<!-- Client-side Filter Script -->
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const searchInput = document.getElementById('user-search-input');
+    const tableBody = document.getElementById('users-table-body');
+    const countSpan = document.getElementById('visible-users-count');
+
+    if (searchInput && tableBody) {
+      searchInput.addEventListener('input', () => {
+        const query = searchInput.value.toLowerCase().trim();
+        const rows = tableBody.querySelectorAll('.user-row');
+        let visibleCount = 0;
+
+        rows.forEach(row => {
+          const text = row.textContent.toLowerCase();
+          if (text.includes(query)) {
+            row.style.display = '';
+            visibleCount++;
+          } else {
+            row.style.display = 'none';
+          }
+        });
+
+        if (countSpan) countSpan.textContent = visibleCount;
+      });
+    }
+  });
+</script>

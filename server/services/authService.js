@@ -62,6 +62,13 @@ class AuthService {
     });
   }
 
+  async getAllUsers() {
+    return await User.findAll({
+      attributes: { exclude: ['password'] },
+      order: [['createdAt', 'DESC']],
+    });
+  }
+
   async updateProfile(id, { displayName, email, bio }) {
     const user = await User.findByPk(id);
     if (!user) {

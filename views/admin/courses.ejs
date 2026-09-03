@@ -6,79 +6,108 @@
   <!-- Main Content Area -->
   <main class="dashboard__content">
     
-    <div class="dashboard-section" style="margin-bottom: 0;">
-      <div class="dashboard-section__header">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.8rem; flex-wrap: wrap; gap: 1rem;">
+      <div>
+        <h1 style="font-size: 1.8rem; font-weight: 800; color: var(--text-main); margin: 0 0 0.3rem 0;">
+          🎓 Course &amp; Learning Track Management
+        </h1>
+        <p style="color: var(--text-muted); font-size: 0.9rem; margin: 0;">
+          Create, edit, and organize text-based engineering tracks and modules.
+        </p>
+      </div>
+
+      <a href="/admin/courses/new" class="btn" style="padding: 0.7rem 1.5rem; font-size: 0.9rem; font-weight: 800; border-radius: var(--radius-lg); box-shadow: 0 4px 12px var(--primary-indigo-light);">
+        <span>+ Create New Course</span>
+      </a>
+    </div>
+
+    <!-- Summary Stats Ribbon -->
+    <div class="faq-stats-grid" style="margin-bottom: 2.2rem;">
+      <div class="stat-card">
+        <div class="stat-card__icon" style="background: var(--primary-indigo-light); color: var(--primary-indigo);">🎓</div>
         <div>
-          <h1 class="dashboard-section__title">
-            <span>📚 Course &amp; Knowledge Base Management</span>
-          </h1>
-          <p style="color: var(--text-muted); font-size: 0.88rem; margin: 0.2rem 0 0 0;">Create, edit, and organize text-based engineering tracks and modules.</p>
+          <div class="stat-card__val"><%= courses ? courses.length : 0 %></div>
+          <div class="stat-card__label">Course Tracks</div>
         </div>
-
-        <a href="/admin/courses/new" class="btn" style="padding: 0.55rem 1.2rem; font-size: 0.88rem; border-radius: var(--radius-lg);">
-          <span>+ Create New Course</span>
-        </a>
       </div>
 
-      <div style="display: flex; flex-direction: column; gap: 1rem;">
-        <% if (courses.length === 0) { %>
-          <div style="background: var(--bg-subtle); border: 1px dashed var(--border-light); padding: 3.5rem 1.8rem; border-radius: var(--radius-xl); text-align: center;">
-            <div style="font-size: 2.8rem; margin-bottom: 0.8rem;">📚</div>
-            <h3 style="font-size: 1.2rem; color: var(--text-main); margin-bottom: 0.4rem; font-weight: 700;">No Courses Found</h3>
-            <p style="color: var(--text-muted); max-width: 420px; margin: 0 auto; font-size: 0.9rem; line-height: 1.5;">
-              Create your first engineering course track to start building the Knowledge Base!
-            </p>
-          </div>
-        <% } else { %>
-          <% courses.forEach(course => { %>
-            <div style="background: var(--bg-surface); border: 1px solid var(--border-light); border-radius: var(--radius-xl); padding: 1.4rem 1.6rem; box-shadow: var(--shadow-sm); display: flex; justify-content: space-between; align-items: center; gap: 1.2rem; flex-wrap: wrap;">
-              
-              <div style="flex: 1; min-width: 260px;">
-                <div style="display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.4rem; flex-wrap: wrap;">
-                  <span class="tech-badge" style="background: var(--primary-indigo-light); color: var(--primary-indigo); border-color: var(--border-accent); font-size: 0.75rem;">
-                    📚 <%= course.lessonsCount %> Lesson<%= course.lessonsCount !== 1 ? 's' : '' %>
-                  </span>
-                  
-                  <span class="tech-badge" style="font-size: 0.7rem; padding: 0.12rem 0.5rem; font-family: var(--font-mono); <%= course.difficultyLevel === 'Advanced' ? 'background: rgba(239, 68, 68, 0.15); color: #dc2626; border-color: rgba(239, 68, 68, 0.3);' : (course.difficultyLevel === 'Beginner' ? 'background: rgba(16, 185, 129, 0.15); color: #10b981; border-color: rgba(16, 185, 129, 0.3);' : 'background: var(--primary-indigo-light); color: var(--primary-indigo); border-color: var(--border-accent);') %>">
-                    <%= course.difficultyLevel === 'Advanced' ? '🚀 Advanced' : (course.difficultyLevel === 'Beginner' ? '🌱 Beginner' : '⚡ Intermediate') %>
-                  </span>
+      <div class="stat-card">
+        <div class="stat-card__icon" style="background: rgba(16, 185, 129, 0.16); color: var(--accent-emerald);">📚</div>
+        <div>
+          <div class="stat-card__val"><%= courses ? courses.reduce((sum, c) => sum + (c.lessonsCount || 0), 0) : 0 %></div>
+          <div class="stat-card__label">Total Modules</div>
+        </div>
+      </div>
 
-                  <span style="font-size: 0.78rem; font-family: var(--font-mono); color: var(--text-muted);">
-                    ⏱ <%= course.estimatedTime %>
-                  </span>
-                </div>
+      <div class="stat-card">
+        <div class="stat-card__icon" style="background: rgba(245, 158, 11, 0.16); color: #d97706;">⚡</div>
+        <div>
+          <div class="stat-card__val">Active</div>
+          <div class="stat-card__label">Learning Hub</div>
+        </div>
+      </div>
+    </div>
 
-                <h2 style="font-size: 1.2rem; font-weight: 700; color: var(--text-main); margin: 0 0 0.3rem 0; line-height: 1.35;">
-                  <a href="/courses/<%= course.slug %>" target="_blank" style="color: var(--text-main); text-decoration: none;"><%= course.title %> ↗</a>
-                </h2>
+    <!-- Course Cards List -->
+    <div style="display: flex; flex-direction: column; gap: 1rem;">
+      <% if (!courses || courses.length === 0) { %>
+        <div style="background: var(--bg-surface); border: 1px dashed var(--border-light); padding: 4rem 2rem; border-radius: var(--radius-xl); text-align: center; color: var(--text-muted);">
+          <div style="font-size: 2.8rem; margin-bottom: 0.8rem;">🎓</div>
+          <h3 style="font-size: 1.2rem; color: var(--text-main); margin-bottom: 0.4rem; font-weight: 800;">No Courses Found</h3>
+          <p style="color: var(--text-muted); max-width: 420px; margin: 0 auto 1.5rem auto; font-size: 0.9rem; line-height: 1.5;">
+            Create your first engineering course track to start building the Knowledge Base!
+          </p>
+          <a href="/admin/courses/new" class="btn" style="padding: 0.6rem 1.4rem; font-size: 0.88rem;">Create first course &rarr;</a>
+        </div>
+      <% } else { %>
+        <% courses.forEach(course => { %>
+          <div style="background: var(--bg-surface); border: 1px solid var(--border-light); border-radius: var(--radius-xl); padding: 1.5rem 1.8rem; box-shadow: var(--shadow-sm); display: flex; justify-content: space-between; align-items: center; gap: 1.4rem; flex-wrap: wrap; transition: border-color 0.2s ease, transform 0.2s ease;" onmouseover="this.style.borderColor='var(--border-accent)'; this.style.transform='translateY(-2px)'" onmouseout="this.style.borderColor='var(--border-light)'; this.style.transform='translateY(0)'">
+            
+            <div style="flex: 1; min-width: 260px;">
+              <div style="display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.45rem; flex-wrap: wrap;">
+                <span class="tech-badge" style="background: var(--primary-indigo-light); color: var(--primary-indigo); font-size: 0.75rem;">
+                  📚 <%= course.lessonsCount %> Module<%= course.lessonsCount !== 1 ? 's' : '' %>
+                </span>
+                
+                <span class="tech-badge" style="font-size: 0.74rem; padding: 0.15rem 0.55rem; font-family: var(--font-mono); <%= course.difficultyLevel === 'Advanced' ? 'background: rgba(239, 68, 68, 0.16); color: #ef4444; border-color: rgba(239, 68, 68, 0.3);' : (course.difficultyLevel === 'Beginner' ? 'background: rgba(16, 185, 129, 0.16); color: #10b981; border-color: rgba(16, 185, 129, 0.3);' : 'background: rgba(99, 102, 241, 0.16); color: var(--primary-indigo); border-color: rgba(99, 102, 241, 0.3);') %>">
+                  <%= course.difficultyLevel === 'Advanced' ? '🚀 Advanced' : (course.difficultyLevel === 'Beginner' ? '🌱 Beginner' : '⚡ Intermediate') %>
+                </span>
 
-                <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0; line-height: 1.4; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 680px;">
-                  <%= course.descriptionSnippet %>
-                </p>
+                <span style="font-size: 0.78rem; font-family: var(--font-mono); color: var(--text-muted);">
+                  ⏱ <%= course.estimatedTime %>
+                </span>
               </div>
 
-              <!-- Action Buttons -->
-              <div style="display: flex; align-items: center; gap: 0.6rem; flex-wrap: wrap;">
-                <a href="/admin/courses/<%= course.id %>/lessons/new" class="btn" style="background: #059669; color: #ffffff; padding: 0.45rem 0.9rem; font-size: 0.82rem; border-radius: var(--radius-lg);">
-                  + Add Lesson
-                </a>
+              <h2 style="font-size: 1.25rem; font-weight: 800; color: var(--text-main); margin: 0 0 0.35rem 0; line-height: 1.35;">
+                <a href="/courses/<%= course.slug %>" target="_blank" style="color: var(--text-main); text-decoration: none;"><%= course.title %> ↗</a>
+              </h2>
 
-                <a href="/admin/courses/<%= course.id %>/edit" class="btn" style="background: var(--bg-subtle); border: 1px solid var(--border-light); color: var(--text-main); padding: 0.45rem 0.9rem; font-size: 0.82rem; box-shadow: none; border-radius: var(--radius-lg);">
-                  Edit Track
-                </a>
-
-                <form action="/admin/courses/<%= course.id %>?_method=DELETE" method="POST" onsubmit="return confirm('Delete course and all its lessons?');" style="margin: 0;">
-                  <input type="hidden" name="_csrf" value="<%= csrfToken %>">
-                  <button type="submit" class="btn btn-delete" style="padding: 0.45rem 0.85rem; font-size: 0.82rem; border-radius: var(--radius-lg);">
-                    Delete
-                  </button>
-                </form>
-              </div>
-
+              <p style="font-size: 0.9rem; color: var(--text-muted); margin: 0; line-height: 1.5; max-width: 680px;">
+                <%= course.descriptionSnippet %>
+              </p>
             </div>
-          <% }) %>
-        <% } %>
-      </div>
+
+            <!-- Action Buttons -->
+            <div style="display: flex; align-items: center; gap: 0.6rem; flex-wrap: wrap;">
+              <a href="/admin/courses/<%= course.id %>/lessons/new" class="btn" style="background: #059669; color: #ffffff; padding: 0.5rem 1rem; font-size: 0.84rem; border-radius: var(--radius-lg); font-weight: 700;">
+                + Add Module
+              </a>
+
+              <a href="/admin/courses/<%= course.id %>/edit" class="btn" style="background: var(--bg-subtle); border: 1px solid var(--border-light); color: var(--text-main); padding: 0.5rem 1rem; font-size: 0.84rem; border-radius: var(--radius-lg); font-weight: 600;">
+                Edit Track
+              </a>
+
+              <form action="/admin/courses/<%= course.id %>?_method=DELETE" method="POST" onsubmit="return confirm('Delete course and all its lessons?');" style="margin: 0;">
+                <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                <button type="submit" class="btn" style="background: rgba(239, 68, 68, 0.15); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.3); padding: 0.5rem 0.9rem; font-size: 0.84rem; border-radius: var(--radius-lg); font-weight: 600;">
+                  Delete
+                </button>
+              </form>
+            </div>
+
+          </div>
+        <% }) %>
+      <% } %>
     </div>
 
   </main>

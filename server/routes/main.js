@@ -18,6 +18,7 @@ router.get('/feed.xml', mainController.getRssFeed);
 router.get('/rss.xml', mainController.getRssFeed);
 router.get('/about', optionalAuthMiddleware, mainController.getAboutPage);
 router.get('/faq', optionalAuthMiddleware, mainController.getFaqPage);
+router.get('/api/faq', mainController.apiGetFaq);
 router.post('/api/faq/:id/upvote', mainController.upvoteFaqQuestion);
 router.get('/tag/:slug', optionalAuthMiddleware, mainController.getTagPage);
 

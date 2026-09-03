@@ -1,106 +1,141 @@
 <!-- FAQ Hero Banner (Stitch Glassmorphic Design) -->
-<section class="dev-hero" style="margin-bottom: 2rem; background: radial-gradient(circle at 50% -20%, rgba(99, 102, 241, 0.22) 0%, rgba(15, 19, 28, 0) 70%), var(--bg-surface);">
-  <div class="dev-hero__body">
-    <div class="dev-hero__badge">
-      <span class="dev-hero__badge-dot"></span>
-      <span>💡 DevHub Technical Interview Q&amp;A &amp; Knowledge Base</span>
+<section class="dev-hero" style="margin-bottom: 2rem; background: radial-gradient(circle at 50% -20%, rgba(99, 102, 241, 0.28) 0%, rgba(16, 185, 129, 0.08) 45%, rgba(15, 19, 28, 0) 70%), var(--bg-surface); border: 1px solid var(--border-light); border-radius: var(--radius-xl); padding: 3rem 2rem; text-align: center; box-shadow: var(--shadow-sm); position: relative; overflow: hidden;">
+  
+  <div style="max-width: 820px; margin: 0 auto; display: flex; flex-direction: column; align-items: center; gap: 1rem; position: relative; z-index: 1;">
+    
+    <!-- Hero Question Counter Pill Badge -->
+    <div class="faq-hero-pill">
+      <span>📚 Production Interview FAQs</span>
+      <span class="faq-hero-pill__count" id="hero-questions-count"><%= questions ? questions.length : 0 %></span>
     </div>
 
-    <h1 class="dev-hero__heading">Technical Interview Q&amp;A</h1>
-    <p class="dev-hero__sub">Production-tested backend engineering interview questions, system architecture FAQs, and deep-dive technical explanations.</p>
+    <h1 style="font-size: clamp(2rem, 3.8vw, 2.7rem); font-weight: 800; color: var(--text-main); line-height: 1.2; letter-spacing: -0.02em; margin: 0;">
+      Technical Interview Q&amp;A
+    </h1>
+    
+    <p style="font-size: 1.05rem; color: var(--text-muted); line-height: 1.6; margin: 0; max-width: 680px;">
+      Production-tested backend engineering interview questions, system architecture FAQs, and deep-dive technical explanations.
+    </p>
 
-    <!-- Metrics Stat Cards Ribbon -->
-    <div class="faq-stats-grid" style="max-width: 860px; margin: 1.8rem auto 0 auto;">
-      <div class="stat-card">
-        <div class="stat-card__icon">📚</div>
-        <div style="text-align: left;">
-          <div class="stat-card__val"><%= questions ? questions.length : 0 %></div>
-          <div class="stat-card__label">Interview Questions</div>
-        </div>
-      </div>
-
-      <div class="stat-card">
-        <div class="stat-card__icon" style="background: rgba(16, 185, 129, 0.16); color: var(--accent-emerald);">⚡</div>
-        <div style="text-align: left;">
-          <div class="stat-card__val"><%= categories ? categories.length : 0 %></div>
-          <div class="stat-card__label">Technical Topics</div>
-        </div>
-      </div>
-
-      <div class="stat-card">
-        <div class="stat-card__icon" style="background: rgba(245, 158, 11, 0.16); color: #d97706;">💬</div>
-        <div style="text-align: left;">
-          <div class="stat-card__val">Community</div>
-          <div class="stat-card__label">Verified Insights</div>
-        </div>
-      </div>
-    </div>
-
-    <div style="margin-top: 1.8rem;">
+    <div style="margin-top: 0.5rem;">
       <% if (currentUser) { %>
-        <a href="/my/questions/new" class="btn" style="background: #ffffff; color: var(--primary-indigo); border: none; font-weight: 800; padding: 0.75rem 1.6rem; font-size: 0.92rem; border-radius: var(--radius-lg); box-shadow: 0 4px 14px rgba(0, 0, 0, 0.15); transition: transform 0.2s ease;" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='translateY(0)'">
+        <a href="/my/questions/new" class="btn" style="background: linear-gradient(135deg, var(--primary-indigo) 0%, #059669 100%); color: #ffffff; border: none; font-weight: 800; padding: 0.75rem 1.6rem; font-size: 0.92rem; border-radius: var(--radius-lg); box-shadow: 0 4px 14px var(--primary-indigo-light); transition: transform 0.2s ease, box-shadow 0.2s ease;" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='translateY(0)'">
           <span>+ Ask Question / Submit FAQ &rarr;</span>
         </a>
       <% } else { %>
-        <a href="/auth" class="btn" style="background: rgba(255, 255, 255, 0.15); color: #ffffff; border: 1px solid rgba(255, 255, 255, 0.3); font-size: 0.88rem; padding: 0.65rem 1.4rem; border-radius: var(--radius-lg); backdrop-filter: blur(4px);">
+        <a href="/auth" class="btn" style="background: var(--bg-subtle); color: var(--text-main); border: 1px solid var(--border-light); font-size: 0.88rem; padding: 0.65rem 1.4rem; border-radius: var(--radius-lg); font-weight: 700;">
           Sign In to Submit Questions &amp; Answers &rarr;
         </a>
       <% } %>
     </div>
+
   </div>
 </section>
 
 <!-- Filter & Mode Control Bar -->
 <div style="max-width: 1240px; margin: 0 auto 2.2rem auto;">
   
-  <form action="/faq" method="GET" class="faq-controls">
+  <form id="faq-filter-form" action="/faq" method="GET" class="faq-filter-bar">
     
-    <!-- Top Row: Search Box & Difficulty Selector -->
-    <div style="display: flex; gap: 1rem; align-items: center; flex-wrap: wrap;">
+    <!-- Top Row: Search Input & Controls -->
+    <div class="faq-filter-top">
       
-      <!-- Search Input -->
-      <div style="flex: 1; min-width: 280px; position: relative;">
-        <input type="text" name="q" value="<%= searchQuery || '' %>" class="faq-search-input" placeholder="Search questions (e.g. Event Loop, N+1, CSRF, SQLite)...">
-        <span style="position: absolute; left: 0.9rem; top: 50%; transform: translateY(-50%); color: var(--text-muted); font-size: 0.95rem; pointer-events: none;">🔍</span>
+      <!-- Search Input Box -->
+      <div class="faq-search-box">
+        <span class="faq-search-icon">🔍</span>
+        <input type="text" name="q" id="faq-search-input" value="<%= searchQuery || '' %>" placeholder="Search interview questions (e.g. Event Loop, N+1, CSRF, SQLite)..." autocomplete="off">
+        <button type="button" id="faq-search-clear" class="faq-search-clear" title="Clear search">✕</button>
+        <span class="faq-search-kbd">⌘ /</span>
       </div>
 
-      <!-- Difficulty Selector -->
-      <div style="display: flex; align-items: center; gap: 0.5rem;">
-        <label for="difficulty-select" style="font-size: 0.85rem; font-family: var(--font-mono); color: var(--text-muted); font-weight: 600;">Level:</label>
-        <select name="difficulty" id="difficulty-select" onchange="this.form.submit()" style="padding: 0.65rem 1rem; border-radius: var(--radius-lg); border: 1px solid var(--border-light); background: var(--bg-subtle); color: var(--text-main); font-size: 0.88rem; font-family: var(--font-mono); outline: none; cursor: pointer;">
+      <!-- Custom Interactive Dropdown Component for Difficulty Level -->
+      <div class="custom-dropdown" id="difficulty-dropdown">
+        <!-- Hidden Select input for fallback -->
+        <select name="difficulty" id="difficulty-select" style="display: none;">
           <option value="All" <%= activeDifficulty === 'All' ? 'selected' : '' %>>All Levels</option>
-          <option value="Junior" <%= activeDifficulty === 'Junior' ? 'selected' : '' %>>🌱 Junior</option>
-          <option value="Mid" <%= activeDifficulty === 'Mid' ? 'selected' : '' %>>⚡ Mid</option>
-          <option value="Senior" <%= activeDifficulty === 'Senior' ? 'selected' : '' %>>🚀 Senior</option>
+          <option value="Junior" <%= activeDifficulty === 'Junior' ? 'selected' : '' %>>Junior</option>
+          <option value="Mid" <%= activeDifficulty === 'Mid' ? 'selected' : '' %>>Mid</option>
+          <option value="Senior" <%= activeDifficulty === 'Senior' ? 'selected' : '' %>>Senior</option>
         </select>
+
+        <!-- Dropdown Trigger Button -->
+        <div class="custom-dropdown__trigger" id="difficulty-trigger" tabindex="0">
+          <span id="difficulty-trigger-label">
+            <%= activeDifficulty === 'Senior' ? '🚀 Senior Level' : (activeDifficulty === 'Junior' ? '🌱 Junior Level' : (activeDifficulty === 'Mid' ? '⚡ Mid Level' : '🌐 All Levels')) %>
+          </span>
+          <svg class="custom-dropdown__chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="6 9 12 15 18 9"></polyline>
+          </svg>
+        </div>
+
+        <!-- Dropdown Options Popup Menu -->
+        <div class="custom-dropdown__menu" id="difficulty-menu">
+          <div class="custom-dropdown__option <%= activeDifficulty === 'All' ? 'selected' : '' %>" data-value="All">
+            <span>🌐 All Levels</span>
+            <% if (activeDifficulty === 'All') { %><span style="color: var(--primary-indigo);">✓</span><% } %>
+          </div>
+          <div class="custom-dropdown__option <%= activeDifficulty === 'Junior' ? 'selected' : '' %>" data-value="Junior">
+            <span>🌱 Junior Level</span>
+            <% if (activeDifficulty === 'Junior') { %><span style="color: var(--primary-indigo);">✓</span><% } %>
+          </div>
+          <div class="custom-dropdown__option <%= activeDifficulty === 'Mid' ? 'selected' : '' %>" data-value="Mid">
+            <span>⚡ Mid Level</span>
+            <% if (activeDifficulty === 'Mid') { %><span style="color: var(--primary-indigo);">✓</span><% } %>
+          </div>
+          <div class="custom-dropdown__option <%= activeDifficulty === 'Senior' ? 'selected' : '' %>" data-value="Senior">
+            <span>🚀 Senior Level</span>
+            <% if (activeDifficulty === 'Senior') { %><span style="color: var(--primary-indigo);">✓</span><% } %>
+          </div>
+        </div>
       </div>
 
-      <button type="submit" class="btn" style="padding: 0.65rem 1.4rem; font-size: 0.88rem; border-radius: var(--radius-lg);">
+      <button type="submit" class="btn" style="height: 46px; padding: 0 1.4rem; font-size: 0.9rem; font-weight: 700; border-radius: var(--radius-lg); background: var(--primary-indigo); color: #ffffff; border: none; flex-shrink: 0;">
         Search
       </button>
 
-      <% if (searchQuery || activeCategory !== 'All' || activeDifficulty !== 'All') { %>
-        <a href="/faq" class="btn" style="background: var(--bg-subtle); border: 1px solid var(--border-light); color: var(--text-muted); padding: 0.65rem 1.1rem; font-size: 0.85rem; border-radius: var(--radius-lg); text-decoration: none;">
-          Reset Filters ✕
-        </a>
-      <% } %>
+      <button type="button" id="faq-reset-btn" class="btn" style="height: 46px; padding: 0 1.2rem; font-size: 0.86rem; border-radius: var(--radius-lg); background: var(--bg-subtle); border: 1px solid var(--border-light); color: var(--text-muted); font-weight: 600; display: <%= (searchQuery || activeCategory !== 'All' || activeDifficulty !== 'All') ? 'inline-flex' : 'none' %>; flex-shrink: 0;">
+        Reset ✕
+      </button>
 
     </div>
 
+    <!-- Active Filters Strip (Dynamic) -->
+    <div id="faq-active-strip" class="faq-active-strip" style="display: <%= (searchQuery || activeCategory !== 'All' || activeDifficulty !== 'All') ? 'flex' : 'none' %>;">
+      <span style="font-size: 0.76rem; font-family: var(--font-mono); color: var(--text-muted); font-weight: 700;">Active Filters:</span>
+      
+      <% if (activeCategory !== 'All') { %>
+        <span class="faq-active-chip" id="chip-category" data-type="category">
+          Topic: <%= activeCategory %> ✕
+        </span>
+      <% } %>
+
+      <% if (activeDifficulty !== 'All') { %>
+        <span class="faq-active-chip" id="chip-difficulty" data-type="difficulty">
+          Level: <%= activeDifficulty %> ✕
+        </span>
+      <% } %>
+
+      <% if (searchQuery) { %>
+        <span class="faq-active-chip" id="chip-search" data-type="search">
+          Query: "<%= searchQuery %>" ✕
+        </span>
+      <% } %>
+    </div>
+
     <!-- Bottom Row: Category Tabs & View Mode Switcher -->
-    <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--border-light); padding-top: 1.2rem; flex-wrap: wrap; gap: 1rem;">
+    <div class="faq-category-row">
       
       <!-- Category Filter Pills -->
-      <div style="display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap;">
-        <a href="/faq?<%= activeDifficulty !== 'All' ? 'difficulty=' + activeDifficulty + '&' : '' %><%= searchQuery ? 'q=' + searchQuery : '' %>" class="faq-category-pill <%= activeCategory === 'All' ? 'active' : '' %>">
+      <div class="faq-pills-list" id="faq-category-pills">
+        <button type="button" data-category="All" class="faq-pill <%= activeCategory === 'All' ? 'active' : '' %>">
           🌐 All Topics
-        </a>
+        </button>
 
         <% if (categories && categories.length > 0) { %>
           <% categories.forEach(cat => { %>
-            <a href="/faq?category=<%= encodeURIComponent(cat) %><%= activeDifficulty !== 'All' ? '&difficulty=' + activeDifficulty : '' %><%= searchQuery ? '&q=' + searchQuery : '' %>" class="faq-category-pill <%= activeCategory === cat ? 'active' : '' %>">
-              <%= cat %>
-            </a>
+            <button type="button" data-category="<%= cat %>" class="faq-pill <%= activeCategory === cat ? 'active' : '' %>">
+              <%= cat === 'Node.js Core' ? '⚡ ' + cat : (cat.includes('SQL') ? '🗄️ ' + cat : (cat.includes('Security') ? '🛡️ ' + cat : '🏗️ ' + cat)) %>
+            </button>
           <% }) %>
         <% } %>
       </div>
@@ -126,18 +161,17 @@
   
   <!-- Mode 1: Accordion List View -->
   <div id="faq-accordion-view" style="display: flex; flex-direction: column; gap: 1.2rem;">
-    
     <% if (questions && questions.length > 0) { %>
       <% questions.forEach((q, index) => { %>
         <details class="faq-card" <%= index === 0 ? 'open' : '' %>>
           
           <summary class="faq-card__summary">
             
-            <div style="display: flex; flex-direction: column; gap: 0.55rem; flex: 1;">
+            <div style="display: flex; flex-direction: column; gap: 0.6rem; flex: 1;">
               <div style="display: flex; align-items: center; gap: 0.6rem; flex-wrap: wrap;">
-                <span style="font-family: var(--font-mono); font-size: 0.78rem; font-weight: 700; color: var(--text-dim);">Q<%= index + 1 %></span>
+                <span class="faq-index-badge">#<%= (index + 1).toString().padStart(2, '0') %></span>
 
-                <span class="tech-badge" style="font-size: 0.75rem; padding: 0.15rem 0.55rem; font-family: var(--font-mono); <%= q.difficulty === 'Senior' ? 'background: rgba(239, 68, 68, 0.18); color: #fca5a5; border-color: rgba(239, 68, 68, 0.3);' : (q.difficulty === 'Junior' ? 'background: rgba(16, 185, 129, 0.18); color: #6ee7b7; border-color: rgba(16, 185, 129, 0.3);' : 'background: rgba(129, 140, 248, 0.18); color: #a5b4fc; border-color: rgba(129, 140, 248, 0.3);') %>">
+                <span class="tech-badge" style="font-size: 0.75rem; padding: 0.15rem 0.55rem; font-family: var(--font-mono); <%= q.difficulty === 'Senior' ? 'background: rgba(239, 68, 68, 0.16); color: #ef4444; border-color: rgba(239, 68, 68, 0.3);' : (q.difficulty === 'Junior' ? 'background: rgba(16, 185, 129, 0.16); color: #10b981; border-color: rgba(16, 185, 129, 0.3);' : 'background: rgba(99, 102, 241, 0.16); color: var(--primary-indigo); border-color: rgba(99, 102, 241, 0.3);') %>">
                   <%= q.difficulty === 'Senior' ? '🚀 Senior' : (q.difficulty === 'Junior' ? '🌱 Junior' : '⚡ Mid') %>
                 </span>
 
@@ -151,7 +185,11 @@
               </span>
             </div>
 
-            <div class="faq-chevron">▾</div>
+            <div class="faq-chevron">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="6 9 12 15 18 9"></polyline>
+              </svg>
+            </div>
           </summary>
 
           <div class="faq-card__body article-content">
@@ -231,7 +269,7 @@
         <div style="font-size: 2.5rem; margin-bottom: 0.8rem;">🔍</div>
         <h3 style="font-size: 1.25rem; font-weight: 800; color: var(--text-main); margin-bottom: 0.5rem;">No interview questions found</h3>
         <p style="font-size: 0.9rem; margin-bottom: 1.5rem;">Try adjusting your search query or category filter.</p>
-        <a href="/faq" class="btn" style="font-size: 0.88rem; padding: 0.6rem 1.4rem;">Reset All Filters</a>
+        <button type="button" id="empty-reset-btn" class="btn" style="font-size: 0.88rem; padding: 0.6rem 1.4rem;">Reset All Filters</button>
       </div>
     <% } %>
 
@@ -280,8 +318,13 @@
         </div>
 
         <!-- Keyboard navigation hints -->
-        <div style="margin-top: 1.2rem; font-family: var(--font-mono); font-size: 0.75rem; color: var(--text-dim);">
-          ⌨️ Keyboard: <kbd style="background: var(--bg-subtle); padding: 0.15rem 0.4rem; border-radius: 4px; border: 1px solid var(--border-light);">←</kbd> Previous • <kbd style="background: var(--bg-subtle); padding: 0.15rem 0.4rem; border-radius: 4px; border: 1px solid var(--border-light);">Space</kbd> Reveal Answer • <kbd style="background: var(--bg-subtle); padding: 0.15rem 0.4rem; border-radius: 4px; border: 1px solid var(--border-light);">→</kbd> Next
+        <div style="margin-top: 1.2rem; font-family: var(--font-mono); font-size: 0.75rem; color: var(--text-dim); display: flex; align-items: center; justify-content: center; gap: 0.4rem;">
+          <span>⌨️ Keyboard:</span>
+          <span class="kbd-badge">←</span> <span>Previous</span>
+          <span>•</span>
+          <span class="kbd-badge">Space</span> <span>Reveal</span>
+          <span>•</span>
+          <span class="kbd-badge">→</span> <span>Next</span>
         </div>
 
       </div>
@@ -290,36 +333,412 @@
 
 </div>
 
-<!-- Flashcard Mode & Upvote Client-side Script -->
+<!-- Client-Side Seamless AJAX Filtering & Custom Dropdown Interactive Scripts -->
 <script>
   document.addEventListener('DOMContentLoaded', () => {
-    // 1. Upvote AJAX Handler
-    document.querySelectorAll('.faq-upvote-btn').forEach(btn => {
-      btn.addEventListener('click', async () => {
-        const questionId = btn.getAttribute('data-id');
-        const countSpan = document.getElementById(`upvote-count-${questionId}`);
-        try {
-          const res = await fetch(`/api/faq/${questionId}/upvote`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' }
+    // State
+    let state = {
+      category: '<%= activeCategory || "All" %>',
+      difficulty: '<%= activeDifficulty || "All" %>',
+      q: '<%= searchQuery || "" %>',
+      questions: <%- JSON.stringify(questions || []) %>,
+      currentUser: <%- JSON.stringify(currentUser || null) %>,
+      csrfToken: '<%= csrfToken %>'
+    };
+
+    let debounceTimer = null;
+
+    // DOM Elements
+    const searchInput = document.getElementById('faq-search-input');
+    const searchClearBtn = document.getElementById('faq-search-clear');
+    const hiddenDifficultySelect = document.getElementById('difficulty-select');
+    const dropdownComponent = document.getElementById('difficulty-dropdown');
+    const dropdownTrigger = document.getElementById('difficulty-trigger');
+    const dropdownTriggerLabel = document.getElementById('difficulty-trigger-label');
+    const dropdownMenu = document.getElementById('difficulty-menu');
+    const resetBtn = document.getElementById('faq-reset-btn');
+    const activeStrip = document.getElementById('faq-active-strip');
+    const categoryPillsContainer = document.getElementById('faq-category-pills');
+    const filterForm = document.getElementById('faq-filter-form');
+    const heroQuestionsCount = document.getElementById('hero-questions-count');
+    const accordionView = document.getElementById('faq-accordion-view');
+
+    // 1. Custom Dropdown Toggle & Options Handler
+    if (dropdownTrigger && dropdownComponent && dropdownMenu) {
+      dropdownTrigger.addEventListener('click', (e) => {
+        e.stopPropagation();
+        dropdownComponent.classList.toggle('open');
+      });
+
+      dropdownMenu.querySelectorAll('.custom-dropdown__option').forEach(option => {
+        option.addEventListener('click', (e) => {
+          e.stopPropagation();
+          const val = option.getAttribute('data-value');
+          state.difficulty = val;
+          if (hiddenDifficultySelect) hiddenDifficultySelect.value = val;
+
+          // Update trigger label
+          const labelText = val === 'Senior' ? '🚀 Senior Level' : (val === 'Junior' ? '🌱 Junior Level' : (val === 'Mid' ? '⚡ Mid Level' : '🌐 All Levels'));
+          if (dropdownTriggerLabel) dropdownTriggerLabel.textContent = labelText;
+
+          // Update selected option styling
+          dropdownMenu.querySelectorAll('.custom-dropdown__option').forEach(opt => {
+            opt.classList.remove('selected');
+            const check = opt.querySelector('span:last-child');
+            if (check && check.textContent === '✓') check.remove();
           });
-          const data = await res.json();
-          if (data.success && countSpan) {
-            countSpan.textContent = data.upvotesCount;
-            btn.style.borderColor = 'var(--primary-indigo)';
-            btn.style.color = 'var(--primary-indigo)';
-            btn.style.background = 'var(--primary-indigo-light)';
-          }
-        } catch (err) {
-          console.error('Error upvoting question:', err);
+          option.classList.add('selected');
+          const checkSpan = document.createElement('span');
+          checkSpan.style.color = 'var(--primary-indigo)';
+          checkSpan.textContent = '✓';
+          option.appendChild(checkSpan);
+
+          dropdownComponent.classList.remove('open');
+          fetchAndRenderFaq();
+        });
+      });
+
+      // Close dropdown when clicking outside
+      document.addEventListener('click', (e) => {
+        if (!dropdownComponent.contains(e.target)) {
+          dropdownComponent.classList.remove('open');
         }
       });
+    }
+
+    // 2. Search Input Clear Button Toggle
+    function updateSearchClearBtn() {
+      if (!searchInput || !searchClearBtn) return;
+      searchClearBtn.style.display = searchInput.value.trim() !== '' ? 'inline-flex' : 'none';
+    }
+
+    if (searchInput) {
+      searchInput.addEventListener('input', () => {
+        state.q = searchInput.value;
+        updateSearchClearBtn();
+        clearTimeout(debounceTimer);
+        debounceTimer = setTimeout(() => {
+          fetchAndRenderFaq();
+        }, 250);
+      });
+    }
+
+    if (searchClearBtn) {
+      searchClearBtn.addEventListener('click', () => {
+        if (searchInput) searchInput.value = '';
+        state.q = '';
+        updateSearchClearBtn();
+        fetchAndRenderFaq();
+      });
+    }
+
+    // Initialize clear button visibility
+    updateSearchClearBtn();
+
+    // 3. Hotkey '/' handler to focus search
+    document.addEventListener('keydown', (e) => {
+      if (e.key === '/' && document.activeElement !== searchInput && document.activeElement.tagName !== 'TEXTAREA' && document.activeElement.tagName !== 'INPUT') {
+        e.preventDefault();
+        if (searchInput) searchInput.focus();
+      }
     });
 
-    // 2. View Mode Toggle (Accordion vs Flashcard)
+    // 4. Update Active Filters Strip UI
+    function updateActiveStripUI() {
+      if (!activeStrip) return;
+
+      const hasActive = (state.category !== 'All' || state.difficulty !== 'All' || (state.q && state.q.trim() !== ''));
+      activeStrip.style.display = hasActive ? 'flex' : 'none';
+
+      let html = '<span style="font-size: 0.76rem; font-family: var(--font-mono); color: var(--text-muted); font-weight: 700;">Active Filters:</span>';
+
+      if (state.category !== 'All') {
+        html += `<span class="faq-active-chip" data-type="category">Topic: ${state.category} ✕</span>`;
+      }
+      if (state.difficulty !== 'All') {
+        html += `<span class="faq-active-chip" data-type="difficulty">Level: ${state.difficulty} ✕</span>`;
+      }
+      if (state.q && state.q.trim() !== '') {
+        html += `<span class="faq-active-chip" data-type="search">Search: "${state.q.trim()}" ✕</span>`;
+      }
+
+      activeStrip.innerHTML = html;
+
+      // Attach chip click remove listeners
+      activeStrip.querySelectorAll('.faq-active-chip').forEach(chip => {
+        chip.addEventListener('click', () => {
+          const type = chip.getAttribute('data-type');
+          if (type === 'category') {
+            state.category = 'All';
+            if (categoryPillsContainer) {
+              categoryPillsContainer.querySelectorAll('.faq-pill').forEach(b => {
+                if (b.getAttribute('data-category') === 'All') b.classList.add('active');
+                else b.classList.remove('active');
+              });
+            }
+          } else if (type === 'difficulty') {
+            state.difficulty = 'All';
+            if (hiddenDifficultySelect) hiddenDifficultySelect.value = 'All';
+            if (dropdownTriggerLabel) dropdownTriggerLabel.textContent = '🌐 All Levels';
+          } else if (type === 'search') {
+            state.q = '';
+            if (searchInput) searchInput.value = '';
+            updateSearchClearBtn();
+          }
+          fetchAndRenderFaq();
+        });
+      });
+    }
+
+    // 5. Seamless AJAX Fetch & Render Function
+    async function fetchAndRenderFaq() {
+      const params = new URLSearchParams();
+      if (state.category && state.category !== 'All') params.set('category', state.category);
+      if (state.difficulty && state.difficulty !== 'All') params.set('difficulty', state.difficulty);
+      if (state.q && state.q.trim() !== '') params.set('q', state.q.trim());
+
+      const queryString = params.toString();
+      const newUrl = queryString ? `/faq?${queryString}` : '/faq';
+      const apiPath = queryString ? `/api/faq?${queryString}` : '/api/faq';
+
+      // Update URL without page reload
+      window.history.pushState({ category: state.category, difficulty: state.difficulty, q: state.q }, '', newUrl);
+
+      // Reset button visibility
+      if (resetBtn) {
+        resetBtn.style.display = (state.category !== 'All' || state.difficulty !== 'All' || (state.q && state.q.trim() !== '')) ? 'inline-flex' : 'none';
+      }
+
+      // Update active strip chips
+      updateActiveStripUI();
+
+      try {
+        const res = await fetch(apiPath);
+        const data = await res.json();
+        if (data.success) {
+          state.questions = data.questions;
+
+          if (heroQuestionsCount) heroQuestionsCount.textContent = data.totalCount;
+
+          renderAccordionList(data.questions);
+          initFlashcards();
+        }
+      } catch (err) {
+        console.error('Error fetching FAQ data:', err);
+      }
+    }
+
+    // 6. Render Accordion Items Dynamically
+    function renderAccordionList(questions) {
+      if (!accordionView) return;
+
+      if (!questions || questions.length === 0) {
+        accordionView.innerHTML = `
+          <div style="background: var(--bg-surface); border: 1px dashed var(--border-light); border-radius: var(--radius-xl); padding: 4rem 2rem; text-align: center; color: var(--text-muted); animation: fadeSlideUp 0.3s ease;">
+            <div style="font-size: 2.5rem; margin-bottom: 0.8rem;">🔍</div>
+            <h3 style="font-size: 1.25rem; font-weight: 800; color: var(--text-main); margin-bottom: 0.5rem;">No interview questions found</h3>
+            <p style="font-size: 0.9rem; margin-bottom: 1.5rem;">Try adjusting your search query or category filter.</p>
+            <button type="button" id="inner-reset-btn" class="btn" style="font-size: 0.88rem; padding: 0.6rem 1.4rem;">Reset All Filters</button>
+          </div>
+        `;
+        const innerReset = document.getElementById('inner-reset-btn');
+        if (innerReset) innerReset.addEventListener('click', resetFilters);
+        return;
+      }
+
+      const html = questions.map((q, index) => {
+        const diffStyle = q.difficulty === 'Senior'
+          ? 'background: rgba(239, 68, 68, 0.16); color: #ef4444; border-color: rgba(239, 68, 68, 0.3);'
+          : (q.difficulty === 'Junior'
+            ? 'background: rgba(16, 185, 129, 0.16); color: #10b981; border-color: rgba(16, 185, 129, 0.3);'
+            : 'background: rgba(99, 102, 241, 0.16); color: var(--primary-indigo); border-color: rgba(99, 102, 241, 0.3);');
+
+        const diffLabel = q.difficulty === 'Senior' ? '🚀 Senior' : (q.difficulty === 'Junior' ? '🌱 Junior' : '⚡ Mid');
+        const numFormatted = (index + 1).toString().padStart(2, '0');
+
+        let communityAnswersHtml = '';
+        if (q.communityAnswers && q.communityAnswers.length > 0) {
+          const items = q.communityAnswers.map(ca => {
+            const authorName = ca.author ? (ca.author.displayName || ca.author.username) : 'Developer';
+            const initial = authorName.charAt(0).toUpperCase();
+            const avatarHtml = ca.author && ca.author.avatarUrl
+              ? `<img src="${ca.author.avatarUrl}" alt="Avatar" style="width:100%;height:100%;object-fit:cover;">`
+              : initial;
+            return `
+              <div class="faq-community-card">
+                <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.6rem; flex-wrap: wrap; gap: 0.5rem;">
+                  <div style="display: flex; align-items: center; gap: 0.6rem;">
+                    <div class="faq-author-avatar">${avatarHtml}</div>
+                    <div>
+                      <div style="font-weight: 700; color: var(--text-main); font-size: 0.88rem;">${authorName}</div>
+                      <div style="font-size: 0.72rem; color: var(--text-muted); font-family: var(--font-mono);">Verified Contributor</div>
+                    </div>
+                  </div>
+                  <span style="font-size: 0.75rem; color: var(--text-muted); font-family: var(--font-mono);">${new Date(ca.createdAt).toDateString()}</span>
+                </div>
+                <div class="article-content" style="font-size: 0.92rem; color: var(--text-body); line-height: 1.6;">
+                  ${ca.answerHtml}
+                </div>
+              </div>
+            `;
+          }).join('');
+
+          communityAnswersHtml = `
+            <div class="faq-community-section">
+              <h4 style="font-size: 0.95rem; font-weight: 800; color: var(--text-main); margin-bottom: 0.9rem; font-family: var(--font-mono); display: flex; align-items: center; gap: 0.5rem;">
+                💬 Community Answers &amp; Alternate Insights (${q.communityAnswers.length})
+              </h4>
+              <div>${items}</div>
+            </div>
+          `;
+        }
+
+        let userAnswerFormHtml = '';
+        if (state.currentUser) {
+          userAnswerFormHtml = `
+            <details style="margin-top: 1.2rem; padding-top: 0.8rem; border-top: 1px dashed var(--border-light);">
+              <summary style="font-size: 0.85rem; font-family: var(--font-mono); color: var(--primary-indigo); cursor: pointer; font-weight: 700; outline: none; display: flex; align-items: center; gap: 0.4rem;">
+                ✏️ Submit your explanation / answer to this question
+              </summary>
+              <form action="/faq/${q.id}/answer" method="POST" style="margin-top: 0.8rem; display: flex; flex-direction: column; gap: 0.8rem;">
+                <input type="hidden" name="_csrf" value="${state.csrfToken}">
+                <textarea name="answer" rows="4" placeholder="Write your technical explanation, alternative approach, or code snippet example..." required style="width: 100%; padding: 0.85rem; border-radius: var(--radius-lg); border: 1px solid var(--border-light); background: var(--bg-surface); color: var(--text-main); font-family: var(--font-mono); font-size: 0.88rem; outline: none; resize: vertical;"></textarea>
+                <div style="display: flex; justify-content: flex-end;">
+                  <button type="submit" class="btn" style="padding: 0.5rem 1.2rem; font-size: 0.84rem; border-radius: var(--radius-lg); font-weight: 700;">
+                    Submit Answer for Moderation
+                  </button>
+                </div>
+              </form>
+            </details>
+          `;
+        }
+
+        return `
+          <details class="faq-card" ${index === 0 ? 'open' : ''} style="animation: fadeSlideUp 0.3s ease;">
+            <summary class="faq-card__summary">
+              <div style="display: flex; flex-direction: column; gap: 0.6rem; flex: 1;">
+                <div style="display: flex; align-items: center; gap: 0.6rem; flex-wrap: wrap;">
+                  <span class="faq-index-badge">#${numFormatted}</span>
+                  <span class="tech-badge" style="font-size: 0.75rem; padding: 0.15rem 0.55rem; font-family: var(--font-mono); ${diffStyle}">
+                    ${diffLabel}
+                  </span>
+                  <span class="tech-badge" style="font-size: 0.75rem; padding: 0.15rem 0.55rem; background: var(--primary-indigo-light); color: var(--primary-indigo);">
+                    ${q.category}
+                  </span>
+                </div>
+                <span style="line-height: 1.35; color: var(--text-main); font-size: 1.12rem;">
+                  ❓ ${q.question}
+                </span>
+              </div>
+              <div class="faq-chevron">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                  <polyline points="6 9 12 15 18 9"></polyline>
+                </svg>
+              </div>
+            </summary>
+            <div class="faq-card__body article-content">
+              ${q.answerHtml}
+            </div>
+            ${communityAnswersHtml}
+            ${userAnswerFormHtml}
+            <div style="margin-top: 1.4rem; padding-top: 1rem; border-top: 1px dashed var(--border-light); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.8rem;">
+              <div style="font-size: 0.82rem; font-family: var(--font-mono); color: var(--text-muted);">
+                Was this technical answer helpful?
+              </div>
+              <button type="button" class="btn faq-upvote-btn" data-id="${q.id}" style="background: var(--bg-subtle); border: 1px solid var(--border-light); color: var(--text-main); font-size: 0.82rem; padding: 0.4rem 0.95rem; border-radius: var(--radius-lg); font-weight: 700; transition: all 0.2s ease;">
+                <span>👍 Helpful</span>
+                <span class="upvote-count" id="upvote-count-${q.id}" style="color: var(--primary-indigo); margin-left: 0.35rem;">${q.upvotesCount}</span>
+              </button>
+            </div>
+          </details>
+        `;
+      }).join('');
+
+      accordionView.innerHTML = html;
+      attachUpvoteListeners();
+
+      if (window.hljs) {
+        accordionView.querySelectorAll('pre code').forEach(el => window.hljs.highlightElement(el));
+      }
+    }
+
+    // 7. Attach Upvote Listeners
+    function attachUpvoteListeners() {
+      document.querySelectorAll('.faq-upvote-btn').forEach(btn => {
+        btn.addEventListener('click', async () => {
+          const questionId = btn.getAttribute('data-id');
+          const countSpan = document.getElementById(`upvote-count-${questionId}`);
+          try {
+            const res = await fetch(`/api/faq/${questionId}/upvote`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' }
+            });
+            const data = await res.json();
+            if (data.success && countSpan) {
+              countSpan.textContent = data.upvotesCount;
+              btn.style.borderColor = 'var(--primary-indigo)';
+              btn.style.color = 'var(--primary-indigo)';
+              btn.style.background = 'var(--primary-indigo-light)';
+            }
+          } catch (err) {
+            console.error('Error upvoting question:', err);
+          }
+        });
+      });
+    }
+
+    // 8. Reset Filters Handler
+    function resetFilters() {
+      state.category = 'All';
+      state.difficulty = 'All';
+      state.q = '';
+
+      if (searchInput) searchInput.value = '';
+      if (hiddenDifficultySelect) hiddenDifficultySelect.value = 'All';
+      if (dropdownTriggerLabel) dropdownTriggerLabel.textContent = '🌐 All Levels';
+      updateSearchClearBtn();
+
+      if (categoryPillsContainer) {
+        categoryPillsContainer.querySelectorAll('.faq-pill').forEach(btn => {
+          if (btn.getAttribute('data-category') === 'All') {
+            btn.classList.add('active');
+          } else {
+            btn.classList.remove('active');
+          }
+        });
+      }
+
+      fetchAndRenderFaq();
+    }
+
+    // Event Listeners for Filters
+    if (filterForm) {
+      filterForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        state.q = searchInput ? searchInput.value : '';
+        fetchAndRenderFaq();
+      });
+    }
+
+    if (categoryPillsContainer) {
+      categoryPillsContainer.querySelectorAll('.faq-pill').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          e.preventDefault();
+          categoryPillsContainer.querySelectorAll('.faq-pill').forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          state.category = btn.getAttribute('data-category');
+          fetchAndRenderFaq();
+        });
+      });
+    }
+
+    if (resetBtn) {
+      resetBtn.addEventListener('click', resetFilters);
+    }
+
+    // 9. View Mode Toggle (Accordion vs Flashcards)
     const accordionBtn = document.getElementById('mode-accordion-btn');
     const flashcardBtn = document.getElementById('mode-flashcard-btn');
-    const accordionView = document.getElementById('faq-accordion-view');
     const flashcardView = document.getElementById('faq-flashcard-view');
 
     if (accordionBtn && flashcardBtn && accordionView && flashcardView) {
@@ -342,10 +761,8 @@
       });
     }
 
-    // 3. Flashcard Quiz Controller
-    const rawQuestions = <%- JSON.stringify(questions || []) %>;
+    // 10. Flashcard Quiz Controller
     let currentIndex = 0;
-
     const counterSpan = document.getElementById('flashcard-counter');
     const categorySpan = document.getElementById('flashcard-category');
     const questionH2 = document.getElementById('flashcard-question');
@@ -357,22 +774,23 @@
     const randomBtn = document.getElementById('flashcard-random-btn');
 
     function initFlashcards() {
-      if (!rawQuestions || rawQuestions.length === 0) return;
+      if (!state.questions || state.questions.length === 0) return;
       showCard(currentIndex);
     }
 
     function showCard(idx) {
-      if (idx < 0) idx = rawQuestions.length - 1;
-      if (idx >= rawQuestions.length) idx = 0;
+      if (!state.questions || state.questions.length === 0) return;
+      if (idx < 0) idx = state.questions.length - 1;
+      if (idx >= state.questions.length) idx = 0;
       currentIndex = idx;
 
-      const q = rawQuestions[currentIndex];
-      if (counterSpan) counterSpan.textContent = `Question ${currentIndex + 1} of ${rawQuestions.length}`;
+      const q = state.questions[currentIndex];
+      if (counterSpan) counterSpan.textContent = `Question ${currentIndex + 1} of ${state.questions.length}`;
       if (categorySpan) categorySpan.textContent = q.category || 'Core';
       if (questionH2) questionH2.textContent = q.question;
 
       if (progressBar) {
-        const pct = ((currentIndex + 1) / rawQuestions.length) * 100;
+        const pct = ((currentIndex + 1) / state.questions.length) * 100;
         progressBar.style.width = `${pct}%`;
       }
 
@@ -383,7 +801,6 @@
 
       if (revealBtn) revealBtn.style.display = 'inline-flex';
 
-      // Re-trigger syntax highlighting for code snippets inside answer
       if (window.hljs && answerBox) {
         answerBox.querySelectorAll('pre code').forEach(el => window.hljs.highlightElement(el));
       }
@@ -399,11 +816,10 @@
     if (prevBtn) prevBtn.addEventListener('click', () => showCard(currentIndex - 1));
     if (nextBtn) nextBtn.addEventListener('click', () => showCard(currentIndex + 1));
     if (randomBtn) randomBtn.addEventListener('click', () => {
-      const randIdx = Math.floor(Math.random() * rawQuestions.length);
+      const randIdx = Math.floor(Math.random() * state.questions.length);
       showCard(randIdx);
     });
 
-    // Keyboard navigation support for Flashcards
     document.addEventListener('keydown', (e) => {
       if (flashcardView && flashcardView.style.display !== 'none') {
         if (e.key === 'ArrowLeft') showCard(currentIndex - 1);
@@ -417,5 +833,9 @@
         }
       }
     });
+
+    // Initial bindings
+    attachUpvoteListeners();
+    updateActiveStripUI();
   });
 </script>

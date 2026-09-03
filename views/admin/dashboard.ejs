@@ -7,77 +7,87 @@
   <main class="dashboard__content">
     
     <!-- Quick Overview Header Banner -->
-    <div style="background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #312e81 100%); border-radius: var(--radius-xl); padding: 1.8rem 2.2rem; color: #ffffff; margin-bottom: 1.8rem; box-shadow: var(--shadow-sm); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1.2rem;">
+    <div style="background: radial-gradient(circle at 80% 20%, rgba(99, 102, 241, 0.25) 0%, rgba(15, 19, 28, 0) 65%), linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #312e81 100%); border-radius: var(--radius-xl); padding: 2.2rem; color: #ffffff; margin-bottom: 2.2rem; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25); position: relative; overflow: hidden; border: 1px solid rgba(99, 102, 241, 0.3); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1.4rem;">
       <div>
-        <div style="font-family: var(--font-mono); font-size: 0.82rem; color: #818cf8; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.3rem;">👑 Admin Command Console</div>
-        <h1 style="font-size: 1.6rem; font-weight: 800; margin: 0; color: #ffffff; line-height: 1.2;">System Dashboard</h1>
-        <p style="margin: 0.4rem 0 0 0; opacity: 0.85; font-size: 0.92rem;">Manage content moderation, system metrics, users, and platform settings.</p>
+        <div style="display: inline-flex; align-items: center; gap: 0.5rem; background: rgba(129, 140, 248, 0.18); border: 1px solid rgba(129, 140, 248, 0.35); padding: 0.25rem 0.75rem; border-radius: var(--radius-full); color: #c0c1ff; font-family: var(--font-mono); font-size: 0.78rem; font-weight: 700; margin-bottom: 0.6rem;">
+          <span>👑 Admin Command Console</span>
+        </div>
+        <h1 style="font-size: clamp(1.6rem, 3vw, 2.2rem); font-weight: 800; margin: 0; color: #ffffff; line-height: 1.2; letter-spacing: -0.02em;">
+          System Dashboard
+        </h1>
+        <p style="margin: 0.4rem 0 0 0; opacity: 0.88; font-size: 0.95rem; max-width: 620px; line-height: 1.55;">
+          Manage content moderation, platform performance metrics, user accounts, and knowledge base Q&amp;As.
+        </p>
       </div>
 
-      <div style="display: flex; gap: 0.7rem; flex-wrap: wrap;">
-        <a href="/admin/posts/pending" class="btn" style="background: #fffbe6; border: 1px solid #ffe58f; color: #d46b08; font-weight: 700; padding: 0.6rem 1.1rem; box-shadow: none; font-size: 0.88rem;">
-          <span>⏳ Queue</span>
-          <% if (analytics.pendingPostsCount > 0) { %>
-            <span style="background: #d46b08; color: #fff; padding: 0.15rem 0.5rem; border-radius: var(--radius-full); font-size: 0.75rem; margin-left: 0.3rem;"><%= analytics.pendingPostsCount %></span>
+      <div style="display: flex; gap: 0.8rem; flex-wrap: wrap; align-items: center;">
+        <a href="/admin/posts/pending" class="btn" style="background: rgba(245, 158, 11, 0.18); border: 1px solid rgba(245, 158, 11, 0.4); color: #fef3c7; font-weight: 800; padding: 0.65rem 1.2rem; border-radius: var(--radius-lg); font-size: 0.88rem; display: inline-flex; align-items: center; gap: 0.4rem;">
+          <span>⏳ Article Queue</span>
+          <% if (analytics && analytics.pendingPostsCount > 0) { %>
+            <span style="background: #f59e0b; color: #ffffff; padding: 0.1rem 0.5rem; border-radius: var(--radius-full); font-size: 0.75rem; font-weight: 800;"><%= analytics.pendingPostsCount %></span>
           <% } %>
         </a>
 
-        <a href="/add-post" class="btn" style="background: #ffffff; color: var(--primary-indigo); border: none; font-weight: 700; padding: 0.6rem 1.1rem; box-shadow: var(--shadow-sm); font-size: 0.88rem;">
-          ✏️ Write Article
+        <a href="/admin/faq/pending" class="btn" style="background: rgba(99, 102, 241, 0.18); border: 1px solid rgba(99, 102, 241, 0.4); color: #c0c1ff; font-weight: 800; padding: 0.65rem 1.2rem; border-radius: var(--radius-lg); font-size: 0.88rem; display: inline-flex; align-items: center; gap: 0.4rem;">
+          <span>💡 Q&amp;A Queue</span>
+        </a>
+
+        <a href="/add-post" class="btn" style="background: #ffffff; color: var(--primary-indigo); border: none; font-weight: 800; padding: 0.65rem 1.3rem; border-radius: var(--radius-lg); box-shadow: 0 4px 14px rgba(0,0,0,0.15); font-size: 0.88rem;">
+          <span>+ Add Post</span>
         </a>
       </div>
     </div>
 
-    <!-- KPI Analytics Grid (4 Metric Cards) -->
-    <div class="stats-grid" style="grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); margin-bottom: 1.8rem;">
+    <!-- KPI Analytics Grid (5 Stat Cards) -->
+    <div class="faq-stats-grid" style="margin-bottom: 2.4rem;">
       
       <div class="stat-card">
-        <div class="stat-card__icon" style="background: rgba(79, 70, 229, 0.15); color: var(--primary-indigo);">
+        <div class="stat-card__icon" style="background: var(--primary-indigo-light); color: var(--primary-indigo);">
           📝
         </div>
         <div>
-          <div class="stat-card__number"><%= analytics.totalPosts %></div>
+          <div class="stat-card__val"><%= analytics ? analytics.totalPosts : 0 %></div>
           <div class="stat-card__label">Published Articles</div>
         </div>
       </div>
 
       <div class="stat-card">
-        <div class="stat-card__icon" style="background: rgba(16, 185, 129, 0.15); color: #10b981;">
+        <div class="stat-card__icon" style="background: rgba(16, 185, 129, 0.16); color: var(--accent-emerald);">
           👁
         </div>
         <div>
-          <div class="stat-card__number"><%= (analytics.totalViews || 0).toLocaleString() %></div>
+          <div class="stat-card__val"><%= (analytics ? (analytics.totalViews || 0) : 0).toLocaleString() %></div>
           <div class="stat-card__label">Total Views</div>
         </div>
       </div>
 
       <a href="/admin/posts/pending" class="stat-card" style="text-decoration: none;">
-        <div class="stat-card__icon" style="background: rgba(245, 158, 11, 0.15); color: #f59e0b;">
+        <div class="stat-card__icon" style="background: rgba(245, 158, 11, 0.16); color: #d97706;">
           ⏳
         </div>
         <div>
-          <div class="stat-card__number" style="color: #d46b08;"><%= analytics.pendingPostsCount %></div>
-          <div class="stat-card__label">Pending Articles</div>
+          <div class="stat-card__val" style="color: #d97706;"><%= analytics ? analytics.pendingPostsCount : 0 %></div>
+          <div class="stat-card__label">Pending Posts</div>
         </div>
       </a>
 
       <a href="/admin/comments" class="stat-card" style="text-decoration: none;">
-        <div class="stat-card__icon" style="background: rgba(16, 185, 129, 0.15); color: #059669;">
+        <div class="stat-card__icon" style="background: rgba(16, 185, 129, 0.16); color: var(--accent-emerald);">
           💬
         </div>
         <div>
-          <div class="stat-card__number" style="color: #059669;"><%= analytics.pendingCommentsCount %></div>
+          <div class="stat-card__val" style="color: var(--accent-emerald);"><%= analytics ? analytics.pendingCommentsCount : 0 %></div>
           <div class="stat-card__label">Pending Comments</div>
         </div>
       </a>
 
-      <a href="/admin/courses/pending" class="stat-card" style="text-decoration: none;">
-        <div class="stat-card__icon" style="background: rgba(79, 70, 229, 0.15); color: var(--primary-indigo);">
-          🎓
+      <a href="/admin/faq/pending" class="stat-card" style="text-decoration: none;">
+        <div class="stat-card__icon" style="background: rgba(99, 102, 241, 0.16); color: var(--primary-indigo);">
+          💡
         </div>
         <div>
-          <div class="stat-card__number" style="color: var(--primary-indigo);"><%= analytics.pendingCoursesCount || 0 %></div>
-          <div class="stat-card__label">Pending Courses</div>
+          <div class="stat-card__val" style="color: var(--primary-indigo);">Moderation</div>
+          <div class="stat-card__label">Q&amp;A Submissions</div>
         </div>
       </a>
 
@@ -93,48 +103,49 @@
           <p style="color: var(--text-muted); font-size: 0.88rem; margin: 0.2rem 0 0 0;">Manage and edit all published and draft articles across DevHub.</p>
         </div>
 
-        <span class="tech-badge" style="background: var(--primary-indigo-light); color: var(--primary-indigo); border-color: var(--border-accent); font-size: 0.8rem;">
-          <%= data.length %> Total Posts
+        <span class="tech-badge" style="background: var(--primary-indigo-light); color: var(--primary-indigo); border-color: var(--border-accent); font-size: 0.8rem; font-family: var(--font-mono);">
+          <%= data ? data.length : 0 %> Total Posts
         </span>
       </div>
 
-      <div style="display: flex; flex-direction: column; gap: 0.9rem;">
-        <% if (data.length === 0) { %>
-          <div style="background: var(--bg-subtle); border: 1px dashed var(--border-light); padding: 3rem 1.8rem; border-radius: var(--radius-xl); text-align: center; color: var(--text-muted);">
+      <div style="display: flex; flex-direction: column; gap: 1rem;">
+        <% if (!data || data.length === 0) { %>
+          <div style="background: var(--bg-surface); border: 1px dashed var(--border-light); padding: 3.5rem 1.8rem; border-radius: var(--radius-xl); text-align: center; color: var(--text-muted);">
             <div style="font-size: 2.2rem; margin-bottom: 0.6rem;">📝</div>
             <h3 style="font-size: 1.1rem; color: var(--text-main); margin-bottom: 0.3rem;">No articles in database</h3>
+            <a href="/add-post" class="btn" style="margin-top: 1rem; font-size: 0.88rem;">Create your first article &rarr;</a>
           </div>
         <% } else { %>
           <% data.forEach(post => { %>
-            <div style="background: var(--bg-surface); border: 1px solid var(--border-light); border-radius: var(--radius-lg); padding: 1.2rem 1.4rem; box-shadow: var(--shadow-sm); display: flex; justify-content: space-between; align-items: center; gap: 1.2rem; flex-wrap: wrap;">
+            <div style="background: var(--bg-surface); border: 1px solid var(--border-light); border-radius: var(--radius-xl); padding: 1.4rem 1.6rem; box-shadow: var(--shadow-sm); display: flex; justify-content: space-between; align-items: center; gap: 1.2rem; flex-wrap: wrap; transition: border-color 0.2s ease;" onmouseover="this.style.borderColor='var(--border-accent)'" onmouseout="this.style.borderColor='var(--border-light)'">
               
               <div style="flex: 1; min-width: 260px;">
-                <div style="display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.35rem; flex-wrap: wrap;">
+                <div style="display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.4rem; flex-wrap: wrap;">
                   <% if (post.status === 'published') { %>
-                    <span class="comment-status-pill comment-status-pill--approved">✓ Published</span>
+                    <span class="status-pill status-pill--approved">✓ Published</span>
                   <% } else if (post.status === 'pending') { %>
-                    <span class="comment-status-pill comment-status-pill--pending">⏳ Pending</span>
+                    <span class="status-pill status-pill--pending">⏳ Pending</span>
                   <% } else if (post.status === 'rejected') { %>
-                    <span class="comment-status-pill" style="background: rgba(239, 68, 68, 0.15); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.3);">✕ Rejected</span>
+                    <span class="status-pill status-pill--rejected">✕ Rejected</span>
                   <% } %>
 
                   <% if (post.category) { %>
-                    <span class="category-pill" style="font-size: 0.72rem; padding: 0.15rem 0.55rem;"><%= post.category.name %></span>
+                    <span class="tech-badge" style="font-size: 0.74rem; padding: 0.15rem 0.55rem; background: var(--primary-indigo-light); color: var(--primary-indigo);"><%= post.category.name %></span>
                   <% } %>
 
-                  <span class="tech-badge" style="font-size: 0.7rem; padding: 0.12rem 0.5rem; font-family: var(--font-mono); <%= post.difficultyLevel === 'Advanced' ? 'background: rgba(239, 68, 68, 0.15); color: #dc2626; border-color: rgba(239, 68, 68, 0.3);' : (post.difficultyLevel === 'Beginner' ? 'background: rgba(16, 185, 129, 0.15); color: #10b981; border-color: rgba(16, 185, 129, 0.3);' : 'background: var(--primary-indigo-light); color: var(--primary-indigo); border-color: var(--border-accent);') %>">
+                  <span class="tech-badge" style="font-size: 0.74rem; padding: 0.15rem 0.55rem; font-family: var(--font-mono); <%= post.difficultyLevel === 'Advanced' ? 'background: rgba(239, 68, 68, 0.16); color: #ef4444; border-color: rgba(239, 68, 68, 0.3);' : (post.difficultyLevel === 'Beginner' ? 'background: rgba(16, 185, 129, 0.16); color: #10b981; border-color: rgba(16, 185, 129, 0.3);' : 'background: rgba(99, 102, 241, 0.16); color: var(--primary-indigo); border-color: rgba(99, 102, 241, 0.3);') %>">
                     <%= post.difficultyLevel === 'Advanced' ? '🚀 Advanced' : (post.difficultyLevel === 'Beginner' ? '🌱 Beginner' : '⚡ Intermediate') %>
                   </span>
                 </div>
 
-                <h3 style="font-size: 1.15rem; font-weight: 700; margin-bottom: 0.3rem; line-height: 1.4; overflow-wrap: break-word; word-break: break-word;">
+                <h3 style="font-size: 1.12rem; font-weight: 800; margin: 0 0 0.3rem 0; line-height: 1.35; overflow-wrap: break-word; word-break: break-word;">
                   <a href="/post/<%= post.id || post._id %>" style="color: var(--text-main); text-decoration: none;"><%= post.title %></a>
                 </h3>
 
-                <div style="font-size: 0.78rem; color: var(--text-dim); font-family: var(--font-mono);">
+                <div style="font-size: 0.78rem; color: var(--text-muted); font-family: var(--font-mono);">
                   <span>👁 <%= (post.viewsCount || 0).toLocaleString() %> views</span>
                   <% if (post.author) { %>
-                    <span> • By <%= post.author.displayName || post.author.username %></span>
+                    <span> • By @<%= post.author.username %></span>
                   <% } %>
                 </div>
               </div>
@@ -144,26 +155,26 @@
                 <% if (post.status === 'pending') { %>
                   <form action="/admin/posts/<%= post.id || post._id %>/approve" method="POST" style="margin: 0;">
                     <input type="hidden" name="_csrf" value="<%= csrfToken %>">
-                    <button type="submit" class="btn" style="background: #059669; color: white; padding: 0.45rem 0.85rem; font-size: 0.85rem; border-radius: var(--radius-md);" title="Approve & Publish Article">
+                    <button type="submit" class="btn" style="background: #059669; color: white; padding: 0.45rem 0.95rem; font-size: 0.84rem; border-radius: var(--radius-lg); font-weight: 700;" title="Approve & Publish Article">
                       ✓ Approve
                     </button>
                   </form>
 
                   <form action="/admin/posts/<%= post.id || post._id %>/reject" method="POST" style="margin: 0;">
                     <input type="hidden" name="_csrf" value="<%= csrfToken %>">
-                    <button type="submit" class="btn btn-delete" style="padding: 0.45rem 0.85rem; font-size: 0.85rem;" title="Reject Article">
+                    <button type="submit" class="btn" style="background: rgba(239, 68, 68, 0.16); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.3); padding: 0.45rem 0.95rem; font-size: 0.84rem; border-radius: var(--radius-lg); font-weight: 700;" title="Reject Article">
                       ✕ Reject
                     </button>
                   </form>
                 <% } %>
 
-                <a href="/edit-post/<%= post.id || post._id %>" class="btn" style="background: var(--bg-subtle); border: 1px solid var(--border-light); color: var(--text-main); padding: 0.45rem 0.9rem; font-size: 0.85rem; box-shadow: none;">
+                <a href="/edit-post/<%= post.id || post._id %>" class="btn" style="background: var(--bg-subtle); border: 1px solid var(--border-light); color: var(--text-main); padding: 0.45rem 0.9rem; font-size: 0.84rem; border-radius: var(--radius-lg); font-weight: 600;">
                   Edit
                 </a>
 
                 <form action="/delete-post/<%= post.id || post._id %>?_method=DELETE" method="POST" onsubmit="return confirm('Delete this article?');" style="margin: 0;">
                   <input type="hidden" name="_csrf" value="<%= csrfToken %>">
-                  <button type="submit" class="btn btn-delete" style="padding: 0.45rem 0.85rem; font-size: 0.85rem;">
+                  <button type="submit" class="btn" style="background: rgba(239, 68, 68, 0.15); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.3); padding: 0.45rem 0.9rem; font-size: 0.84rem; border-radius: var(--radius-lg); font-weight: 600;">
                     Delete
                   </button>
                 </form>
