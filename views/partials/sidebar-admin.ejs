@@ -63,6 +63,18 @@
         </span>
       </a>
 
+      <a href="/admin/faq/pending" class="sidebar-nav__item <%= typeof activeTab !== 'undefined' && activeTab === 'faq-queue' ? 'active' : '' %>">
+        <span>
+          <span class="sidebar-nav__icon">⏳</span>
+          Q&amp;A Queue
+        </span>
+        <% if (typeof analytics !== 'undefined' && analytics.pendingFaqCount > 0) { %>
+          <span class="sidebar-nav__badge" style="background: #10b981; color: #ffffff;">
+            <%= analytics.pendingFaqCount %>
+          </span>
+        <% } %>
+      </a>
+
       <a href="/admin/faq" class="sidebar-nav__item <%= typeof activeTab !== 'undefined' && activeTab === 'faq' ? 'active' : '' %>">
         <span>
           <span class="sidebar-nav__icon">💡</span>

@@ -1,11 +1,11 @@
-<div class="dashboard__grid" style="grid-template-columns: 280px 1fr; gap: 2rem;">
+<div class="dashboard">
   
   <%- include('../partials/sidebar-admin', { activeTab: 'faq' }) %>
 
   <main class="dashboard__content">
     
     <!-- Top Action Bar -->
-    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; flex-wrap: wrap; gap: 1rem;">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.8rem; flex-wrap: wrap; gap: 1rem;">
       <div>
         <h1 style="font-size: 1.8rem; font-weight: 800; color: var(--text-main); margin: 0 0 0.3rem 0;">
           💡 Technical Interview Q&amp;A Management
@@ -15,9 +15,36 @@
         </p>
       </div>
 
-      <a href="/admin/faq/add" class="btn" style="padding: 0.65rem 1.4rem; font-size: 0.9rem; font-weight: 700; border-radius: var(--radius-lg);">
+      <a href="/admin/faq/add" class="btn" style="padding: 0.7rem 1.5rem; font-size: 0.9rem; font-weight: 800; border-radius: var(--radius-lg); box-shadow: 0 4px 12px var(--primary-indigo-light);">
         <span>+ Add Question</span>
       </a>
+    </div>
+
+    <!-- Summary Stats Ribbon -->
+    <div class="faq-stats-grid" style="margin-bottom: 2.2rem;">
+      <div class="stat-card">
+        <div class="stat-card__icon">📚</div>
+        <div>
+          <div class="stat-card__val"><%= questions ? questions.length : 0 %></div>
+          <div class="stat-card__label">Total Questions</div>
+        </div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-card__icon" style="background: rgba(16, 185, 129, 0.16); color: var(--accent-emerald);">✓</div>
+        <div>
+          <div class="stat-card__val"><%= questions ? questions.filter(q => q.status === 'approved' || q.isPublished).length : 0 %></div>
+          <div class="stat-card__label">Published</div>
+        </div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-card__icon" style="background: rgba(245, 158, 11, 0.16); color: #d97706;">👍</div>
+        <div>
+          <div class="stat-card__val"><%= questions ? questions.reduce((sum, q) => sum + (q.upvotesCount || 0), 0) : 0 %></div>
+          <div class="stat-card__label">Total Upvotes</div>
+        </div>
+      </div>
     </div>
 
     <!-- Questions Data Table -->
@@ -25,9 +52,9 @@
       <% if (questions && questions.length > 0) { %>
         <table style="width: 100%; border-collapse: collapse; text-align: left; font-size: 0.9rem;">
           <thead>
-            <tr style="background: var(--bg-subtle); border-bottom: 1px solid var(--border-light); color: var(--text-muted); font-family: var(--font-mono); font-size: 0.8rem; text-transform: uppercase;">
+            <tr style="background: var(--bg-subtle); border-bottom: 1px solid var(--border-light); color: var(--text-muted); font-family: var(--font-mono); font-size: 0.78rem; text-transform: uppercase;">
               <th style="padding: 1rem 1.2rem;">ID</th>
-              <th style="padding: 1rem 1.2rem;">Question</th>
+              <th style="padding: 1rem 1.2rem;">Question Prompt</th>
               <th style="padding: 1rem 1.2rem;">Category</th>
               <th style="padding: 1rem 1.2rem;">Level</th>
               <th style="padding: 1rem 1.2rem;">Upvotes</th>
@@ -37,42 +64,42 @@
           <tbody>
             <% questions.forEach(q => { %>
               <tr style="border-bottom: 1px solid var(--border-light); transition: background 0.2s;" onmouseover="this.style.background='var(--bg-hover)'" onmouseout="this.style.background='transparent'">
-                <td style="padding: 1rem 1.2rem; font-family: var(--font-mono); color: var(--text-muted); font-weight: 700;">#<%= q.id %></td>
+                <td style="padding: 1.1rem 1.2rem; font-family: var(--font-mono); color: var(--text-muted); font-weight: 700;">#<%= q.id %></td>
                 
-                <td style="padding: 1rem 1.2rem; max-width: 380px;">
-                  <strong style="color: var(--text-main); font-size: 0.95rem; display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                <td style="padding: 1.1rem 1.2rem; max-width: 380px;">
+                  <strong style="color: var(--text-main); font-size: 0.95rem; display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; line-height: 1.3;">
                     <%= q.question %>
                   </strong>
-                  <span style="font-size: 0.78rem; color: var(--text-muted); font-family: var(--font-mono);">
+                  <span style="font-size: 0.76rem; color: var(--text-dim); font-family: var(--font-mono);">
                     slug: <%= q.slug %>
                   </span>
                 </td>
 
-                <td style="padding: 1rem 1.2rem;">
+                <td style="padding: 1.1rem 1.2rem;">
                   <span class="tech-badge" style="font-size: 0.75rem; padding: 0.2rem 0.6rem; background: var(--primary-indigo-light); color: var(--primary-indigo);">
                     <%= q.category %>
                   </span>
                 </td>
 
-                <td style="padding: 1rem 1.2rem;">
+                <td style="padding: 1.1rem 1.2rem;">
                   <span class="tech-badge" style="font-size: 0.75rem; padding: 0.2rem 0.6rem; font-family: var(--font-mono); <%= q.difficulty === 'Senior' ? 'background: rgba(239, 68, 68, 0.18); color: #fca5a5;' : (q.difficulty === 'Junior' ? 'background: rgba(16, 185, 129, 0.18); color: #6ee7b7;' : 'background: rgba(129, 140, 248, 0.18); color: #a5b4fc;') %>">
                     <%= q.difficulty === 'Senior' ? '🚀 Senior' : (q.difficulty === 'Junior' ? '🌱 Junior' : '⚡ Mid') %>
                   </span>
                 </td>
 
-                <td style="padding: 1rem 1.2rem; font-family: var(--font-mono); color: var(--text-main); font-weight: 700;">
+                <td style="padding: 1.1rem 1.2rem; font-family: var(--font-mono); color: var(--text-main); font-weight: 700;">
                   👍 <%= q.upvotesCount %>
                 </td>
 
-                <td style="padding: 1rem 1.2rem; text-align: right;">
+                <td style="padding: 1.1rem 1.2rem; text-align: right;">
                   <div style="display: flex; gap: 0.5rem; justify-content: flex-end; align-items: center;">
-                    <a href="/admin/faq/edit/<%= q.id %>" class="btn" style="background: var(--bg-subtle); border: 1px solid var(--border-light); color: var(--text-main); padding: 0.35rem 0.75rem; font-size: 0.8rem; border-radius: var(--radius-md);">
+                    <a href="/admin/faq/edit/<%= q.id %>" class="btn" style="background: var(--bg-subtle); border: 1px solid var(--border-light); color: var(--text-main); padding: 0.4rem 0.85rem; font-size: 0.82rem; border-radius: var(--radius-md); font-weight: 600;">
                       Edit
                     </a>
                     
                     <form action="/admin/faq/delete/<%= q.id %>" method="POST" style="margin: 0;" onsubmit="return confirm('Are you sure you want to delete this question?')">
                       <input type="hidden" name="_csrf" value="<%= csrfToken %>">
-                      <button type="submit" class="btn" style="background: rgba(239, 68, 68, 0.15); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.3); padding: 0.35rem 0.75rem; font-size: 0.8rem; border-radius: var(--radius-md);">
+                      <button type="submit" class="btn" style="background: rgba(239, 68, 68, 0.15); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.3); padding: 0.4rem 0.85rem; font-size: 0.82rem; border-radius: var(--radius-md); font-weight: 600;">
                         Delete
                       </button>
                     </form>
@@ -83,7 +110,7 @@
           </tbody>
         </table>
       <% } else { %>
-        <div style="padding: 3rem; text-align: center; color: var(--text-muted);">
+        <div style="padding: 3.5rem; text-align: center; color: var(--text-muted);">
           No interview questions in database yet. <a href="/admin/faq/add" style="color: var(--primary-indigo); font-weight: 700;">Add the first question &rarr;</a>
         </div>
       <% } %>

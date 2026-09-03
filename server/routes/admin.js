@@ -53,6 +53,11 @@ router.delete('/admin/lessons/:id', adminAuthMiddleware, doubleCsrfProtection, a
 
 // Protected Admin FAQ / Technical Interview Q&A routes
 router.get('/admin/faq', adminAuthMiddleware, adminController.getFaqListPage);
+router.get('/admin/faq/pending', adminAuthMiddleware, adminController.getPendingFaqPage);
+router.post('/admin/faq/:id/approve', adminAuthMiddleware, doubleCsrfProtection, adminController.handleApproveFaqQuestion);
+router.post('/admin/faq/:id/reject', adminAuthMiddleware, doubleCsrfProtection, adminController.handleRejectFaqQuestion);
+router.post('/admin/faq/answers/:id/approve', adminAuthMiddleware, doubleCsrfProtection, adminController.handleApproveFaqAnswer);
+router.post('/admin/faq/answers/:id/reject', adminAuthMiddleware, doubleCsrfProtection, adminController.handleRejectFaqAnswer);
 router.get('/admin/faq/add', adminAuthMiddleware, doubleCsrfProtection, adminController.getAddFaqPage);
 router.post('/admin/faq/add', adminAuthMiddleware, doubleCsrfProtection, adminController.createFaqQuestion);
 router.get('/admin/faq/edit/:id', adminAuthMiddleware, doubleCsrfProtection, adminController.getEditFaqPage);

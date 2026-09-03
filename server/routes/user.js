@@ -45,6 +45,12 @@ router.post('/my/courses/:courseId/lessons', userAuthMiddleware, doubleCsrfProte
 router.get('/my/lessons/:id/edit', userAuthMiddleware, userController.getEditMyLessonPage);
 router.put('/my/lessons/:id', userAuthMiddleware, doubleCsrfProtection, userController.handleUpdateMyLesson);
 router.delete('/my/lessons/:id', userAuthMiddleware, doubleCsrfProtection, userController.handleDeleteMyLesson);
+
+// Protected User Q&A Submission routes
+router.get('/my/questions', userAuthMiddleware, userController.getMyQuestionsPage);
+router.get('/my/questions/new', userAuthMiddleware, doubleCsrfProtection, userController.getAskQuestionPage);
+router.post('/my/questions/new', userAuthMiddleware, doubleCsrfProtection, userController.handleAskQuestion);
+router.post('/faq/:id/answer', userAuthMiddleware, doubleCsrfProtection, userController.handleAnswerSubmission);
 // Protected User Bookmarks, Likes, History & Notifications routes
 router.get('/my/bookmarks', userAuthMiddleware, userController.getBookmarksPage);
 router.get('/my/likes', userAuthMiddleware, userController.getLikedPostsPage);

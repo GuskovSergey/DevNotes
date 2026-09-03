@@ -50,6 +50,15 @@ const InterviewQuestion = sequelize.define('InterviewQuestion', {
     allowNull: false,
     defaultValue: true,
   },
+  userId: {
+    type: DataTypes.INTEGER,
+    allowNull: true,
+  },
+  status: {
+    type: DataTypes.STRING,
+    allowNull: false,
+    defaultValue: 'approved',
+  },
 }, {
   tableName: 'interview_questions',
   timestamps: true,

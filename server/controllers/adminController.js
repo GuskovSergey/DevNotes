@@ -546,6 +546,48 @@ class AdminController {
     await faqService.deleteQuestion(id);
     res.redirect('/admin/faq');
   });
+
+  getPendingFaqPage = catchAsync(async (req, res) => {
+    const submissions = await faqService.getPendingSubmissions();
+    const pendingFaqCount = await faqService.getPendingFaqCount();
+    const locals = { title: 'Q&A Moderation Queue | Admin' };
+
+    res.render('admin/pending-faq', {
+      locals,
+      questions: submissions.questions,
+      answers: submissions.answers,
+      analytics: { pendingFaqCount },
+      layout: adminLayout,
+      activeTab: 'faq-queue',
+      currentUser: res.locals.currentUser || null,
+    });
+  });
+
+  handleApproveFaqQuestion = catchAsync(async (req, res) => {
+    const { id } = req.params;
+    await faqService.approveQuestion(id);
+    res.redirect('/admin/faq/pending');
+  });
+
+  handleRejectFaqQuestion = catchAsync(async (req, res) => {
+    const { id } = req.params;
+    const { reason } = req.body;
+    await faqService.rejectQuestion(id, reason);
+    res.redirect('/admin/faq/pending');
+  });
+
+  handleApproveFaqAnswer = catchAsync(async (req, res) => {
+    const { id } = req.params;
+    await faqService.approveAnswer(id);
+    res.redirect('/admin/faq/pending');
+  });
+
+  handleRejectFaqAnswer = catchAsync(async (req, res) => {
+    const { id } = req.params;
+    const { reason } = req.body;
+    await faqService.rejectAnswer(id, reason);
+    res.redirect('/admin/faq/pending');
+  });
 }
 
 module.exports = new AdminController();

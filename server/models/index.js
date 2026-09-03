@@ -16,6 +16,7 @@ const Course = require('./Course');
 const Lesson = require('./Lesson');
 const CourseProgress = require('./CourseProgress');
 const InterviewQuestion = require('./InterviewQuestion');
+const FaqAnswer = require('./FaqAnswer');
 
 // User <-> Post
 User.hasMany(Post, { foreignKey: 'userId', as: 'posts' });
@@ -97,6 +98,16 @@ CourseProgress.belongsTo(Course, { foreignKey: 'courseId', as: 'course' });
 Lesson.hasMany(CourseProgress, { foreignKey: 'lessonId', as: 'progressRecords' });
 CourseProgress.belongsTo(Lesson, { foreignKey: 'lessonId', as: 'lesson' });
 
+// Q&A Associations
+User.hasMany(InterviewQuestion, { foreignKey: 'userId', as: 'questions' });
+InterviewQuestion.belongsTo(User, { foreignKey: 'userId', as: 'author' });
+
+InterviewQuestion.hasMany(FaqAnswer, { foreignKey: 'questionId', as: 'communityAnswers' });
+FaqAnswer.belongsTo(InterviewQuestion, { foreignKey: 'questionId', as: 'question' });
+
+User.hasMany(FaqAnswer, { foreignKey: 'userId', as: 'faqAnswers' });
+FaqAnswer.belongsTo(User, { foreignKey: 'userId', as: 'author' });
+
 module.exports = {
   sequelize,
   User,
@@ -114,4 +125,5 @@ module.exports = {
   Lesson,
   CourseProgress,
   InterviewQuestion,
+  FaqAnswer,
 };

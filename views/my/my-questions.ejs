@@ -1,0 +1,147 @@
+<div class="dashboard">
+  
+  <%- include('../partials/sidebar-cabinet', { user, activeTab: 'my-questions' }) %>
+
+  <main class="dashboard__content">
+    
+    <% if (successMessage) { %>
+      <div style="background: rgba(16, 185, 129, 0.15); border: 1px solid rgba(16, 185, 129, 0.4); color: var(--accent-emerald); padding: 1rem 1.4rem; border-radius: var(--radius-lg); margin-bottom: 1.8rem; font-weight: 700; font-size: 0.92rem; animation: fadeSlideUp 0.3s ease; display: flex; align-items: center; gap: 0.6rem;">
+        <span>✓</span>
+        <span><%= successMessage %></span>
+      </div>
+    <% } %>
+
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.8rem; flex-wrap: wrap; gap: 1rem;">
+      <div>
+        <h1 style="font-size: 1.8rem; font-weight: 800; color: var(--text-main); margin: 0 0 0.3rem 0;">
+          💡 My Q&amp;A Submissions
+        </h1>
+        <p style="color: var(--text-muted); font-size: 0.9rem; margin: 0;">
+          Track the moderation status and community feedback of your submitted interview questions and answers.
+        </p>
+      </div>
+
+      <a href="/my/questions/new" class="btn" style="padding: 0.7rem 1.5rem; font-size: 0.9rem; font-weight: 700; border-radius: var(--radius-lg); box-shadow: 0 4px 12px var(--primary-indigo-light);">
+        <span>+ Ask Question</span>
+      </a>
+    </div>
+
+    <!-- Summary Stats Ribbon -->
+    <div class="faq-stats-grid" style="margin-bottom: 2.2rem;">
+      <div class="stat-card">
+        <div class="stat-card__icon">❓</div>
+        <div>
+          <div class="stat-card__val"><%= questions ? questions.length : 0 %></div>
+          <div class="stat-card__label">Questions Asked</div>
+        </div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-card__icon" style="background: rgba(16, 185, 129, 0.16); color: var(--accent-emerald);">✓</div>
+        <div>
+          <div class="stat-card__val"><%= questions ? questions.filter(q => q.status === 'approved').length : 0 %></div>
+          <div class="stat-card__label">Approved &amp; Live</div>
+        </div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-card__icon" style="background: rgba(245, 158, 11, 0.16); color: #d97706;">💬</div>
+        <div>
+          <div class="stat-card__val"><%= answers ? answers.length : 0 %></div>
+          <div class="stat-card__label">Community Answers</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Section 1: Submitted Questions -->
+    <div style="margin-bottom: 2.8rem;">
+      <h2 style="font-size: 1.25rem; font-weight: 800; color: var(--text-main); margin-bottom: 1.2rem; display: flex; align-items: center; gap: 0.5rem;">
+        <span>Submitted Questions</span>
+        <span class="tech-badge" style="font-size: 0.75rem; padding: 0.1rem 0.5rem;"><%= questions ? questions.length : 0 %></span>
+      </h2>
+
+      <% if (questions && questions.length > 0) { %>
+        <div style="display: flex; flex-direction: column; gap: 0.9rem;">
+          <% questions.forEach(q => { %>
+            <div class="qa-submission-card">
+              <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 1rem; flex-wrap: wrap;">
+                <div style="flex: 1;">
+                  <div style="display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.5rem; flex-wrap: wrap;">
+                    <span class="tech-badge" style="font-size: 0.72rem; padding: 0.15rem 0.5rem; background: var(--primary-indigo-light); color: var(--primary-indigo);">
+                      <%= q.category %>
+                    </span>
+
+                    <span class="status-pill <%= q.status === 'approved' ? 'status-pill--approved' : (q.status === 'pending' ? 'status-pill--pending' : 'status-pill--rejected') %>">
+                      <%= q.status === 'approved' ? '✓ Approved & Live' : (q.status === 'pending' ? '⏳ Pending Moderation' : '✕ Rejected') %>
+                    </span>
+                  </div>
+
+                  <h3 style="font-size: 1.08rem; font-weight: 800; color: var(--text-main); margin: 0 0 0.3rem 0; line-height: 1.35;">
+                    <%= q.question %>
+                  </h3>
+
+                  <div style="font-size: 0.78rem; font-family: var(--font-mono); color: var(--text-muted);">
+                    Submitted on <%= new Date(q.createdAt).toDateString() %>
+                  </div>
+                </div>
+
+                <% if (q.status === 'approved') { %>
+                  <a href="/faq?q=<%= encodeURIComponent(q.question) %>" class="btn" style="background: var(--bg-subtle); border: 1px solid var(--border-light); color: var(--primary-indigo); font-size: 0.82rem; padding: 0.45rem 1rem; border-radius: var(--radius-lg); font-weight: 700;">
+                    View on Hub &rarr;
+                  </a>
+                <% } %>
+              </div>
+            </div>
+          <% }) %>
+        </div>
+      <% } else { %>
+        <div style="background: var(--bg-surface); border: 1px dashed var(--border-light); border-radius: var(--radius-xl); padding: 3rem 2rem; text-align: center; color: var(--text-muted);">
+          <div style="font-size: 2.2rem; margin-bottom: 0.6rem;">💡</div>
+          <div style="font-weight: 700; color: var(--text-main); margin-bottom: 0.3rem;">No interview questions submitted yet</div>
+          <p style="font-size: 0.88rem; margin-bottom: 1.2rem;">Share an interview topic or technical question with the engineering community.</p>
+          <a href="/my/questions/new" class="btn" style="padding: 0.55rem 1.4rem; font-size: 0.88rem;">Submit your first question &rarr;</a>
+        </div>
+      <% } %>
+    </div>
+
+    <!-- Section 2: Submitted Answers -->
+    <div>
+      <h2 style="font-size: 1.25rem; font-weight: 800; color: var(--text-main); margin-bottom: 1.2rem; display: flex; align-items: center; gap: 0.5rem;">
+        <span>Submitted Community Answers</span>
+        <span class="tech-badge" style="font-size: 0.75rem; padding: 0.1rem 0.5rem;"><%= answers ? answers.length : 0 %></span>
+      </h2>
+
+      <% if (answers && answers.length > 0) { %>
+        <div style="display: flex; flex-direction: column; gap: 0.9rem;">
+          <% answers.forEach(a => { %>
+            <div class="qa-submission-card">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.6rem; flex-wrap: wrap; gap: 0.5rem;">
+                <span class="status-pill <%= a.status === 'approved' ? 'status-pill--approved' : (a.status === 'pending' ? 'status-pill--pending' : 'status-pill--rejected') %>">
+                  <%= a.status === 'approved' ? '✓ Approved Answer' : (a.status === 'pending' ? '⏳ Pending Moderation' : '✕ Rejected') %>
+                </span>
+                <span style="font-size: 0.78rem; font-family: var(--font-mono); color: var(--text-muted);"><%= new Date(a.createdAt).toDateString() %></span>
+              </div>
+
+              <div style="font-size: 0.92rem; font-weight: 800; color: var(--text-main); margin-bottom: 0.6rem;">
+                Question: <%= a.question ? a.question.question : 'Interview Question #' + a.questionId %>
+              </div>
+
+              <div style="background: var(--bg-subtle); border: 1px solid var(--border-light); padding: 1rem 1.2rem; border-radius: var(--radius-lg); font-size: 0.9rem; color: var(--text-body); line-height: 1.55;" class="article-content">
+                <%- a.answerHtml %>
+              </div>
+            </div>
+          <% }) %>
+        </div>
+      <% } else { %>
+        <div style="background: var(--bg-surface); border: 1px dashed var(--border-light); border-radius: var(--radius-xl); padding: 3rem 2rem; text-align: center; color: var(--text-muted);">
+          <div style="font-size: 2.2rem; margin-bottom: 0.6rem;">💬</div>
+          <div style="font-weight: 700; color: var(--text-main); margin-bottom: 0.3rem;">No community answers submitted yet</div>
+          <p style="font-size: 0.88rem; margin-bottom: 1.2rem;">Browse existing interview questions and contribute your technical insights.</p>
+          <a href="/faq" class="btn" style="padding: 0.55rem 1.4rem; font-size: 0.88rem;">Explore Technical Q&amp;A Hub &rarr;</a>
+        </div>
+      <% } %>
+    </div>
+
+  </main>
+
+</div>

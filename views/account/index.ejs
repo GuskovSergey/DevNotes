@@ -70,6 +70,16 @@
           <div class="stat-card__label">Comments</div>
         </div>
       </div>
+
+      <a href="/my/questions" class="stat-card" style="text-decoration: none;">
+        <div class="stat-card__icon" style="background: rgba(129, 140, 248, 0.15); color: var(--primary-indigo);">
+          💡
+        </div>
+        <div>
+          <div class="stat-card__number"><%= typeof stats !== 'undefined' && typeof stats.faqQuestionsCount !== 'undefined' ? (stats.faqQuestionsCount + stats.faqAnswersCount) : 0 %></div>
+          <div class="stat-card__label">Q&amp;A Activity</div>
+        </div>
+      </a>
     </div>
 
     <!-- Author Performance Analytics Widget -->
@@ -208,6 +218,58 @@
               </p>
             </div>
           <% }) %>
+        <% } %>
+      </div>
+    </section>
+
+    <!-- Q&A Submissions & Activity Section -->
+    <section class="dashboard-section" style="margin-top: 2rem;">
+      <div class="dashboard-section__header">
+        <div>
+          <h2 class="dashboard-section__title">
+            <span>💡 Technical Q&amp;A Submissions &amp; Insights</span>
+          </h2>
+          <p style="color: var(--text-muted); font-size: 0.88rem; margin: 0.2rem 0 0 0;">Recent technical interview questions and community answers submitted by you.</p>
+        </div>
+
+        <div style="display: flex; gap: 0.6rem;">
+          <a href="/my/questions/new" class="btn" style="border-radius: var(--radius-lg); padding: 0.45rem 1rem; font-size: 0.85rem;">
+            + Ask Question
+          </a>
+          <a href="/my/questions" class="btn" style="background: var(--bg-subtle); border: 1px solid var(--border-light); color: var(--text-main); border-radius: var(--radius-lg); padding: 0.45rem 1rem; font-size: 0.85rem;">
+            View All &rarr;
+          </a>
+        </div>
+      </div>
+
+      <div style="display: flex; flex-direction: column; gap: 0.9rem;">
+        <% if (typeof faqSubmissions !== 'undefined' && ((faqSubmissions.questions && faqSubmissions.questions.length > 0) || (faqSubmissions.answers && faqSubmissions.answers.length > 0))) { %>
+          <% if (faqSubmissions.questions && faqSubmissions.questions.length > 0) { %>
+            <% faqSubmissions.questions.slice(0, 3).forEach(q => { %>
+              <div style="background: var(--bg-surface); border: 1px solid var(--border-light); border-radius: var(--radius-lg); padding: 1.1rem 1.4rem; display: flex; justify-content: space-between; align-items: center; gap: 1rem; flex-wrap: wrap;">
+                <div>
+                  <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.3rem;">
+                    <span class="tech-badge" style="font-size: 0.72rem; padding: 0.12rem 0.45rem; background: var(--primary-indigo-light); color: var(--primary-indigo);">
+                      <%= q.category %>
+                    </span>
+                    <span class="status-pill <%= q.status === 'approved' ? 'status-pill--approved' : (q.status === 'pending' ? 'status-pill--pending' : 'status-pill--rejected') %>">
+                      <%= q.status === 'approved' ? '✓ Approved' : (q.status === 'pending' ? '⏳ Pending' : '✕ Rejected') %>
+                    </span>
+                  </div>
+                  <div style="font-weight: 700; color: var(--text-main); font-size: 0.95rem;">
+                    ❓ <%= q.question %>
+                  </div>
+                </div>
+                <a href="/faq?q=<%= encodeURIComponent(q.question) %>" style="font-size: 0.82rem; color: var(--primary-indigo); font-weight: 700; text-decoration: none;">
+                  View on Hub &rarr;
+                </a>
+              </div>
+            <% }) %>
+          <% } %>
+        <% } else { %>
+          <div style="background: var(--bg-subtle); border: 1px dashed var(--border-light); padding: 2rem; border-radius: var(--radius-xl); text-align: center; color: var(--text-muted); font-size: 0.88rem;">
+            No interview questions or answers submitted yet. <a href="/my/questions/new" style="color: var(--primary-indigo); font-weight: 700;">Submit your first question &rarr;</a>
+          </div>
         <% } %>
       </div>
     </section>

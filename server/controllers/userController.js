@@ -9,6 +9,7 @@ const readingHistoryService = require('../services/readingHistoryService');
 const analyticsService = require('../services/analyticsService');
 const notificationService = require('../services/notificationService');
 const courseService = require('../services/courseService');
+const faqService = require('../services/faqService');
 const { User, Post, Comment } = require('../models');
 const catchAsync = require('../utils/catchAsync');
 const logger = require('../config/logger');
@@ -123,6 +124,7 @@ class UserController {
     const userBookmarks = await bookmarkService.getUserBookmarks(req.userId);
     const userLikes = await likeService.getUserLikedPosts(req.userId);
     const analytics = await analyticsService.getAuthorAnalytics(req.userId);
+    const faqSubmissions = await faqService.getUserSubmissions(req.userId);
 
     const locals = {
       title: 'My Profile & Account',
@@ -135,11 +137,14 @@ class UserController {
       activeTab: 'overview',
       comments,
       analytics,
+      faqSubmissions,
       stats: {
         postsCount: userPosts.length,
         bookmarksCount: userBookmarks.length,
         likesCount: userLikes.length,
         commentsCount: comments.length,
+        faqQuestionsCount: faqSubmissions.questions.length,
+        faqAnswersCount: faqSubmissions.answers.length,
       },
       errorMessage: null,
       successMessage: req.query.success || null,
@@ -726,6 +731,52 @@ class UserController {
         totalViews,
         totalComments,
       },
+    });
+  });
+
+  getAskQuestionPage = catchAsync(async (req, res) => {
+    const user = await authService.getUserById(req.userId);
+    const locals = {
+      title: 'Ask a Technical Question | DevHub',
+      description: 'Submit an interview question or technical query for moderation.',
+    };
+
+    res.render('my/ask-question', {
+      locals,
+      user,
+      activeTab: 'my-questions',
+    });
+  });
+
+  handleAskQuestion = catchAsync(async (req, res) => {
+    await faqService.submitUserQuestion(req.userId, req.body);
+    res.redirect('/my/questions?success=Your question has been submitted for moderation!');
+  });
+
+  handleAnswerSubmission = catchAsync(async (req, res) => {
+    const { id } = req.params;
+    const { answer } = req.body;
+    if (answer && answer.trim()) {
+      await faqService.submitUserAnswer(req.userId, id, answer);
+    }
+    res.redirect('/faq?success=Your community answer has been submitted for moderation!');
+  });
+
+  getMyQuestionsPage = catchAsync(async (req, res) => {
+    const submissions = await faqService.getUserSubmissions(req.userId);
+    const user = await authService.getUserById(req.userId);
+    const locals = {
+      title: 'My Q&A Submissions | DevHub Cabinet',
+      description: 'View status of your submitted questions and answers.',
+    };
+
+    res.render('my/my-questions', {
+      locals,
+      user,
+      activeTab: 'my-questions',
+      questions: submissions.questions,
+      answers: submissions.answers,
+      successMessage: req.query.success || null,
     });
   });
 

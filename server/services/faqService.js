@@ -1,6 +1,9 @@
 const { Op } = require('sequelize');
 const { marked } = require('marked');
 const InterviewQuestion = require('../models/InterviewQuestion');
+const FaqAnswer = require('../models/FaqAnswer');
+const User = require('../models/User');
+const notificationService = require('./notificationService');
 
 class FaqService {
   /**
@@ -8,7 +11,7 @@ class FaqService {
    */
   async getAllQuestions(filters = {}) {
     const { category, difficulty, search } = filters;
-    const where = { isPublished: true };
+    const where = { isPublished: true, status: 'approved' };
 
     if (category && category !== 'All') {
       where.category = category;
@@ -29,6 +32,15 @@ class FaqService {
 
     const questions = await InterviewQuestion.findAll({
       where,
+      include: [
+        {
+          model: FaqAnswer,
+          as: 'communityAnswers',
+          where: { status: 'approved' },
+          required: false,
+          include: [{ model: User, as: 'author', attributes: ['id', 'username', 'displayName', 'avatarUrl'] }]
+        }
+      ],
       order: [['order', 'ASC'], ['id', 'ASC']],
     });
 
@@ -37,6 +49,10 @@ class FaqService {
       return {
         ...raw,
         answerHtml: raw.answer ? marked.parse(raw.answer) : '',
+        communityAnswers: raw.communityAnswers ? raw.communityAnswers.map(ca => ({
+          ...ca,
+          answerHtml: ca.answer ? marked.parse(ca.answer) : '',
+        })) : [],
       };
     });
   }
@@ -48,7 +64,7 @@ class FaqService {
     const categories = await InterviewQuestion.findAll({
       attributes: ['category'],
       group: ['category'],
-      where: { isPublished: true },
+      where: { isPublished: true, status: 'approved' },
     });
     return categories.map(c => c.category);
   }
@@ -63,6 +79,185 @@ class FaqService {
     question.upvotesCount += 1;
     await question.save();
     return question.upvotesCount;
+  }
+
+  /**
+   * User: Submit a new question (requires admin approval)
+   */
+  async submitUserQuestion(userId, data) {
+    const slug = (data.question.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '') + '-' + Date.now()).substring(0, 80);
+    return await InterviewQuestion.create({
+      userId,
+      question: data.question,
+      slug,
+      answer: data.answer || 'Question submitted by developer. Pending model answer.',
+      category: data.category || 'Node.js Core',
+      difficulty: data.difficulty || 'Mid',
+      status: 'pending',
+      isPublished: false,
+    });
+  }
+
+  /**
+   * User: Submit an answer to an existing question (requires admin approval)
+   */
+  async submitUserAnswer(userId, questionId, text) {
+    return await FaqAnswer.create({
+      userId,
+      questionId: parseInt(questionId, 10),
+      answer: text,
+      status: 'pending',
+    });
+  }
+
+  /**
+   * Admin: Get pending questions and answers count
+   */
+  async getPendingFaqCount() {
+    const pendingQuestionsCount = await InterviewQuestion.count({ where: { status: 'pending' } });
+    const pendingAnswersCount = await FaqAnswer.count({ where: { status: 'pending' } });
+    return pendingQuestionsCount + pendingAnswersCount;
+  }
+
+  /**
+   * Admin: Get pending questions and answers for moderation queue
+   */
+  async getPendingSubmissions() {
+    const questions = await InterviewQuestion.findAll({
+      where: { status: 'pending' },
+      include: [{ model: User, as: 'author', attributes: ['id', 'username', 'displayName'] }],
+      order: [['createdAt', 'ASC']],
+    });
+
+    const answers = await FaqAnswer.findAll({
+      where: { status: 'pending' },
+      include: [
+        { model: User, as: 'author', attributes: ['id', 'username', 'displayName'] },
+        { model: InterviewQuestion, as: 'question', attributes: ['id', 'question'] }
+      ],
+      order: [['createdAt', 'ASC']],
+    });
+
+    return {
+      questions: questions.map(q => {
+        const raw = q.get({ plain: true });
+        return { ...raw, answerHtml: raw.answer ? marked.parse(raw.answer) : '' };
+      }),
+      answers: answers.map(a => {
+        const raw = a.get({ plain: true });
+        return { ...raw, answerHtml: raw.answer ? marked.parse(raw.answer) : '' };
+      }),
+    };
+  }
+
+  /**
+   * Admin: Approve a user-submitted question
+   */
+  async approveQuestion(id) {
+    const question = await InterviewQuestion.findByPk(id);
+    if (!question) return null;
+
+    question.status = 'approved';
+    question.isPublished = true;
+    await question.save();
+
+    if (question.userId) {
+      await notificationService.createNotification(
+        question.userId,
+        'question_approved',
+        `Your interview question "${question.question.substring(0, 45)}..." has been approved and published!`,
+        '/faq'
+      );
+    }
+    return question;
+  }
+
+  /**
+   * Admin: Reject a user-submitted question
+   */
+  async rejectQuestion(id, reason = '') {
+    const question = await InterviewQuestion.findByPk(id);
+    if (!question) return null;
+
+    question.status = 'rejected';
+    question.isPublished = false;
+    await question.save();
+
+    if (question.userId) {
+      await notificationService.createNotification(
+        question.userId,
+        'question_rejected',
+        `Your question submission was not approved. ${reason ? 'Reason: ' + reason : ''}`,
+        '/my/questions'
+      );
+    }
+    return question;
+  }
+
+  /**
+   * Admin: Approve a user-submitted answer
+   */
+  async approveAnswer(id) {
+    const answer = await FaqAnswer.findByPk(id);
+    if (!answer) return null;
+
+    answer.status = 'approved';
+    await answer.save();
+
+    if (answer.userId) {
+      await notificationService.createNotification(
+        answer.userId,
+        'answer_approved',
+        `Your community answer to interview question #${answer.questionId} has been approved!`,
+        '/faq'
+      );
+    }
+    return answer;
+  }
+
+  /**
+   * Admin: Reject a user-submitted answer
+   */
+  async rejectAnswer(id, reason = '') {
+    const answer = await FaqAnswer.findByPk(id);
+    if (!answer) return null;
+
+    answer.status = 'rejected';
+    await answer.save();
+
+    if (answer.userId) {
+      await notificationService.createNotification(
+        answer.userId,
+        'answer_rejected',
+        `Your answer submission was not approved. ${reason ? 'Reason: ' + reason : ''}`,
+        '/my/questions'
+      );
+    }
+    return answer;
+  }
+
+  /**
+   * User: Get user's own submitted questions and answers for cabinet
+   */
+  async getUserSubmissions(userId) {
+    const questions = await InterviewQuestion.findAll({
+      where: { userId },
+      order: [['createdAt', 'DESC']],
+    });
+
+    const answers = await FaqAnswer.findAll({
+      where: { userId },
+      include: [{ model: InterviewQuestion, as: 'question', attributes: ['id', 'question'] }],
+      order: [['createdAt', 'DESC']],
+    });
+
+    return {
+      questions: questions.map(q => q.get({ plain: true })),
+      answers: answers.map(a => {
+        const raw = a.get({ plain: true });
+        return { ...raw, answerHtml: raw.answer ? marked.parse(raw.answer) : '' };
+      }),
+    };
   }
 
   /**
@@ -88,6 +283,7 @@ class FaqService {
       difficulty: data.difficulty || 'Mid',
       order: parseInt(data.order, 10) || 0,
       isPublished: data.isPublished !== undefined ? Boolean(data.isPublished) : true,
+      status: 'approved',
     });
   }
 

@@ -1,0 +1,171 @@
+<div class="dashboard">
+  
+  <%- include('../partials/sidebar-admin', { activeTab: 'faq-queue' }) %>
+
+  <main class="dashboard__content">
+    
+    <div style="margin-bottom: 1.8rem;">
+      <h1 style="font-size: 1.8rem; font-weight: 800; color: var(--text-main); margin: 0 0 0.3rem 0;">
+        ⏳ Q&amp;A Moderation Queue
+      </h1>
+      <p style="color: var(--text-muted); font-size: 0.9rem; margin: 0;">
+        Review, approve, or reject user-submitted interview questions and community answers.
+      </p>
+    </div>
+
+    <!-- Summary Stats Ribbon -->
+    <div class="faq-stats-grid" style="margin-bottom: 2.2rem;">
+      <div class="stat-card">
+        <div class="stat-card__icon" style="background: rgba(245, 158, 11, 0.16); color: #d97706;">❓</div>
+        <div>
+          <div class="stat-card__val"><%= questions ? questions.length : 0 %></div>
+          <div class="stat-card__label">Pending Questions</div>
+        </div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-card__icon" style="background: rgba(99, 102, 241, 0.16); color: var(--primary-indigo);">💬</div>
+        <div>
+          <div class="stat-card__val"><%= answers ? answers.length : 0 %></div>
+          <div class="stat-card__label">Pending Answers</div>
+        </div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-card__icon" style="background: rgba(16, 185, 129, 0.16); color: var(--accent-emerald);">🛡️</div>
+        <div>
+          <div class="stat-card__val">Active</div>
+          <div class="stat-card__label">Moderation Guard</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Section 1: Pending User Questions -->
+    <div style="margin-bottom: 2.8rem;">
+      <h2 style="font-size: 1.25rem; font-weight: 800; color: var(--text-main); margin-bottom: 1.2rem; display: flex; align-items: center; gap: 0.5rem;">
+        <span>Pending User Questions</span>
+        <span class="status-pill status-pill--pending"><%= questions ? questions.length : 0 %> Pending</span>
+      </h2>
+
+      <% if (questions && questions.length > 0) { %>
+        <div style="display: flex; flex-direction: column;">
+          <% questions.forEach(q => { %>
+            <div class="moderation-card">
+              
+              <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1rem; flex-wrap: wrap; gap: 1rem;">
+                <div>
+                  <div style="display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.5rem; flex-wrap: wrap;">
+                    <span class="tech-badge" style="font-size: 0.72rem; padding: 0.15rem 0.5rem; background: var(--primary-indigo-light); color: var(--primary-indigo);">
+                      <%= q.category %>
+                    </span>
+                    <span class="tech-badge" style="font-size: 0.72rem; padding: 0.15rem 0.5rem; font-family: var(--font-mono);">
+                      <%= q.difficulty %> Level
+                    </span>
+                    <span style="font-size: 0.8rem; color: var(--text-muted); font-family: var(--font-mono);">
+                      By @<%= q.author ? q.author.username : 'User #' + q.userId %>
+                    </span>
+                  </div>
+
+                  <h3 style="font-size: 1.15rem; font-weight: 800; color: var(--text-main); margin: 0; line-height: 1.35;">
+                    ❓ <%= q.question %>
+                  </h3>
+                </div>
+
+                <!-- Approve / Reject Action Buttons -->
+                <div style="display: flex; gap: 0.6rem; align-items: center; flex-wrap: wrap;">
+                  <form action="/admin/faq/<%= q.id %>/approve" method="POST" style="margin: 0;">
+                    <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                    <button type="submit" class="btn" style="background: #059669; color: #ffffff; padding: 0.5rem 1.1rem; font-size: 0.85rem; font-weight: 800; border-radius: var(--radius-lg); box-shadow: 0 4px 12px rgba(5, 150, 105, 0.25); transition: transform 0.2s ease;" onmouseover="this.style.transform='scale(1.04)'" onmouseout="this.style.transform='scale(1)'">
+                      ✓ Approve &amp; Publish
+                    </button>
+                  </form>
+
+                  <form action="/admin/faq/<%= q.id %>/reject" method="POST" style="margin: 0; display: flex; gap: 0.4rem;">
+                    <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                    <input type="text" name="reason" placeholder="Rejection reason..." style="padding: 0.45rem 0.8rem; border-radius: var(--radius-md); border: 1px solid var(--border-light); font-size: 0.82rem; background: var(--bg-subtle); color: var(--text-main); outline: none;">
+                    <button type="submit" class="btn" style="background: rgba(239, 68, 68, 0.16); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.3); padding: 0.45rem 0.9rem; font-size: 0.85rem; border-radius: var(--radius-md); font-weight: 700;">
+                      ✕ Reject
+                    </button>
+                  </form>
+                </div>
+              </div>
+
+              <% if (q.answer) { %>
+                <div style="background: var(--bg-subtle); border: 1px solid var(--border-light); padding: 1.2rem; border-radius: var(--radius-lg); font-size: 0.92rem; margin-top: 0.8rem;" class="article-content">
+                  <div style="font-size: 0.78rem; font-family: var(--font-mono); color: var(--text-muted); font-weight: 700; margin-bottom: 0.4rem; letter-spacing: 0.05em;">PROPOSED EXPLANATION:</div>
+                  <%- q.answerHtml %>
+                </div>
+              <% } %>
+
+            </div>
+          <% }) %>
+        </div>
+      <% } else { %>
+        <div style="background: var(--bg-surface); border: 1px dashed var(--border-light); border-radius: var(--radius-xl); padding: 3.5rem 2rem; text-align: center; color: var(--text-muted);">
+          <div style="font-size: 2.5rem; margin-bottom: 0.6rem;">🎉</div>
+          <div style="font-weight: 800; color: var(--text-main); font-size: 1.1rem; margin-bottom: 0.3rem;">All caught up!</div>
+          <p style="font-size: 0.88rem; margin: 0;">No pending user-submitted questions in the queue.</p>
+        </div>
+      <% } %>
+    </div>
+
+    <!-- Section 2: Pending User Answers -->
+    <div>
+      <h2 style="font-size: 1.25rem; font-weight: 800; color: var(--text-main); margin-bottom: 1.2rem; display: flex; align-items: center; gap: 0.5rem;">
+        <span>Pending Community Answers</span>
+        <span class="status-pill status-pill--pending"><%= answers ? answers.length : 0 %> Pending</span>
+      </h2>
+
+      <% if (answers && answers.length > 0) { %>
+        <div style="display: flex; flex-direction: column;">
+          <% answers.forEach(a => { %>
+            <div class="moderation-card">
+              
+              <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1rem; flex-wrap: wrap; gap: 1rem;">
+                <div>
+                  <div style="font-size: 0.78rem; color: var(--text-muted); font-family: var(--font-mono); margin-bottom: 0.4rem;">
+                    By @<%= a.author ? a.author.username : 'User #' + a.userId %> on <%= new Date(a.createdAt).toDateString() %>
+                  </div>
+                  <h3 style="font-size: 1.08rem; font-weight: 800; color: var(--text-main); margin: 0; line-height: 1.35;">
+                    For Question: <%= a.question ? a.question.question : 'Question #' + a.questionId %>
+                  </h3>
+                </div>
+
+                <!-- Approve / Reject Action Buttons -->
+                <div style="display: flex; gap: 0.6rem; align-items: center; flex-wrap: wrap;">
+                  <form action="/admin/faq/answers/<%= a.id %>/approve" method="POST" style="margin: 0;">
+                    <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                    <button type="submit" class="btn" style="background: #059669; color: #ffffff; padding: 0.5rem 1.1rem; font-size: 0.85rem; font-weight: 800; border-radius: var(--radius-lg); box-shadow: 0 4px 12px rgba(5, 150, 105, 0.25); transition: transform 0.2s ease;" onmouseover="this.style.transform='scale(1.04)'" onmouseout="this.style.transform='scale(1)'">
+                      ✓ Approve Answer
+                    </button>
+                  </form>
+
+                  <form action="/admin/faq/answers/<%= a.id %>/reject" method="POST" style="margin: 0; display: flex; gap: 0.4rem;">
+                    <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                    <input type="text" name="reason" placeholder="Rejection reason..." style="padding: 0.45rem 0.8rem; border-radius: var(--radius-md); border: 1px solid var(--border-light); font-size: 0.82rem; background: var(--bg-subtle); color: var(--text-main); outline: none;">
+                    <button type="submit" class="btn" style="background: rgba(239, 68, 68, 0.16); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.3); padding: 0.45rem 0.9rem; font-size: 0.85rem; border-radius: var(--radius-md); font-weight: 700;">
+                      ✕ Reject
+                    </button>
+                  </form>
+                </div>
+              </div>
+
+              <div style="background: var(--bg-subtle); border: 1px solid var(--border-light); padding: 1.2rem; border-radius: var(--radius-lg); font-size: 0.92rem;" class="article-content">
+                <%- a.answerHtml %>
+              </div>
+
+            </div>
+          <% }) %>
+        </div>
+      <% } else { %>
+        <div style="background: var(--bg-surface); border: 1px dashed var(--border-light); border-radius: var(--radius-xl); padding: 3.5rem 2rem; text-align: center; color: var(--text-muted);">
+          <div style="font-size: 2.5rem; margin-bottom: 0.6rem;">✨</div>
+          <div style="font-weight: 800; color: var(--text-main); font-size: 1.1rem; margin-bottom: 0.3rem;">Queue clean!</div>
+          <p style="font-size: 0.88rem; margin: 0;">No pending community answers awaiting review.</p>
+        </div>
+      <% } %>
+    </div>
+
+  </main>
+
+</div>
