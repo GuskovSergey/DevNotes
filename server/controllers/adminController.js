@@ -603,6 +603,68 @@ class AdminController {
       layout: adminLayout,
     });
   });
+
+  getOptionsPage = catchAsync(async (req, res) => {
+    const categories = await categoryService.getAllCategoriesWithCounts();
+    const tags = await tagService.getAllTagsWithCounts();
+    const pendingCommentsCount = await commentService.getPendingCount();
+    const pendingPostsCount = await postService.getPendingCount();
+    const pendingCoursesCount = await courseService.getPendingCoursesCount();
+
+    const activeSubTab = req.query.tab === 'tags' ? 'tags' : 'categories';
+
+    res.render('admin/options', {
+      locals: { title: 'Options & Taxonomy Management | DevHub Admin' },
+      categories,
+      tags,
+      activeSubTab,
+      activeTab: 'options',
+      analytics: { pendingCommentsCount, pendingPostsCount, pendingCoursesCount },
+      layout: adminLayout,
+    });
+  });
+
+  handleAddCategory = catchAsync(async (req, res) => {
+    const { name, slug } = req.body;
+    if (name) {
+      await categoryService.createCategory({ name, slug });
+    }
+    res.redirect('/admin/categories?tab=categories');
+  });
+
+  handleEditCategory = catchAsync(async (req, res) => {
+    const { id } = req.params;
+    const { name, slug } = req.body;
+    await categoryService.updateCategory(id, { name, slug });
+    res.redirect('/admin/categories?tab=categories');
+  });
+
+  handleDeleteCategory = catchAsync(async (req, res) => {
+    const { id } = req.params;
+    await categoryService.deleteCategory(id);
+    res.redirect('/admin/categories?tab=categories');
+  });
+
+  handleAddTag = catchAsync(async (req, res) => {
+    const { name, slug } = req.body;
+    if (name) {
+      await tagService.createTag({ name, slug });
+    }
+    res.redirect('/admin/categories?tab=tags');
+  });
+
+  handleEditTag = catchAsync(async (req, res) => {
+    const { id } = req.params;
+    const { name, slug } = req.body;
+    await tagService.updateTag(id, { name, slug });
+    res.redirect('/admin/categories?tab=tags');
+  });
+
+  handleDeleteTag = catchAsync(async (req, res) => {
+    const { id } = req.params;
+    await tagService.deleteTag(id);
+    res.redirect('/admin/categories?tab=tags');
+  });
 }
 
 module.exports = new AdminController();

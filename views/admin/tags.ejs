@@ -1,0 +1,232 @@
+<div class="dashboard">
+  
+  <!-- Sidebar Navigation for Admin -->
+  <%- include('../partials/sidebar-admin', { currentUser, activeTab: 'tags', analytics }) %>
+
+  <!-- Main Content Area -->
+  <main class="dashboard__content">
+    
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.8rem; flex-wrap: wrap; gap: 1rem;">
+      <div>
+        <h1 style="font-size: 1.8rem; font-weight: 800; color: var(--text-main); margin: 0 0 0.3rem 0;">
+          🏷️ Technical Tag Repository
+        </h1>
+        <p style="color: var(--text-muted); font-size: 0.9rem; margin: 0;">
+          Manage, search, and edit granular topic tags across all published knowledge base articles.
+        </p>
+      </div>
+
+      <button type="button" id="open-add-tag-modal" class="btn" style="padding: 0.7rem 1.5rem; font-size: 0.9rem; font-weight: 800; border-radius: var(--radius-lg); box-shadow: 0 4px 12px var(--primary-indigo-light);">
+        <span>+ Add New Tag</span>
+      </button>
+    </div>
+
+    <!-- Summary Stats Ribbon -->
+    <div class="faq-stats-grid" style="margin-bottom: 2.2rem;">
+      <div class="stat-card">
+        <div class="stat-card__icon" style="background: var(--primary-indigo-light); color: var(--primary-indigo);">🏷️</div>
+        <div>
+          <div class="stat-card__val"><%= tags ? tags.length : 0 %></div>
+          <div class="stat-card__label">Technical Tags</div>
+        </div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-card__icon" style="background: rgba(16, 185, 129, 0.16); color: var(--accent-emerald);">📝</div>
+        <div>
+          <div class="stat-card__val"><%= tags ? tags.reduce((sum, t) => sum + (t.postsCount || 0), 0) : 0 %></div>
+          <div class="stat-card__label">Tagged Articles</div>
+        </div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-card__icon" style="background: rgba(245, 158, 11, 0.16); color: #d97706;">⚡</div>
+        <div>
+          <div class="stat-card__val">Active</div>
+          <div class="stat-card__label">Keyword Index</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Add Tag Form Panel (Collapsible) -->
+    <div id="add-tag-panel" style="display: none; background: var(--bg-surface); border: 1px solid var(--border-accent); border-radius: var(--radius-xl); padding: 1.6rem 1.8rem; margin-bottom: 2rem; box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1); animation: fadeSlideUp 0.3s ease;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.2rem;">
+        <h3 style="font-size: 1.15rem; font-weight: 800; color: var(--text-main); margin: 0;">
+          ✨ Add New Technical Tag
+        </h3>
+        <button type="button" id="close-add-tag-btn" style="background: transparent; border: none; color: var(--text-muted); font-size: 1.1rem; cursor: pointer;">✕</button>
+      </div>
+
+      <form action="/admin/tags" method="POST" style="display: flex; flex-direction: column; gap: 1.1rem;">
+        <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1.1rem;">
+          <div>
+            <label for="tag-name-input" style="font-size: 0.82rem; font-family: var(--font-mono); color: var(--text-muted); font-weight: 700; display: block; margin-bottom: 0.4rem;">Tag Name:</label>
+            <input type="text" id="tag-name-input" name="name" placeholder="e.g. Async Await" required style="width: 100%; height: 44px; padding: 0 1rem; border-radius: var(--radius-lg); border: 1px solid var(--border-light); background: var(--bg-subtle); color: var(--text-main); font-size: 0.92rem; outline: none;">
+          </div>
+
+          <div>
+            <label for="tag-slug-input" style="font-size: 0.82rem; font-family: var(--font-mono); color: var(--text-muted); font-weight: 700; display: block; margin-bottom: 0.4rem;">URL Slug (Auto-generated):</label>
+            <input type="text" id="tag-slug-input" name="slug" placeholder="e.g. async-await" style="width: 100%; height: 44px; padding: 0 1rem; border-radius: var(--radius-lg); border: 1px solid var(--border-light); background: var(--bg-subtle); color: var(--text-main); font-size: 0.92rem; font-family: var(--font-mono); outline: none;">
+          </div>
+        </div>
+
+        <div style="display: flex; justify-content: flex-end; gap: 0.8rem; margin-top: 0.4rem;">
+          <button type="button" id="cancel-add-tag-btn" class="btn" style="background: var(--bg-subtle); border: 1px solid var(--border-light); color: var(--text-main); padding: 0.55rem 1.2rem; font-size: 0.88rem;">Cancel</button>
+          <button type="submit" class="btn" style="padding: 0.55rem 1.5rem; font-size: 0.88rem; font-weight: 800;">Save Tag &rarr;</button>
+        </div>
+      </form>
+    </div>
+
+    <!-- Live Filter Bar -->
+    <div style="background: var(--bg-surface); border: 1px solid var(--border-light); border-radius: var(--radius-xl); padding: 1.2rem 1.4rem; margin-bottom: 1.8rem; display: flex; justify-content: space-between; align-items: center; gap: 1rem; flex-wrap: wrap;">
+      <div style="position: relative; flex: 1; max-width: 420px;">
+        <span style="position: absolute; left: 0.9rem; top: 50%; transform: translateY(-50%); color: var(--text-muted); pointer-events: none;">🔍</span>
+        <input type="text" id="tag-search-input" placeholder="Search tags by name or slug..." style="width: 100%; height: 42px; padding: 0 1rem 0 2.6rem; border-radius: var(--radius-lg); border: 1px solid var(--border-light); background: var(--bg-subtle); color: var(--text-main); font-size: 0.9rem; outline: none; transition: all 0.2s ease;" onfocus="this.style.borderColor='var(--primary-indigo)'" onblur="this.style.borderColor='var(--border-light)'">
+      </div>
+
+      <div style="font-family: var(--font-mono); font-size: 0.8rem; color: var(--text-muted);">
+        Showing <span id="visible-tags-count"><%= tags ? tags.length : 0 %></span> tags
+      </div>
+    </div>
+
+    <!-- Tags Cards Grid -->
+    <div id="tags-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.2rem;">
+      <% if (!tags || tags.length === 0) { %>
+        <div style="grid-column: 1 / -1; background: var(--bg-surface); border: 1px dashed var(--border-light); padding: 4rem 2rem; border-radius: var(--radius-xl); text-align: center; color: var(--text-muted);">
+          <div style="font-size: 2.8rem; margin-bottom: 0.8rem;">🏷️</div>
+          <h3 style="font-size: 1.2rem; color: var(--text-main); margin-bottom: 0.4rem; font-weight: 800;">No Tags Configured</h3>
+          <p style="color: var(--text-muted); max-width: 420px; margin: 0 auto; font-size: 0.9rem; line-height: 1.5;">
+            Create tags to allow authors to categorize technical articles!
+          </p>
+        </div>
+      <% } else { %>
+        <% tags.forEach(tag => { %>
+          <div class="tag-card-item" style="background: var(--bg-surface); border: 1px solid var(--border-light); border-radius: var(--radius-xl); padding: 1.4rem; box-shadow: var(--shadow-sm); display: flex; flex-direction: column; justify-content: space-between; gap: 1rem; transition: border-color 0.2s ease, transform 0.2s ease;" onmouseover="this.style.borderColor='var(--border-accent)'; this.style.transform='translateY(-2px)'" onmouseout="this.style.borderColor='var(--border-light)'; this.style.transform='translateY(0)'">
+            
+            <div>
+              <div style="display: flex; justify-content: space-between; align-items: center; gap: 0.6rem; margin-bottom: 0.6rem;">
+                <span class="tech-badge" style="background: var(--primary-indigo-light); color: var(--primary-indigo); font-size: 0.88rem; padding: 0.25rem 0.75rem; font-weight: 800;">
+                  🏷️ #<%= tag.name %>
+                </span>
+
+                <span class="tech-badge" style="background: rgba(16, 185, 129, 0.16); color: var(--accent-emerald); border-color: rgba(16, 185, 129, 0.3); font-size: 0.76rem; padding: 0.15rem 0.55rem;">
+                  📝 <%= tag.postsCount %> Article<%= tag.postsCount !== 1 ? 's' : '' %>
+                </span>
+              </div>
+
+              <div style="font-family: var(--font-mono); font-size: 0.78rem; color: var(--text-muted); background: var(--bg-subtle); padding: 0.25rem 0.6rem; border-radius: var(--radius-sm); display: inline-block;">
+                slug: <strong>/tag/<%= tag.slug %></strong>
+              </div>
+            </div>
+
+            <!-- Inline Edit Drawer -->
+            <div id="edit-tag-box-<%= tag.id %>" style="display: none; padding-top: 0.8rem; border-top: 1px dashed var(--border-light);">
+              <form action="/admin/tags/<%= tag.id %>/edit" method="POST" style="display: flex; flex-direction: column; gap: 0.6rem;">
+                <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                <input type="text" name="name" value="<%= tag.name %>" required style="width: 100%; height: 38px; padding: 0 0.8rem; border-radius: var(--radius-md); border: 1px solid var(--border-light); background: var(--bg-subtle); color: var(--text-main); font-size: 0.88rem;">
+                <input type="text" name="slug" value="<%= tag.slug %>" required style="width: 100%; height: 38px; padding: 0 0.8rem; border-radius: var(--radius-md); border: 1px solid var(--border-light); background: var(--bg-subtle); color: var(--text-main); font-size: 0.85rem; font-family: var(--font-mono);">
+                <div style="display: flex; gap: 0.5rem; justify-content: flex-end;">
+                  <button type="button" class="btn cancel-edit-tag-btn" data-id="<%= tag.id %>" style="padding: 0.35rem 0.8rem; font-size: 0.8rem; background: var(--bg-subtle);">Cancel</button>
+                  <button type="submit" class="btn" style="padding: 0.35rem 0.9rem; font-size: 0.8rem; font-weight: 700;">Save</button>
+                </div>
+              </form>
+            </div>
+
+            <!-- Action Buttons -->
+            <div style="display: flex; justify-content: space-between; align-items: center; padding-top: 0.8rem; border-top: 1px solid var(--border-light);">
+              <button type="button" class="btn toggle-edit-tag-btn" data-id="<%= tag.id %>" style="background: var(--bg-subtle); border: 1px solid var(--border-light); color: var(--text-main); padding: 0.45rem 0.9rem; font-size: 0.82rem; border-radius: var(--radius-lg); font-weight: 600;">
+                ✏️ Edit
+              </button>
+
+              <form action="/admin/tags/<%= tag.id %>/delete" method="POST" onsubmit="return confirm('Delete tag #<%= tag.name %>?');" style="margin: 0;">
+                <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                <button type="submit" class="btn" style="background: rgba(239, 68, 68, 0.15); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.3); padding: 0.45rem 0.9rem; font-size: 0.82rem; border-radius: var(--radius-lg); font-weight: 600;">
+                  🗑 Delete
+                </button>
+              </form>
+            </div>
+
+          </div>
+        <% }) %>
+      <% } %>
+    </div>
+
+  </main>
+</div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const openAddBtn = document.getElementById('open-add-tag-modal');
+    const closeAddBtn = document.getElementById('close-add-tag-btn');
+    const cancelAddBtn = document.getElementById('cancel-add-tag-btn');
+    const addPanel = document.getElementById('add-tag-panel');
+    const nameInput = document.getElementById('tag-name-input');
+    const slugInput = document.getElementById('tag-slug-input');
+    const searchInput = document.getElementById('tag-search-input');
+    const grid = document.getElementById('tags-grid');
+    const visibleCountSpan = document.getElementById('visible-tags-count');
+
+    if (openAddBtn && addPanel) {
+      openAddBtn.addEventListener('click', () => {
+        addPanel.style.display = 'block';
+        if (nameInput) nameInput.focus();
+      });
+    }
+
+    function closeAddPanel() {
+      if (addPanel) addPanel.style.display = 'none';
+    }
+
+    if (closeAddBtn) closeAddBtn.addEventListener('click', closeAddPanel);
+    if (cancelAddBtn) cancelAddBtn.addEventListener('click', closeAddPanel);
+
+    // Auto slug generator
+    if (nameInput && slugInput) {
+      nameInput.addEventListener('input', () => {
+        slugInput.value = nameInput.value.toLowerCase().trim().replace(/[^\w\s-]/g, '').replace(/[\s_]+/g, '-').replace(/^-+|-+$/g, '');
+      });
+    }
+
+    // Client-side Live Search
+    if (searchInput && grid) {
+      searchInput.addEventListener('input', () => {
+        const query = searchInput.value.toLowerCase().trim();
+        const cards = grid.querySelectorAll('.tag-card-item');
+        let visible = 0;
+
+        cards.forEach(card => {
+          const text = card.textContent.toLowerCase();
+          if (text.includes(query)) {
+            card.style.display = 'flex';
+            visible++;
+          } else {
+            card.style.display = 'none';
+          }
+        });
+
+        if (visibleCountSpan) visibleCountSpan.textContent = visible;
+      });
+    }
+
+    // Toggle inline edit boxes
+    document.querySelectorAll('.toggle-edit-tag-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const id = btn.getAttribute('data-id');
+        const box = document.getElementById(`edit-tag-box-${id}`);
+        if (box) {
+          box.style.display = box.style.display === 'none' ? 'block' : 'none';
+        }
+      });
+    });
+
+    document.querySelectorAll('.cancel-edit-tag-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const id = btn.getAttribute('data-id');
+        const box = document.getElementById(`edit-tag-box-${id}`);
+        if (box) box.style.display = 'none';
+      });
+    });
+  });
+</script>

@@ -94,17 +94,10 @@
         <% } %>
       </a>
 
-      <a href="/admin/categories" class="sidebar-nav__item <%= typeof activeTab !== 'undefined' && activeTab === 'categories' ? 'active' : '' %>">
+      <a href="/admin/categories" class="sidebar-nav__item <%= typeof activeTab !== 'undefined' && (activeTab === 'categories' || activeTab === 'tags' || activeTab === 'options') ? 'active' : '' %>">
         <span>
-          <span class="sidebar-nav__icon">📁</span>
-          Categories
-        </span>
-      </a>
-
-      <a href="/admin/tags" class="sidebar-nav__item <%= typeof activeTab !== 'undefined' && activeTab === 'tags' ? 'active' : '' %>">
-        <span>
-          <span class="sidebar-nav__icon">🏷️</span>
-          Tags
+          <span class="sidebar-nav__icon">⚙️</span>
+          Options
         </span>
       </a>
 

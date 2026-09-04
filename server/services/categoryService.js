@@ -7,6 +7,26 @@ class CategoryService {
     });
   }
 
+  async getAllCategoriesWithCounts() {
+    const categories = await Category.findAll({
+      order: [['name', 'ASC']],
+    });
+
+    const categoriesWithCount = await Promise.all(
+      categories.map(async (cat) => {
+        const postsCount = await Post.count({
+          where: { categoryId: cat.id, status: 'published' },
+        });
+        return {
+          ...cat.toJSON(),
+          postsCount,
+        };
+      })
+    );
+
+    return categoriesWithCount;
+  }
+
   async getCategoryBySlug(slug) {
     return await Category.findOne({
       where: { slug },
@@ -14,11 +34,37 @@ class CategoryService {
   }
 
   async createCategory({ name, slug }) {
-    const generatedSlug = slug || name.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+    const generatedSlug = slug || name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
     return await Category.create({
       name,
       slug: generatedSlug,
     });
+  }
+
+  async updateCategory(id, { name, slug }) {
+    const category = await Category.findByPk(id);
+    if (!category) {
+      const error = new Error('Category not found');
+      error.statusCode = 404;
+      throw error;
+    }
+
+    if (name) category.name = name;
+    if (slug) category.slug = slug.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+
+    await category.save();
+    return category;
+  }
+
+  async deleteCategory(id) {
+    const category = await Category.findByPk(id);
+    if (!category) {
+      const error = new Error('Category not found');
+      error.statusCode = 404;
+      throw error;
+    }
+    await category.destroy();
+    return true;
   }
 }
 

@@ -1,0 +1,407 @@
+<div class="dashboard">
+  
+  <!-- Sidebar Navigation for Admin -->
+  <%- include('../partials/sidebar-admin', { currentUser, activeTab: 'options', analytics }) %>
+
+  <!-- Main Content Area -->
+  <main class="dashboard__content">
+    
+    <!-- Hero Header -->
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.8rem; flex-wrap: wrap; gap: 1rem;">
+      <div>
+        <div style="display: inline-flex; align-items: center; gap: 0.5rem; background: var(--primary-indigo-light); color: var(--primary-indigo); padding: 0.2rem 0.65rem; border-radius: var(--radius-full); font-family: var(--font-mono); font-size: 0.76rem; font-weight: 700; margin-bottom: 0.4rem;">
+          ⚙️ Content Taxonomy &amp; System Options
+        </div>
+        <h1 style="font-size: 1.8rem; font-weight: 800; color: var(--text-main); margin: 0 0 0.3rem 0;">
+          Options &amp; Taxonomy Management
+        </h1>
+        <p style="color: var(--text-muted); font-size: 0.9rem; margin: 0;">
+          Organize knowledge base articles, tutorials, and engineering courses by categories and keywords.
+        </p>
+      </div>
+
+      <div style="display: flex; gap: 0.8rem; flex-wrap: wrap;">
+        <button type="button" id="open-add-cat-btn" class="btn" style="padding: 0.65rem 1.3rem; font-size: 0.88rem; font-weight: 800; border-radius: var(--radius-lg); box-shadow: 0 4px 12px var(--primary-indigo-light);">
+          <span>+ Create Category</span>
+        </button>
+
+        <button type="button" id="open-add-tag-btn" class="btn" style="background: var(--bg-subtle); border: 1px solid var(--border-light); color: var(--text-main); padding: 0.65rem 1.3rem; font-size: 0.88rem; font-weight: 700; border-radius: var(--radius-lg);">
+          <span>+ Add Tag</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- KPI Analytics Ribbon -->
+    <div class="faq-stats-grid" style="margin-bottom: 2.2rem;">
+      <div class="stat-card">
+        <div class="stat-card__icon" style="background: var(--primary-indigo-light); color: var(--primary-indigo);">📁</div>
+        <div>
+          <div class="stat-card__val"><%= categories ? categories.length : 0 %></div>
+          <div class="stat-card__label">Categories</div>
+        </div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-card__icon" style="background: rgba(16, 185, 129, 0.16); color: var(--accent-emerald);">🏷️</div>
+        <div>
+          <div class="stat-card__val"><%= tags ? tags.length : 0 %></div>
+          <div class="stat-card__label">Technical Tags</div>
+        </div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-card__icon" style="background: rgba(245, 158, 11, 0.16); color: #d97706;">📝</div>
+        <div>
+          <div class="stat-card__val"><%= categories ? categories.reduce((sum, c) => sum + (c.postsCount || 0), 0) : 0 %></div>
+          <div class="stat-card__label">Categorized Articles</div>
+        </div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-card__icon" style="background: rgba(99, 102, 241, 0.16); color: var(--primary-indigo);">⚡</div>
+        <div>
+          <div class="stat-card__val"><%= tags ? tags.reduce((sum, t) => sum + (t.postsCount || 0), 0) : 0 %></div>
+          <div class="stat-card__label">Tagged Articles</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Segmented Tab Switcher & Live Search Control Bar -->
+    <div style="background: var(--bg-surface); border: 1px solid var(--border-light); border-radius: var(--radius-xl); padding: 1.2rem 1.4rem; margin-bottom: 2rem; display: flex; justify-content: space-between; align-items: center; gap: 1.2rem; flex-wrap: wrap;">
+      
+      <!-- Interactive Segmented Pill Switcher -->
+      <div class="faq-mode-toggle" style="background: var(--bg-subtle); padding: 0.25rem; border-radius: var(--radius-lg); display: inline-flex; gap: 0.3rem;">
+        <button type="button" id="tab-cat-btn" class="faq-mode-btn <%= activeSubTab !== 'tags' ? 'active' : '' %>" style="padding: 0.5rem 1.2rem; font-size: 0.88rem; font-weight: 700; border-radius: var(--radius-md);">
+          📁 Categories (<%= categories ? categories.length : 0 %>)
+        </button>
+        <button type="button" id="tab-tag-btn" class="faq-mode-btn <%= activeSubTab === 'tags' ? 'active' : '' %>" style="padding: 0.5rem 1.2rem; font-size: 0.88rem; font-weight: 700; border-radius: var(--radius-md);">
+          🏷️ Tags (<%= tags ? tags.length : 0 %>)
+        </button>
+      </div>
+
+      <!-- Live Search Box -->
+      <div style="position: relative; flex: 1; max-width: 420px;">
+        <span style="position: absolute; left: 0.9rem; top: 50%; transform: translateY(-50%); color: var(--text-muted); pointer-events: none;">🔍</span>
+        <input type="text" id="taxonomy-search-input" placeholder="Search categories or tags by name or slug..." style="width: 100%; height: 42px; padding: 0 1rem 0 2.6rem; border-radius: var(--radius-lg); border: 1px solid var(--border-light); background: var(--bg-subtle); color: var(--text-main); font-size: 0.9rem; outline: none; transition: all 0.2s ease;" onfocus="this.style.borderColor='var(--primary-indigo)'" onblur="this.style.borderColor='var(--border-light)'">
+      </div>
+
+    </div>
+
+    <!-- Form Panel: Add Category Drawer -->
+    <div id="add-cat-panel" style="display: none; background: var(--bg-surface); border: 1px solid var(--border-accent); border-radius: var(--radius-xl); padding: 1.6rem 1.8rem; margin-bottom: 2rem; box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1); animation: fadeSlideUp 0.3s ease;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.2rem;">
+        <h3 style="font-size: 1.15rem; font-weight: 800; color: var(--text-main); margin: 0;">
+          📁 Create Technical Category
+        </h3>
+        <button type="button" id="close-add-cat-btn" style="background: transparent; border: none; color: var(--text-muted); font-size: 1.1rem; cursor: pointer;">✕</button>
+      </div>
+
+      <form action="/admin/categories" method="POST" style="display: flex; flex-direction: column; gap: 1.1rem;">
+        <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1.1rem;">
+          <div>
+            <label for="cat-name-input" style="font-size: 0.82rem; font-family: var(--font-mono); color: var(--text-muted); font-weight: 700; display: block; margin-bottom: 0.4rem;">Category Name:</label>
+            <input type="text" id="cat-name-input" name="name" placeholder="e.g. Cloud Native & DevOps" required style="width: 100%; height: 44px; padding: 0 1rem; border-radius: var(--radius-lg); border: 1px solid var(--border-light); background: var(--bg-subtle); color: var(--text-main); font-size: 0.92rem; outline: none;">
+          </div>
+          <div>
+            <label for="cat-slug-input" style="font-size: 0.82rem; font-family: var(--font-mono); color: var(--text-muted); font-weight: 700; display: block; margin-bottom: 0.4rem;">URL Slug (Auto-generated):</label>
+            <input type="text" id="cat-slug-input" name="slug" placeholder="e.g. cloud-native-devops" style="width: 100%; height: 44px; padding: 0 1rem; border-radius: var(--radius-lg); border: 1px solid var(--border-light); background: var(--bg-subtle); color: var(--text-main); font-size: 0.92rem; font-family: var(--font-mono); outline: none;">
+          </div>
+        </div>
+        <div style="display: flex; justify-content: flex-end; gap: 0.8rem; margin-top: 0.4rem;">
+          <button type="button" id="cancel-add-cat-btn" class="btn" style="background: var(--bg-subtle); border: 1px solid var(--border-light); color: var(--text-main); padding: 0.55rem 1.2rem; font-size: 0.88rem;">Cancel</button>
+          <button type="submit" class="btn" style="padding: 0.55rem 1.5rem; font-size: 0.88rem; font-weight: 800;">Save Category &rarr;</button>
+        </div>
+      </form>
+    </div>
+
+    <!-- Form Panel: Add Tag Drawer -->
+    <div id="add-tag-panel" style="display: none; background: var(--bg-surface); border: 1px solid var(--border-accent); border-radius: var(--radius-xl); padding: 1.6rem 1.8rem; margin-bottom: 2rem; box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1); animation: fadeSlideUp 0.3s ease;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.2rem;">
+        <h3 style="font-size: 1.15rem; font-weight: 800; color: var(--text-main); margin: 0;">
+          🏷️ Create Technical Tag
+        </h3>
+        <button type="button" id="close-add-tag-btn" style="background: transparent; border: none; color: var(--text-muted); font-size: 1.1rem; cursor: pointer;">✕</button>
+      </div>
+
+      <form action="/admin/tags" method="POST" style="display: flex; flex-direction: column; gap: 1.1rem;">
+        <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1.1rem;">
+          <div>
+            <label for="tag-name-input" style="font-size: 0.82rem; font-family: var(--font-mono); color: var(--text-muted); font-weight: 700; display: block; margin-bottom: 0.4rem;">Tag Name:</label>
+            <input type="text" id="tag-name-input" name="name" placeholder="e.g. Async Await" required style="width: 100%; height: 44px; padding: 0 1rem; border-radius: var(--radius-lg); border: 1px solid var(--border-light); background: var(--bg-subtle); color: var(--text-main); font-size: 0.92rem; outline: none;">
+          </div>
+          <div>
+            <label for="tag-slug-input" style="font-size: 0.82rem; font-family: var(--font-mono); color: var(--text-muted); font-weight: 700; display: block; margin-bottom: 0.4rem;">URL Slug (Auto-generated):</label>
+            <input type="text" id="tag-slug-input" name="slug" placeholder="e.g. async-await" style="width: 100%; height: 44px; padding: 0 1rem; border-radius: var(--radius-lg); border: 1px solid var(--border-light); background: var(--bg-subtle); color: var(--text-main); font-size: 0.92rem; font-family: var(--font-mono); outline: none;">
+          </div>
+        </div>
+        <div style="display: flex; justify-content: flex-end; gap: 0.8rem; margin-top: 0.4rem;">
+          <button type="button" id="cancel-add-tag-btn" class="btn" style="background: var(--bg-subtle); border: 1px solid var(--border-light); color: var(--text-main); padding: 0.55rem 1.2rem; font-size: 0.88rem;">Cancel</button>
+          <button type="submit" class="btn" style="padding: 0.55rem 1.5rem; font-size: 0.88rem; font-weight: 800;">Save Tag &rarr;</button>
+        </div>
+      </form>
+    </div>
+
+    <!-- TAB 1: CATEGORIES GRID CONTAINER -->
+    <div id="categories-tab-view" style="display: <%= activeSubTab !== 'tags' ? 'grid' : 'none' %>; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 1.4rem;">
+      <% if (!categories || categories.length === 0) { %>
+        <div style="grid-column: 1 / -1; background: var(--bg-surface); border: 1px dashed var(--border-light); padding: 4rem 2rem; border-radius: var(--radius-xl); text-align: center; color: var(--text-muted);">
+          <div style="font-size: 2.8rem; margin-bottom: 0.8rem;">📁</div>
+          <h3 style="font-size: 1.2rem; color: var(--text-main); margin-bottom: 0.4rem; font-weight: 800;">No Categories Configured</h3>
+        </div>
+      <% } else { %>
+        <% categories.forEach(cat => { %>
+          <% 
+            const icon = cat.name.includes('Node') ? '⚡' : (cat.name.includes('SQL') || cat.name.includes('Data') ? '🗄️' : (cat.name.includes('Security') || cat.name.includes('Web') ? '🛡️' : (cat.name.includes('System') || cat.name.includes('Arch') ? '🏗️' : '📁')));
+          %>
+          <div class="cat-card-item" style="background: var(--bg-surface); border: 1px solid var(--border-light); border-radius: var(--radius-xl); padding: 1.6rem; box-shadow: var(--shadow-sm); display: flex; flex-direction: column; justify-content: space-between; gap: 1.2rem; transition: border-color 0.2s ease, transform 0.2s ease;" onmouseover="this.style.borderColor='var(--border-accent)'; this.style.transform='translateY(-2px)'" onmouseout="this.style.borderColor='var(--border-light)'; this.style.transform='translateY(0)'">
+            
+            <div>
+              <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 0.8rem; margin-bottom: 0.8rem;">
+                <div style="width: 44px; height: 44px; border-radius: var(--radius-lg); background: var(--primary-indigo-light); color: var(--primary-indigo); display: flex; align-items: center; justify-content: center; font-size: 1.4rem;">
+                  <%= icon %>
+                </div>
+
+                <span class="tech-badge" style="background: rgba(16, 185, 129, 0.16); color: var(--accent-emerald); border-color: rgba(16, 185, 129, 0.3); font-size: 0.78rem; padding: 0.2rem 0.65rem;">
+                  📝 <%= cat.postsCount %> Article<%= cat.postsCount !== 1 ? 's' : '' %>
+                </span>
+              </div>
+
+              <h3 style="font-size: 1.2rem; font-weight: 800; color: var(--text-main); margin: 0 0 0.3rem 0;">
+                <%= cat.name %>
+              </h3>
+
+              <div style="font-family: var(--font-mono); font-size: 0.8rem; color: var(--text-muted); background: var(--bg-subtle); padding: 0.25rem 0.6rem; border-radius: var(--radius-sm); display: inline-block;">
+                slug: <strong>/category/<%= cat.slug %></strong>
+              </div>
+            </div>
+
+            <!-- Edit inline box -->
+            <div id="edit-cat-box-<%= cat.id %>" style="display: none; padding-top: 0.8rem; border-top: 1px dashed var(--border-light);">
+              <form action="/admin/categories/<%= cat.id %>/edit" method="POST" style="display: flex; flex-direction: column; gap: 0.6rem;">
+                <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                <input type="text" name="name" value="<%= cat.name %>" required style="width: 100%; height: 38px; padding: 0 0.8rem; border-radius: var(--radius-md); border: 1px solid var(--border-light); background: var(--bg-subtle); color: var(--text-main); font-size: 0.88rem;">
+                <input type="text" name="slug" value="<%= cat.slug %>" required style="width: 100%; height: 38px; padding: 0 0.8rem; border-radius: var(--radius-md); border: 1px solid var(--border-light); background: var(--bg-subtle); color: var(--text-main); font-size: 0.85rem; font-family: var(--font-mono);">
+                <div style="display: flex; gap: 0.5rem; justify-content: flex-end;">
+                  <button type="button" class="btn cancel-edit-cat-btn" data-id="<%= cat.id %>" style="padding: 0.35rem 0.8rem; font-size: 0.8rem; background: var(--bg-subtle);">Cancel</button>
+                  <button type="submit" class="btn" style="padding: 0.35rem 0.9rem; font-size: 0.8rem; font-weight: 700;">Save</button>
+                </div>
+              </form>
+            </div>
+
+            <!-- Action Buttons -->
+            <div style="display: flex; justify-content: space-between; align-items: center; padding-top: 0.8rem; border-top: 1px solid var(--border-light);">
+              <button type="button" class="btn toggle-edit-cat-btn" data-id="<%= cat.id %>" style="background: var(--bg-subtle); border: 1px solid var(--border-light); color: var(--text-main); padding: 0.45rem 0.9rem; font-size: 0.82rem; border-radius: var(--radius-lg); font-weight: 600;">
+                ✏️ Edit
+              </button>
+
+              <form action="/admin/categories/<%= cat.id %>/delete" method="POST" onsubmit="return confirm('Delete category <%= cat.name %>?');" style="margin: 0;">
+                <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                <button type="submit" class="btn" style="background: rgba(239, 68, 68, 0.15); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.3); padding: 0.45rem 0.9rem; font-size: 0.82rem; border-radius: var(--radius-lg); font-weight: 600;">
+                  🗑 Delete
+                </button>
+              </form>
+            </div>
+
+          </div>
+        <% }) %>
+      <% } %>
+    </div>
+
+    <!-- TAB 2: TAGS GRID CONTAINER -->
+    <div id="tags-tab-view" style="display: <%= activeSubTab === 'tags' ? 'grid' : 'none' %>; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.2rem;">
+      <% if (!tags || tags.length === 0) { %>
+        <div style="grid-column: 1 / -1; background: var(--bg-surface); border: 1px dashed var(--border-light); padding: 4rem 2rem; border-radius: var(--radius-xl); text-align: center; color: var(--text-muted);">
+          <div style="font-size: 2.8rem; margin-bottom: 0.8rem;">🏷️</div>
+          <h3 style="font-size: 1.2rem; color: var(--text-main); margin-bottom: 0.4rem; font-weight: 800;">No Tags Configured</h3>
+        </div>
+      <% } else { %>
+        <% tags.forEach(tag => { %>
+          <div class="tag-card-item" style="background: var(--bg-surface); border: 1px solid var(--border-light); border-radius: var(--radius-xl); padding: 1.4rem; box-shadow: var(--shadow-sm); display: flex; flex-direction: column; justify-content: space-between; gap: 1rem; transition: border-color 0.2s ease, transform 0.2s ease;" onmouseover="this.style.borderColor='var(--border-accent)'; this.style.transform='translateY(-2px)'" onmouseout="this.style.borderColor='var(--border-light)'; this.style.transform='translateY(0)'">
+            
+            <div>
+              <div style="display: flex; justify-content: space-between; align-items: center; gap: 0.6rem; margin-bottom: 0.6rem;">
+                <span class="tech-badge" style="background: var(--primary-indigo-light); color: var(--primary-indigo); font-size: 0.88rem; padding: 0.25rem 0.75rem; font-weight: 800;">
+                  🏷️ #<%= tag.name %>
+                </span>
+
+                <span class="tech-badge" style="background: rgba(16, 185, 129, 0.16); color: var(--accent-emerald); border-color: rgba(16, 185, 129, 0.3); font-size: 0.76rem; padding: 0.15rem 0.55rem;">
+                  📝 <%= tag.postsCount %> Article<%= tag.postsCount !== 1 ? 's' : '' %>
+                </span>
+              </div>
+
+              <div style="font-family: var(--font-mono); font-size: 0.78rem; color: var(--text-muted); background: var(--bg-subtle); padding: 0.25rem 0.6rem; border-radius: var(--radius-sm); display: inline-block;">
+                slug: <strong>/tag/<%= tag.slug %></strong>
+              </div>
+            </div>
+
+            <!-- Inline Edit Drawer -->
+            <div id="edit-tag-box-<%= tag.id %>" style="display: none; padding-top: 0.8rem; border-top: 1px dashed var(--border-light);">
+              <form action="/admin/tags/<%= tag.id %>/edit" method="POST" style="display: flex; flex-direction: column; gap: 0.6rem;">
+                <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                <input type="text" name="name" value="<%= tag.name %>" required style="width: 100%; height: 38px; padding: 0 0.8rem; border-radius: var(--radius-md); border: 1px solid var(--border-light); background: var(--bg-subtle); color: var(--text-main); font-size: 0.88rem;">
+                <input type="text" name="slug" value="<%= tag.slug %>" required style="width: 100%; height: 38px; padding: 0 0.8rem; border-radius: var(--radius-md); border: 1px solid var(--border-light); background: var(--bg-subtle); color: var(--text-main); font-size: 0.85rem; font-family: var(--font-mono);">
+                <div style="display: flex; gap: 0.5rem; justify-content: flex-end;">
+                  <button type="button" class="btn cancel-edit-tag-btn" data-id="<%= tag.id %>" style="padding: 0.35rem 0.8rem; font-size: 0.8rem; background: var(--bg-subtle);">Cancel</button>
+                  <button type="submit" class="btn" style="padding: 0.35rem 0.9rem; font-size: 0.8rem; font-weight: 700;">Save</button>
+                </div>
+              </form>
+            </div>
+
+            <!-- Action Buttons -->
+            <div style="display: flex; justify-content: space-between; align-items: center; padding-top: 0.8rem; border-top: 1px solid var(--border-light);">
+              <button type="button" class="btn toggle-edit-tag-btn" data-id="<%= tag.id %>" style="background: var(--bg-subtle); border: 1px solid var(--border-light); color: var(--text-main); padding: 0.45rem 0.9rem; font-size: 0.82rem; border-radius: var(--radius-lg); font-weight: 600;">
+                ✏️ Edit
+              </button>
+
+              <form action="/admin/tags/<%= tag.id %>/delete" method="POST" onsubmit="return confirm('Delete tag #<%= tag.name %>?');" style="margin: 0;">
+                <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                <button type="submit" class="btn" style="background: rgba(239, 68, 68, 0.15); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.3); padding: 0.45rem 0.9rem; font-size: 0.82rem; border-radius: var(--radius-lg); font-weight: 600;">
+                  🗑 Delete
+                </button>
+              </form>
+            </div>
+
+          </div>
+        <% }) %>
+      <% } %>
+    </div>
+
+  </main>
+</div>
+
+<!-- Client-side Interactive Tab Switcher & Search Controller -->
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    // Tabs & Panels
+    const tabCatBtn = document.getElementById('tab-cat-btn');
+    const tabTagBtn = document.getElementById('tab-tag-btn');
+    const catView = document.getElementById('categories-tab-view');
+    const tagView = document.getElementById('tags-tab-view');
+
+    // Add Drawers
+    const openAddCatBtn = document.getElementById('open-add-cat-btn');
+    const openAddTagBtn = document.getElementById('open-add-tag-btn');
+    const addCatPanel = document.getElementById('add-cat-panel');
+    const addTagPanel = document.getElementById('add-tag-panel');
+    const closeAddCatBtn = document.getElementById('close-add-cat-btn');
+    const cancelAddCatBtn = document.getElementById('cancel-add-cat-btn');
+    const closeAddTagBtn = document.getElementById('close-add-tag-btn');
+    const cancelAddTagBtn = document.getElementById('cancel-add-tag-btn');
+
+    // Auto-slug inputs
+    const catNameInput = document.getElementById('cat-name-input');
+    const catSlugInput = document.getElementById('cat-slug-input');
+    const tagNameInput = document.getElementById('tag-name-input');
+    const tagSlugInput = document.getElementById('tag-slug-input');
+    const searchInput = document.getElementById('taxonomy-search-input');
+
+    let currentTab = '<%= activeSubTab || "categories" %>';
+
+    function switchTab(tab) {
+      currentTab = tab;
+      if (tab === 'categories') {
+        catView.style.display = 'grid';
+        tagView.style.display = 'none';
+        tabCatBtn.classList.add('active');
+        tabTagBtn.classList.remove('active');
+        window.history.replaceState(null, '', '/admin/categories?tab=categories');
+      } else {
+        tagView.style.display = 'grid';
+        catView.style.display = 'none';
+        tabTagBtn.classList.add('active');
+        tabCatBtn.classList.remove('active');
+        window.history.replaceState(null, '', '/admin/categories?tab=tags');
+      }
+    }
+
+    if (tabCatBtn) tabCatBtn.addEventListener('click', () => switchTab('categories'));
+    if (tabTagBtn) tabTagBtn.addEventListener('click', () => switchTab('tags'));
+
+    // Open Panels
+    if (openAddCatBtn && addCatPanel) {
+      openAddCatBtn.addEventListener('click', () => {
+        switchTab('categories');
+        addCatPanel.style.display = 'block';
+        addTagPanel.style.display = 'none';
+        if (catNameInput) catNameInput.focus();
+      });
+    }
+
+    if (openAddTagBtn && addTagPanel) {
+      openAddTagBtn.addEventListener('click', () => {
+        switchTab('tags');
+        addTagPanel.style.display = 'block';
+        addCatPanel.style.display = 'none';
+        if (tagNameInput) tagNameInput.focus();
+      });
+    }
+
+    if (closeAddCatBtn) closeAddCatBtn.addEventListener('click', () => addCatPanel.style.display = 'none');
+    if (cancelAddCatBtn) cancelAddCatBtn.addEventListener('click', () => addCatPanel.style.display = 'none');
+    if (closeAddTagBtn) closeAddTagBtn.addEventListener('click', () => addTagPanel.style.display = 'none');
+    if (cancelAddTagBtn) cancelAddTagBtn.addEventListener('click', () => addTagPanel.style.display = 'none');
+
+    // Auto-slugs
+    if (catNameInput && catSlugInput) {
+      catNameInput.addEventListener('input', () => {
+        catSlugInput.value = catNameInput.value.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+      });
+    }
+
+    if (tagNameInput && tagSlugInput) {
+      tagNameInput.addEventListener('input', () => {
+        tagSlugInput.value = tagNameInput.value.toLowerCase().trim().replace(/[^\w\s-]/g, '').replace(/[\s_]+/g, '-').replace(/^-+|-+$/g, '');
+      });
+    }
+
+    // Universal Search Input
+    if (searchInput) {
+      searchInput.addEventListener('input', () => {
+        const query = searchInput.value.toLowerCase().trim();
+        if (currentTab === 'categories') {
+          catView.querySelectorAll('.cat-card-item').forEach(card => {
+            card.style.display = card.textContent.toLowerCase().includes(query) ? 'flex' : 'none';
+          });
+        } else {
+          tagView.querySelectorAll('.tag-card-item').forEach(card => {
+            card.style.display = card.textContent.toLowerCase().includes(query) ? 'flex' : 'none';
+          });
+        }
+      });
+    }
+
+    // Toggle inline edit drawers for categories
+    document.querySelectorAll('.toggle-edit-cat-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const id = btn.getAttribute('data-id');
+        const box = document.getElementById(`edit-cat-box-${id}`);
+        if (box) box.style.display = box.style.display === 'none' ? 'block' : 'none';
+      });
+    });
+    document.querySelectorAll('.cancel-edit-cat-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const id = btn.getAttribute('data-id');
+        const box = document.getElementById(`edit-cat-box-${id}`);
+        if (box) box.style.display = 'none';
+      });
+    });
+
+    // Toggle inline edit drawers for tags
+    document.querySelectorAll('.toggle-edit-tag-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const id = btn.getAttribute('data-id');
+        const box = document.getElementById(`edit-tag-box-${id}`);
+        if (box) box.style.display = box.style.display === 'none' ? 'block' : 'none';
+      });
+    });
+    document.querySelectorAll('.cancel-edit-tag-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const id = btn.getAttribute('data-id');
+        const box = document.getElementById(`edit-tag-box-${id}`);
+        if (box) box.style.display = 'none';
+      });
+    });
+  });
+</script>

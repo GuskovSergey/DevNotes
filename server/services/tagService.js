@@ -28,6 +28,62 @@ class TagService {
     });
   }
 
+  async getAllTagsWithCounts() {
+    const tags = await Tag.findAll({
+      order: [['name', 'ASC']],
+    });
+
+    const tagsWithCounts = await Promise.all(
+      tags.map(async (tag) => {
+        const postsCount = await PostTag.count({
+          where: { tagId: tag.id },
+        });
+        return {
+          ...tag.toJSON(),
+          postsCount,
+        };
+      })
+    );
+
+    return tagsWithCounts;
+  }
+
+  async createTag({ name, slug }) {
+    const generatedSlug = slug ? slugify(slug) : slugify(name);
+    return await Tag.create({
+      name,
+      slug: generatedSlug,
+    });
+  }
+
+  async updateTag(id, { name, slug }) {
+    const tag = await Tag.findByPk(id);
+    if (!tag) {
+      const error = new Error('Tag not found');
+      error.statusCode = 404;
+      throw error;
+    }
+
+    if (name) tag.name = name;
+    if (slug) tag.slug = slugify(slug);
+
+    await tag.save();
+    return tag;
+  }
+
+  async deleteTag(id) {
+    const tag = await Tag.findByPk(id);
+    if (!tag) {
+      const error = new Error('Tag not found');
+      error.statusCode = 404;
+      throw error;
+    }
+
+    await PostTag.destroy({ where: { tagId: id } });
+    await tag.destroy();
+    return true;
+  }
+
   /**
    * Finds existing tags or creates new ones from a comma-separated string.
    * Deduplicates and normalizes tag names before processing.

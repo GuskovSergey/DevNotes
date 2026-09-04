@@ -67,4 +67,19 @@ router.post('/admin/faq/delete/:id', adminAuthMiddleware, doubleCsrfProtection, 
 // Protected Admin User Management route
 router.get('/admin/users', adminAuthMiddleware, adminController.getUsersPage);
 
+// Protected Admin Options & Taxonomy Management routes (Combined Categories & Tags)
+router.get('/admin/categories', adminAuthMiddleware, adminController.getOptionsPage);
+router.get('/admin/options', adminAuthMiddleware, adminController.getOptionsPage);
+router.get('/admin/tags', adminAuthMiddleware, (req, res) => res.redirect('/admin/categories?tab=tags'));
+
+// Category CRUD
+router.post('/admin/categories', adminAuthMiddleware, doubleCsrfProtection, adminController.handleAddCategory);
+router.post('/admin/categories/:id/edit', adminAuthMiddleware, doubleCsrfProtection, adminController.handleEditCategory);
+router.post('/admin/categories/:id/delete', adminAuthMiddleware, doubleCsrfProtection, adminController.handleDeleteCategory);
+
+// Tag CRUD
+router.post('/admin/tags', adminAuthMiddleware, doubleCsrfProtection, adminController.handleAddTag);
+router.post('/admin/tags/:id/edit', adminAuthMiddleware, doubleCsrfProtection, adminController.handleEditTag);
+router.post('/admin/tags/:id/delete', adminAuthMiddleware, doubleCsrfProtection, adminController.handleDeleteTag);
+
 module.exports = router;
