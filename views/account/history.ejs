@@ -1,0 +1,274 @@
+<div class="dashboard">
+  
+  <!-- Sidebar Navigation -->
+  <%- include('../partials/sidebar-cabinet', { user, activeTab: 'history' }) %>
+
+  <!-- Main Content Area -->
+  <main class="dashboard__content">
+    
+    <div style="max-width: 1080px;">
+      
+      <!-- Hero Header -->
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.8rem; flex-wrap: wrap; gap: 1rem;">
+        <div>
+          <div style="display: inline-flex; align-items: center; gap: 0.5rem; background: var(--primary-indigo-light); color: var(--primary-indigo); padding: 0.2rem 0.65rem; border-radius: var(--radius-full); font-family: var(--font-mono); font-size: 0.76rem; font-weight: 700; margin-bottom: 0.4rem;">
+            🕒 История чтения и активности
+          </div>
+          <h1 style="font-size: 1.8rem; font-weight: 800; color: var(--text-main); margin: 0 0 0.3rem 0; letter-spacing: -0.02em;">
+            История чтения и понравившиеся материалы
+          </h1>
+          <p style="color: var(--text-muted); font-size: 0.92rem; margin: 0;">
+            Ваш таймлайн изучения материалов базы знаний, прочитанные статьи и оценки.
+          </p>
+        </div>
+
+        <% if (history && history.length > 0) { %>
+          <form action="/my/history/clear" method="POST" onsubmit="return confirm('Очистить всю историю чтения?');" style="margin: 0;">
+            <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+            <button type="submit" class="btn" style="background: rgba(239, 68, 68, 0.12); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.25); padding: 0.55rem 1.1rem; font-size: 0.85rem; border-radius: var(--radius-lg); font-weight: 700;">
+              🗑 Очистить историю чтения
+            </button>
+          </form>
+        <% } %>
+      </div>
+
+      <!-- Summary KPI Stats Ribbon -->
+      <div class="faq-stats-grid" style="margin-bottom: 2.2rem;">
+        <div class="stat-card">
+          <div class="stat-card__icon" style="background: var(--primary-indigo-light); color: var(--primary-indigo);">🕒</div>
+          <div>
+            <div class="stat-card__val"><%= history ? history.length : 0 %></div>
+            <div class="stat-card__label">Articles Read</div>
+          </div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-card__icon" style="background: rgba(239, 68, 68, 0.16); color: #ef4444;">❤️</div>
+          <div>
+            <div class="stat-card__val" style="color: #ef4444;"><%= likedPosts ? likedPosts.length : 0 %></div>
+            <div class="stat-card__label">Liked Articles</div>
+          </div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-card__icon" style="background: rgba(16, 185, 129, 0.16); color: var(--accent-emerald);">⚡</div>
+          <div>
+            <div class="stat-card__val">Active</div>
+            <div class="stat-card__label">Developer Activity</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Segmented Tab Switcher & Live Search Control Bar -->
+      <div style="background: var(--bg-surface); border: 1px solid var(--border-light); border-radius: var(--radius-xl); padding: 1.2rem 1.4rem; margin-bottom: 2rem; display: flex; justify-content: space-between; align-items: center; gap: 1.2rem; flex-wrap: wrap;">
+        
+        <!-- Interactive Segmented Pill Switcher -->
+        <div class="faq-mode-toggle" style="background: var(--bg-subtle); padding: 0.25rem; border-radius: var(--radius-lg); display: inline-flex; gap: 0.3rem;">
+          <button type="button" id="tab-history-btn" class="faq-mode-btn <%= activeSubTab !== 'likes' ? 'active' : '' %>" style="padding: 0.5rem 1.2rem; font-size: 0.88rem; font-weight: 700; border-radius: var(--radius-md);">
+            🕒 Reading History (<%= history ? history.length : 0 %>)
+          </button>
+          <button type="button" id="tab-likes-btn" class="faq-mode-btn <%= activeSubTab === 'likes' ? 'active' : '' %>" style="padding: 0.5rem 1.2rem; font-size: 0.88rem; font-weight: 700; border-radius: var(--radius-md);">
+            ❤️ Liked Articles (<%= likedPosts ? likedPosts.length : 0 %>)
+          </button>
+        </div>
+
+        <!-- Live Search Box -->
+        <div style="position: relative; flex: 1; max-width: 420px;">
+          <span style="position: absolute; left: 0.9rem; top: 50%; transform: translateY(-50%); color: var(--text-muted); pointer-events: none;">🔍</span>
+          <input type="text" id="history-search-input" placeholder="Search in history or liked articles..." style="width: 100%; height: 42px; padding: 0 1rem 0 2.6rem; border-radius: var(--radius-lg); border: 1px solid var(--border-light); background: var(--bg-subtle); color: var(--text-main); font-size: 0.9rem; outline: none; transition: all 0.2s ease;" onfocus="this.style.borderColor='var(--primary-indigo)'" onblur="this.style.borderColor='var(--border-light)'">
+        </div>
+
+      </div>
+
+      <!-- TAB 1: READING HISTORY CONTAINER -->
+      <div id="history-tab-view" style="display: <%= activeSubTab !== 'likes' ? 'flex' : 'none' %>; flex-direction: column; gap: 1.1rem;">
+        <% if (!history || history.length === 0) { %>
+          <div style="background: var(--bg-surface); border: 1px dashed var(--border-light); padding: 4rem 2rem; border-radius: var(--radius-xl); text-align: center; color: var(--text-muted);">
+            <div style="font-size: 2.8rem; margin-bottom: 0.8rem;">🕒</div>
+            <h3 style="font-size: 1.25rem; color: var(--text-main); margin-bottom: 0.4rem; font-weight: 800;">No Reading History</h3>
+            <p style="color: var(--text-muted); max-width: 420px; margin: 0 auto 1.4rem auto; font-size: 0.9rem; line-height: 1.5;">
+              Articles you read will automatically appear here so you can revisit them anytime!
+            </p>
+            <a href="/" class="btn" style="padding: 0.6rem 1.4rem; font-size: 0.88rem;">Explore Knowledge Base &rarr;</a>
+          </div>
+        <% } else { %>
+          <% history.forEach(item => { %>
+            <% if (item.post) { %>
+              <div class="history-item-card" style="background: var(--bg-surface); border: 1px solid var(--border-light); border-radius: var(--radius-xl); padding: 1.4rem 1.6rem; box-shadow: var(--shadow-sm); display: flex; justify-content: space-between; align-items: center; gap: 1.2rem; flex-wrap: wrap; transition: border-color 0.2s ease, transform 0.2s ease;" onmouseover="this.style.borderColor='var(--border-accent)'; this.style.transform='translateY(-2px)'" onmouseout="this.style.borderColor='var(--border-light)'; this.style.transform='translateY(0)'">
+                
+                <div style="flex: 1; min-width: 260px;">
+                  <div style="display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.4rem; flex-wrap: wrap;">
+                    <span style="font-size: 0.76rem; font-family: var(--font-mono); color: var(--primary-indigo); background: var(--primary-indigo-light); padding: 0.15rem 0.55rem; border-radius: var(--radius-full); font-weight: 700;">
+                      Visited <%= item.createdAtFormatted || new Date(item.updatedAt || item.createdAt).toDateString() %>
+                    </span>
+
+                    <% if (item.post.category) { %>
+                      <span class="tech-badge" style="font-size: 0.74rem; padding: 0.15rem 0.55rem; background: var(--bg-subtle); color: var(--text-main);"><%= item.post.category.name %></span>
+                    <% } %>
+
+                    <% if (item.post.difficultyLevel) { %>
+                      <span class="tech-badge" style="font-size: 0.72rem; padding: 0.12rem 0.5rem; font-family: var(--font-mono); <%= item.post.difficultyLevel === 'Advanced' ? 'background: rgba(239, 68, 68, 0.16); color: #ef4444; border-color: rgba(239, 68, 68, 0.3);' : (item.post.difficultyLevel === 'Beginner' ? 'background: rgba(16, 185, 129, 0.16); color: #10b981; border-color: rgba(16, 185, 129, 0.3);' : 'background: rgba(99, 102, 241, 0.16); color: var(--primary-indigo); border-color: rgba(99, 102, 241, 0.3);') %>">
+                        <%= item.post.difficultyLevel === 'Advanced' ? '🚀 Advanced' : (item.post.difficultyLevel === 'Beginner' ? '🌱 Beginner' : '⚡ Intermediate') %>
+                      </span>
+                    <% } %>
+                  </div>
+
+                  <h3 style="font-size: 1.15rem; font-weight: 800; margin: 0 0 0.35rem 0; line-height: 1.35;">
+                    <a href="/post/<%= item.post.id || item.post._id %>" style="color: var(--text-main); text-decoration: none;"><%= item.post.title %></a>
+                  </h3>
+
+                  <div style="font-size: 0.78rem; color: var(--text-muted); font-family: var(--font-mono);">
+                    <span>👁 <%= (item.post.viewsCount || 0).toLocaleString() %> views</span>
+                    <% if (item.post.author) { %>
+                      <span> • By @<%= item.post.author.username %></span>
+                    <% } %>
+                  </div>
+                </div>
+
+                <!-- Re-read Button -->
+                <div>
+                  <a href="/post/<%= item.post.id || item.post._id %>" class="btn" style="background: var(--bg-subtle); border: 1px solid var(--border-light); color: var(--text-main); padding: 0.5rem 1.1rem; font-size: 0.85rem; border-radius: var(--radius-lg); font-weight: 600; text-decoration: none;">
+                    📖 Re-read Article ↗
+                  </a>
+                </div>
+
+              </div>
+            <% } %>
+          <% }) %>
+        <% } %>
+      </div>
+
+      <!-- TAB 2: LIKED ARTICLES CONTAINER -->
+      <div id="likes-tab-view" style="display: <%= activeSubTab === 'likes' ? 'flex' : 'none' %>; flex-direction: column; gap: 1.1rem;">
+        <% if (!likedPosts || likedPosts.length === 0) { %>
+          <div style="background: var(--bg-surface); border: 1px dashed var(--border-light); padding: 4rem 2rem; border-radius: var(--radius-xl); text-align: center; color: var(--text-muted);">
+            <div style="font-size: 2.8rem; margin-bottom: 0.8rem;">❤️</div>
+            <h3 style="font-size: 1.25rem; color: var(--text-main); margin-bottom: 0.4rem; font-weight: 800;">No Liked Articles</h3>
+            <p style="color: var(--text-muted); max-width: 420px; margin: 0 auto 1.4rem auto; font-size: 0.9rem; line-height: 1.5;">
+              Articles you like across DevHub will be saved here for quick reference!
+            </p>
+            <a href="/" class="btn" style="padding: 0.6rem 1.4rem; font-size: 0.88rem;">Explore Knowledge Base &rarr;</a>
+          </div>
+        <% } else { %>
+          <% likedPosts.forEach(post => { %>
+            <div class="liked-item-card" id="liked-card-<%= post.id %>" style="background: var(--bg-surface); border: 1px solid var(--border-light); border-radius: var(--radius-xl); padding: 1.4rem 1.6rem; box-shadow: var(--shadow-sm); display: flex; justify-content: space-between; align-items: center; gap: 1.2rem; flex-wrap: wrap; transition: border-color 0.2s ease, transform 0.2s ease;" onmouseover="this.style.borderColor='var(--border-accent)'; this.style.transform='translateY(-2px)'" onmouseout="this.style.borderColor='var(--border-light)'; this.style.transform='translateY(0)'">
+              
+              <div style="flex: 1; min-width: 260px;">
+                <div style="display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.4rem; flex-wrap: wrap;">
+                  <span class="tech-badge" style="background: rgba(239, 68, 68, 0.16); color: #ef4444; border-color: rgba(239, 68, 68, 0.3); font-size: 0.75rem; padding: 0.15rem 0.55rem; font-weight: 700;">
+                    ❤️ Liked Post
+                  </span>
+
+                  <% if (post.category) { %>
+                    <span class="tech-badge" style="font-size: 0.74rem; padding: 0.15rem 0.55rem; background: var(--primary-indigo-light); color: var(--primary-indigo);"><%= post.category.name %></span>
+                  <% } %>
+                </div>
+
+                <h3 style="font-size: 1.15rem; font-weight: 800; margin: 0 0 0.35rem 0; line-height: 1.35;">
+                  <a href="/post/<%= post.id || post._id %>" style="color: var(--text-main); text-decoration: none;"><%= post.title %></a>
+                </h3>
+
+                <div style="font-size: 0.78rem; color: var(--text-muted); font-family: var(--font-mono);">
+                  <span>👁 <%= (post.viewsCount || 0).toLocaleString() %> views</span>
+                  <% if (post.author) { %>
+                    <span> • By @<%= post.author.username %></span>
+                  <% } %>
+                </div>
+              </div>
+
+              <!-- Instant AJAX Toggle Like Button -->
+              <div style="display: flex; align-items: center; gap: 0.6rem;">
+                <button type="button" class="btn ajax-unlike-btn" data-id="<%= post.id %>" style="background: rgba(239, 68, 68, 0.16); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.3); padding: 0.5rem 1.1rem; font-size: 0.85rem; border-radius: var(--radius-lg); font-weight: 700;">
+                  ❤️ Liked
+                </button>
+
+                <a href="/post/<%= post.id || post._id %>" class="btn" style="background: var(--bg-subtle); border: 1px solid var(--border-light); color: var(--text-main); padding: 0.5rem 0.9rem; font-size: 0.85rem; border-radius: var(--radius-lg); font-weight: 600; text-decoration: none;">
+                  Read ↗
+                </a>
+              </div>
+
+            </div>
+          <% }) %>
+        <% } %>
+      </div>
+
+    </div>
+
+  </main>
+</div>
+
+<!-- Interactive Client-side Script for Tab Switcher, Instant AJAX Unlike, & Search -->
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const tabHistoryBtn = document.getElementById('tab-history-btn');
+    const tabLikesBtn = document.getElementById('tab-likes-btn');
+    const historyView = document.getElementById('history-tab-view');
+    const likesView = document.getElementById('likes-tab-view');
+    const searchInput = document.getElementById('history-search-input');
+
+    let currentTab = '<%= activeSubTab || "history" %>';
+
+    function switchTab(tab) {
+      currentTab = tab;
+      if (tab === 'history') {
+        historyView.style.display = 'flex';
+        likesView.style.display = 'none';
+        tabHistoryBtn.classList.add('active');
+        tabLikesBtn.classList.remove('active');
+        window.history.replaceState(null, '', '/my/history?tab=history');
+      } else {
+        likesView.style.display = 'flex';
+        historyView.style.display = 'none';
+        tabLikesBtn.classList.add('active');
+        tabHistoryBtn.classList.remove('active');
+        window.history.replaceState(null, '', '/my/history?tab=likes');
+      }
+    }
+
+    if (tabHistoryBtn) tabHistoryBtn.addEventListener('click', () => switchTab('history'));
+    if (tabLikesBtn) tabLikesBtn.addEventListener('click', () => switchTab('likes'));
+
+    // Universal Search Input
+    if (searchInput) {
+      searchInput.addEventListener('input', () => {
+        const query = searchInput.value.toLowerCase().trim();
+        if (currentTab === 'history') {
+          historyView.querySelectorAll('.history-item-card').forEach(card => {
+            card.style.display = card.textContent.toLowerCase().includes(query) ? 'flex' : 'none';
+          });
+        } else {
+          likesView.querySelectorAll('.liked-item-card').forEach(card => {
+            card.style.display = card.textContent.toLowerCase().includes(query) ? 'flex' : 'none';
+          });
+        }
+      });
+    }
+
+    // Instant AJAX Unlike Button Handler
+    document.querySelectorAll('.ajax-unlike-btn').forEach(btn => {
+      btn.addEventListener('click', async () => {
+        const postId = btn.getAttribute('data-id');
+        const card = document.getElementById(`liked-card-${postId}`);
+        try {
+          const res = await fetch(`/my/likes/toggle/${postId}`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'X-CSRF-Token': '<%= csrfToken %>'
+            }
+          });
+          const data = await res.json();
+          if (data.success && !data.isLiked) {
+            if (card) {
+              card.style.opacity = '0.4';
+              card.style.transform = 'scale(0.98)';
+              setTimeout(() => card.remove(), 250);
+            }
+          }
+        } catch (err) {
+          console.error('Error toggling like:', err);
+        }
+      });
+    });
+  });
+</script>

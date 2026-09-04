@@ -44,6 +44,86 @@ class PostService {
     };
   }
 
+  async getFilteredPosts({ page = 1, limit = PAGINATION_LIMIT, search = '', categorySlug = null, tagSlug = null, difficulty = null, sort = 'latest' } = {}) {
+    const pageNum = parseInt(page, 10) || 1;
+    const offset = (pageNum - 1) * limit;
+
+    const whereClause = { status: 'published' };
+    const includeClause = [
+      { model: Category, as: 'category' },
+      { model: Tag, as: 'tags', through: { attributes: [] } },
+      { model: User, as: 'author', attributes: ['id', 'username', 'displayName', 'avatarUrl'] },
+      { model: PostLike, as: 'likes', attributes: ['id', 'userId'] },
+      { model: Series, as: 'series' },
+    ];
+
+    if (categorySlug && categorySlug !== 'all') {
+      const category = await Category.findOne({ where: { slug: categorySlug } });
+      if (category) {
+        whereClause.categoryId = category.id;
+      }
+    }
+
+    if (tagSlug && tagSlug !== 'all') {
+      const tag = await Tag.findOne({ where: { slug: tagSlug } });
+      if (tag) {
+        // Enforce matching tag via required include
+        includeClause[1] = {
+          model: Tag,
+          as: 'tags',
+          where: { id: tag.id },
+          through: { attributes: [] },
+        };
+      }
+    }
+
+    if (difficulty && difficulty !== 'all') {
+      whereClause.difficultyLevel = difficulty;
+    }
+
+    if (search && search.trim()) {
+      const trimmed = search.trim();
+      const escaped = trimmed.replace(/[%_]/g, '\\$&');
+      whereClause[Op.or] = [
+        { title: { [Op.like]: `%${escaped}%` } },
+        { body: { [Op.like]: `%${escaped}%` } },
+      ];
+    }
+
+    let order = [['createdAt', 'DESC']];
+    if (sort === 'popular') {
+      order = [['viewsCount', 'DESC'], ['createdAt', 'DESC']];
+    }
+
+    const { count, rows } = await Post.findAndCountAll({
+      where: whereClause,
+      include: includeClause,
+      order,
+      distinct: true,
+      limit,
+      offset,
+    });
+
+    let formattedPosts = PostDto.formatMany(rows);
+
+    if (sort === 'liked') {
+      formattedPosts.sort((a, b) => b.likesCount - a.likesCount);
+    }
+
+    const totalPages = Math.ceil(count / limit);
+    const nextPage = pageNum + 1;
+    const hasNextPage = nextPage <= totalPages;
+
+    return {
+      data: formattedPosts,
+      totalCount: count,
+      totalPages,
+      current: pageNum,
+      nextPage: hasNextPage ? nextPage : null,
+      prevPage: pageNum > 1 ? pageNum - 1 : null,
+    };
+  }
+
   async getPostById(id, incrementViews = false) {
     const post = await Post.findByPk(id, {
       include: [
@@ -294,6 +374,54 @@ class PostService {
 
   async getTotalViews() {
     return await Post.sum('viewsCount') || 0;
+  }
+
+  async getRelatedPosts(currentPostId, categoryId = null, limit = 3) {
+    const whereClause = {
+      status: 'published',
+      id: { [Op.ne]: parseInt(currentPostId, 10) },
+    };
+
+    if (categoryId) {
+      whereClause.categoryId = categoryId;
+    }
+
+    let rows = await Post.findAll({
+      where: whereClause,
+      include: [
+        { model: Category, as: 'category' },
+        { model: User, as: 'author', attributes: ['id', 'username', 'displayName', 'avatarUrl'] },
+        { model: PostLike, as: 'likes', attributes: ['id', 'userId'] },
+      ],
+      order: [['createdAt', 'DESC']],
+      limit,
+    });
+
+    if (rows.length < limit) {
+      const fallbackRows = await Post.findAll({
+        where: {
+          status: 'published',
+          id: { [Op.ne]: parseInt(currentPostId, 10) },
+        },
+        include: [
+          { model: Category, as: 'category' },
+          { model: User, as: 'author', attributes: ['id', 'username', 'displayName', 'avatarUrl'] },
+          { model: PostLike, as: 'likes', attributes: ['id', 'userId'] },
+        ],
+        order: [['viewsCount', 'DESC']],
+        limit,
+      });
+
+      const existingIds = new Set(rows.map(r => r.id));
+      for (const fb of fallbackRows) {
+        if (!existingIds.has(fb.id) && rows.length < limit) {
+          rows.push(fb);
+          existingIds.add(fb.id);
+        }
+      }
+    }
+
+    return PostDto.formatMany(rows);
   }
 }
 

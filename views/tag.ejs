@@ -3,14 +3,14 @@
   <div class="dev-hero__body">
     <div class="dev-hero__badge">
       <span class="dev-hero__badge-dot"></span>
-      <span>Tag Explorer</span>
+      <span>Тег базы знаний</span>
     </div>
 
     <h1 class="dev-hero__heading" style="font-size: clamp(1.8rem, 3.5vw, 2.8rem);">
       #<%= tag.name %>
     </h1>
     <p class="dev-hero__sub">
-      Explore all articles tagged with <strong>#<%= tag.name %></strong> on DevHub.
+      Все статьи и материалы базы знаний по тегу <strong>#<%= tag.name %></strong> на DevHub.
     </p>
   </div>
 </section>
@@ -18,12 +18,12 @@
 <!-- Articles Grid -->
 <section class="articles">
   <h2 class="articles__heading">
-    <%= data.length %> Article<%= data.length !== 1 ? 's' : '' %> Found
+    Найдено материалов в базе: <%= data.length %>
   </h2>
 
   <% if (data.length === 0) { %>
     <div style="background: var(--bg-surface); border: 1px dashed var(--border-light); padding: 3rem; border-radius: var(--radius-lg); text-align: center; color: var(--text-muted);">
-      No articles found with this tag yet.
+      Материалов с данным тегом в базе знаний пока нет.
     </div>
   <% } else { %>
     <ul class="article-grid">

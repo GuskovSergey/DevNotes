@@ -1,115 +1,316 @@
-<!-- Posts Feed Hero Banner -->
-<section class="dev-hero" style="margin-bottom: 2rem;">
+<!-- Posts Feed Hero Banner (Stitch Glassmorphic Design) -->
+<section class="dev-hero" style="margin-bottom: 2.2rem; background: radial-gradient(circle at 50% -20%, rgba(99, 102, 241, 0.25) 0%, rgba(16, 185, 129, 0.06) 45%, rgba(15, 19, 28, 0) 75%), var(--bg-surface);">
   <div class="dev-hero__body">
-    <div class="dev-hero__badge">
-      <span class="dev-hero__badge-dot"></span>
-      <span>📝 DevHub Engineering Articles &amp; Posts</span>
+    <div class="faq-hero-pill">
+      <span>📝 Статьи и руководства базы знаний</span>
+      <% if (typeof totalCount !== 'undefined') { %>
+        <span class="faq-hero-pill__count" id="hero-total-count"><%= totalCount %> Материалов</span>
+      <% } %>
     </div>
 
-    <h1 class="dev-hero__heading">Technical Articles &amp; Tutorials</h1>
-    <p class="dev-hero__sub">Browse production-grade backend architecture guides, Express patterns, SQLite performance tuning, and technical insights.</p>
+    <h1 class="dev-hero__heading">Каталог статей и полезных материалов</h1>
+    <p class="dev-hero__sub">Изучайте актуальные статьи, гайды, исследования и проверенные практики в удобном каталоге базы знаний.</p>
 
-    <!-- Category Pill Filter Tabs -->
-    <div class="category-tabs" style="justify-content: center; margin-top: 1.4rem;">
-      <a href="/posts" class="category-pill <%= !activeCategory ? 'active' : '' %>">
-        All Articles
-      </a>
-      <% if (categories && categories.length > 0) { %>
-        <% categories.forEach(cat => { %>
-          <a href="/posts?category=<%= cat.slug %>" class="category-pill <%= activeCategory === cat.slug ? 'active' : '' %>">
-            <%= cat.name %>
-          </a>
-        <% }) %>
-      <% } %>
+    <!-- Platform Stats Ribbon -->
+    <div style="display: flex; align-items: center; justify-content: center; gap: 1.8rem; margin-top: 1.2rem; flex-wrap: wrap; font-family: var(--font-mono); font-size: 0.85rem; color: var(--text-muted);">
+      <div style="display: flex; align-items: center; gap: 0.4rem;">
+        <span style="color: var(--primary-indigo); font-weight: 700;"><%= typeof totalPostsCount !== 'undefined' ? totalPostsCount : (data ? data.length : 0) %></span>
+        <span>Опубликовано материалов</span>
+      </div>
+      <span>•</span>
+      <div style="display: flex; align-items: center; gap: 0.4rem;">
+        <span style="color: #10b981; font-weight: 700;"><%= typeof totalViewsCount !== 'undefined' ? totalViewsCount.toLocaleString() : '0' %></span>
+        <span>Прочтений в базе</span>
+      </div>
+      <span>•</span>
+      <div style="display: flex; align-items: center; gap: 0.4rem;">
+        <span style="color: #f59e0b; font-weight: 700;"><%= typeof categories !== 'undefined' ? categories.length : 0 %></span>
+        <span>Категорий</span>
+      </div>
     </div>
   </div>
 </section>
 
-<!-- Main Posts Stream Layout -->
+<!-- Main Container -->
 <div style="max-width: 1240px; margin: 0 auto; padding-bottom: 3.5rem;">
   
-  <div class="home-layout" style="display: grid; grid-template-columns: 1fr 340px; gap: 2.2rem; align-items: flex-start;">
+  <!-- Interactive Filter & Control Bar (#posts-filter-form) -->
+  <div class="faq-filter-bar" id="posts-filter-form" style="margin-bottom: 2rem;">
+    <div class="faq-filter-top" style="display: flex; gap: 0.85rem; align-items: center; flex-wrap: wrap;">
+      
+      <!-- Live Search Box -->
+      <div class="faq-search-box" style="flex: 1 1 240px; min-width: 200px;">
+        <span class="faq-search-icon">🔍</span>
+        <input 
+          type="text" 
+          id="posts-search-input" 
+          placeholder="Search articles by title, content or topic..." 
+          value="<%= typeof activeSearch !== 'undefined' ? activeSearch : '' %>"
+          autocomplete="off"
+        >
+        <button 
+          type="button" 
+          id="posts-search-clear-btn" 
+          style="position: absolute; right: 0.8rem; background: none; border: none; color: var(--text-muted); cursor: pointer; font-size: 1rem; display: <%= (typeof activeSearch !== 'undefined' && activeSearch) ? 'inline-block' : 'none' %>;" 
+          title="Clear search"
+        >✕</button>
+      </div>
+
+      <!-- Category Filter Dropdown -->
+      <div class="custom-dropdown" id="category-dropdown-wrapper">
+        <input type="hidden" id="category-select-value" value="<%= typeof activeCategory !== 'undefined' ? activeCategory : 'all' %>">
+        <div class="custom-dropdown__trigger" id="category-dropdown-btn" tabindex="0" role="button" aria-haspopup="true" aria-expanded="false">
+          <span style="display: flex; align-items: center; gap: 0.45rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+            <span>🏷️</span>
+            <span id="category-dropdown-label">
+              <% if (typeof activeCategory !== 'undefined' && activeCategory !== 'all' && categories) { %>
+                <% const foundCat = categories.find(c => c.slug === activeCategory); %>
+                <%= foundCat ? foundCat.name : 'All Categories' %>
+              <% } else { %>
+                All Categories
+              <% } %>
+            </span>
+          </span>
+          <svg class="custom-dropdown__chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <polyline points="6 9 12 15 18 9"></polyline>
+          </svg>
+        </div>
+        <div class="custom-dropdown__menu" id="category-dropdown-menu">
+          <div class="custom-dropdown__option <%= (!activeCategory || activeCategory === 'all') ? 'selected' : '' %>" data-value="all">
+            <span>All Categories</span>
+            <% if (!activeCategory || activeCategory === 'all') { %><span style="color: var(--primary-indigo);">✓</span><% } %>
+          </div>
+          <% if (typeof categories !== 'undefined' && categories) { %>
+            <% categories.forEach(cat => { %>
+              <div class="custom-dropdown__option <%= activeCategory === cat.slug ? 'selected' : '' %>" data-value="<%= cat.slug %>">
+                <span><%= cat.name %></span>
+                <% if (activeCategory === cat.slug) { %><span style="color: var(--primary-indigo);">✓</span><% } %>
+              </div>
+            <% }) %>
+          <% } %>
+        </div>
+      </div>
+
+      <!-- Difficulty Level Filter Dropdown -->
+      <div class="custom-dropdown" id="difficulty-dropdown-wrapper">
+        <input type="hidden" id="difficulty-select-value" value="<%= typeof activeDifficulty !== 'undefined' ? activeDifficulty : 'all' %>">
+        <div class="custom-dropdown__trigger" id="difficulty-dropdown-btn" tabindex="0" role="button" aria-haspopup="true" aria-expanded="false">
+          <span style="display: flex; align-items: center; gap: 0.45rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+            <span>🎯</span>
+            <span id="difficulty-dropdown-label">
+              <% if (typeof activeDifficulty !== 'undefined' && activeDifficulty !== 'all') { %>
+                <%= activeDifficulty === 'Beginner' ? '🌱 Beginner' : (activeDifficulty === 'Advanced' ? '🚀 Advanced' : '⚡ Intermediate') %>
+              <% } else { %>
+                All Levels
+              <% } %>
+            </span>
+          </span>
+          <svg class="custom-dropdown__chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <polyline points="6 9 12 15 18 9"></polyline>
+          </svg>
+        </div>
+        <div class="custom-dropdown__menu" id="difficulty-dropdown-menu">
+          <div class="custom-dropdown__option <%= (!activeDifficulty || activeDifficulty === 'all') ? 'selected' : '' %>" data-value="all">
+            <span>All Levels</span>
+            <% if (!activeDifficulty || activeDifficulty === 'all') { %><span style="color: var(--primary-indigo);">✓</span><% } %>
+          </div>
+          <div class="custom-dropdown__option <%= activeDifficulty === 'Beginner' ? 'selected' : '' %>" data-value="Beginner">
+            <span>🌱 Beginner</span>
+            <% if (activeDifficulty === 'Beginner') { %><span style="color: var(--primary-indigo);">✓</span><% } %>
+          </div>
+          <div class="custom-dropdown__option <%= activeDifficulty === 'Intermediate' ? 'selected' : '' %>" data-value="Intermediate">
+            <span>⚡ Intermediate</span>
+            <% if (activeDifficulty === 'Intermediate') { %><span style="color: var(--primary-indigo);">✓</span><% } %>
+          </div>
+          <div class="custom-dropdown__option <%= activeDifficulty === 'Advanced' ? 'selected' : '' %>" data-value="Advanced">
+            <span>🚀 Advanced</span>
+            <% if (activeDifficulty === 'Advanced') { %><span style="color: var(--primary-indigo);">✓</span><% } %>
+          </div>
+        </div>
+      </div>
+
+      <!-- Sorting Options Dropdown -->
+      <div class="custom-dropdown" id="sort-dropdown-wrapper">
+        <input type="hidden" id="sort-select-value" value="<%= typeof activeSort !== 'undefined' ? activeSort : 'latest' %>">
+        <div class="custom-dropdown__trigger" id="sort-dropdown-btn" tabindex="0" role="button" aria-haspopup="true" aria-expanded="false">
+          <span style="display: flex; align-items: center; gap: 0.45rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+            <span>📊</span>
+            <span id="sort-dropdown-label">
+              <%= (typeof activeSort !== 'undefined' && activeSort === 'popular') ? '🔥 Most Viewed' : ((typeof activeSort !== 'undefined' && activeSort === 'liked') ? '❤️ Most Liked' : '⚡ Latest First') %>
+            </span>
+          </span>
+          <svg class="custom-dropdown__chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <polyline points="6 9 12 15 18 9"></polyline>
+          </svg>
+        </div>
+        <div class="custom-dropdown__menu" id="sort-dropdown-menu">
+          <div class="custom-dropdown__option <%= (!activeSort || activeSort === 'latest') ? 'selected' : '' %>" data-value="latest">
+            <span>⚡ Latest First</span>
+            <% if (!activeSort || activeSort === 'latest') { %><span style="color: var(--primary-indigo);">✓</span><% } %>
+          </div>
+          <div class="custom-dropdown__option <%= activeSort === 'popular' ? 'selected' : '' %>" data-value="popular">
+            <span>🔥 Most Viewed</span>
+            <% if (activeSort === 'popular') { %><span style="color: var(--primary-indigo);">✓</span><% } %>
+          </div>
+          <div class="custom-dropdown__option <%= activeSort === 'liked' ? 'selected' : '' %>" data-value="liked">
+            <span>❤️ Most Liked</span>
+            <% if (activeSort === 'liked') { %><span style="color: var(--primary-indigo);">✓</span><% } %>
+          </div>
+        </div>
+      </div>
+
+      <!-- View Mode Switcher (Grid vs List) -->
+      <div class="posts-view-toggle">
+        <button type="button" class="view-toggle-btn active" id="view-grid-btn" title="Grid View">
+          <span>⊞ Grid</span>
+        </button>
+        <button type="button" class="view-toggle-btn" id="view-list-btn" title="List View">
+          <span>☰ List</span>
+        </button>
+      </div>
+
+    </div>
+
+    <!-- Active Filters Ribbon -->
+    <div class="posts-active-filters" id="posts-active-filters-ribbon" style="display: <%= (activeCategory && activeCategory !== 'all' || activeDifficulty && activeDifficulty !== 'all' || activeSort && activeSort !== 'latest' || activeSearch || activeTag && activeTag !== 'all') ? 'flex' : 'none' %>;">
+      <span style="font-size: 0.8rem; font-weight: 700; color: var(--text-muted); font-family: var(--font-mono);">Active Filters:</span>
+      <div id="posts-active-chips-list" style="display: flex; gap: 0.45rem; flex-wrap: wrap;">
+        <!-- Dynamically rendered via JS -->
+      </div>
+      <button type="button" id="posts-clear-all-filters-btn" style="background: none; border: none; color: #ef4444; font-size: 0.78rem; font-weight: 700; font-family: var(--font-mono); cursor: pointer; margin-left: auto; text-decoration: underline;">
+        Clear All
+      </button>
+    </div>
+  </div>
+
+  <!-- Two-Column Stream Layout -->
+  <div class="home-layout" style="display: grid; grid-template-columns: 1fr 320px; gap: 2.2rem; align-items: flex-start;">
     
-    <!-- Left Column: Articles Stream Grid & Pagination -->
+    <!-- Left Column: Stream Grid / List -->
     <main style="min-width: 0;">
       
-      <% if (!data || data.length === 0) { %>
-        <div style="background: var(--bg-surface); border: 1px dashed var(--border-light); padding: 4rem 2rem; border-radius: var(--radius-xl); text-align: center; color: var(--text-muted);">
-          <div style="font-size: 3rem; margin-bottom: 0.8rem;">📝</div>
-          <h3 style="font-size: 1.3rem; color: var(--text-main); margin-bottom: 0.4rem; font-weight: 700;">No Articles Found</h3>
-          <p style="margin: 0; font-size: 0.95rem;">No technical articles found in this category.</p>
-        </div>
-      <% } else { %>
-        <div class="article-grid" style="grid-template-columns: 1fr; gap: 1.6rem;">
-          <% data.forEach(post => { %>
-            <article class="article-card" style="display: flex; flex-direction: row; gap: 1.4rem; padding: 1.6rem; align-items: center; flex-wrap: wrap;">
-              
-              <% if (post.featuredImage) { %>
-                <div style="width: 220px; height: 140px; border-radius: var(--radius-lg); overflow: hidden; flex-shrink: 0;">
-                  <img src="<%= post.featuredImage %>" alt="<%= post.title %>" style="width: 100%; height: 100%; object-fit: cover;">
-                </div>
-              <% } %>
-
-              <div class="article-card__body" style="flex: 1; min-width: 260px; padding: 0;">
-                <div class="article-card__meta-top">
+      <!-- Posts Grid Wrapper -->
+      <div class="posts-grid-wrapper posts-view-grid" id="posts-grid-wrapper">
+        <div class="article-grid" id="posts-stream-grid">
+          <% if (!data || data.length === 0) { %>
+            <div style="grid-column: 1 / -1; background: var(--bg-surface); border: 1px dashed var(--border-light); padding: 4rem 2rem; border-radius: var(--radius-xl); text-align: center; color: var(--text-muted);">
+              <div style="font-size: 3rem; margin-bottom: 0.8rem;">📝</div>
+              <h3 style="font-size: 1.3rem; color: var(--text-main); margin-bottom: 0.4rem; font-weight: 700;">No Articles Found</h3>
+              <p style="margin: 0; font-size: 0.95rem;">No technical articles match your current search and filter criteria.</p>
+            </div>
+          <% } else { %>
+            <% data.forEach(post => { %>
+              <article class="article-card" data-post-id="<%= post.id %>">
+                <div class="article-card__media-wrapper">
                   <% if (post.category) { %>
-                    <span class="category-pill"><%= post.category.name %></span>
+                    <span class="article-card__badge-floating"><%= post.category.name %></span>
                   <% } %>
-                  <span>•</span>
-                  <span>⏱ <%= post.readingTime %></span>
-                  <span>•</span>
-                  <span>👁 <%= (post.viewsCount || 0).toLocaleString() %> views</span>
+
+                  <% if (post.featuredImage) { %>
+                    <img src="<%= post.featuredImage %>" alt="<%= post.title %>" class="article-card__cover">
+                  <% } else { %>
+                    <div class="article-card__placeholder">
+                      <span>&lt;DevHub / Article&gt;</span>
+                    </div>
+                  <% } %>
                 </div>
 
-                <h3 class="article-card__title" style="font-size: 1.35rem; margin-bottom: 0.4rem;">
-                  <a href="/post/<%= post.id %>"><%= post.title %></a>
-                </h3>
+                <div class="article-card__body">
+                  <div class="article-card__meta-top">
+                    <span class="tech-badge" style="font-size: 0.7rem; padding: 0.12rem 0.5rem; font-family: var(--font-mono); <%= post.difficultyLevel === 'Advanced' ? 'background: rgba(239, 68, 68, 0.15); color: #dc2626; border-color: rgba(239, 68, 68, 0.3);' : (post.difficultyLevel === 'Beginner' ? 'background: rgba(16, 185, 129, 0.15); color: #10b981; border-color: rgba(16, 185, 129, 0.3);' : 'background: var(--primary-indigo-light); color: var(--primary-indigo); border-color: var(--border-accent);') %>">
+                      <%= post.difficultyLevel === 'Advanced' ? '🚀 Advanced' : (post.difficultyLevel === 'Beginner' ? '🌱 Beginner' : '⚡ Intermediate') %>
+                    </span>
+                    <span>•</span>
+                    <span>⏱ <%= post.readingTime %></span>
+                    <span>•</span>
+                    <span>👁 <%= (post.viewsCount || 0).toLocaleString() %></span>
+                    <span>•</span>
+                    <span>❤️ <%= post.likesCount || 0 %></span>
+                  </div>
 
-                <p class="article-card__excerpt" style="-webkit-line-clamp: 2; margin-bottom: 0.8rem;">
-                  <%= post.bodySnippet %>
-                </p>
+                  <h3 class="article-card__title">
+                    <a href="/post/<%= post.id %>"><%= post.title %></a>
+                  </h3>
 
-                <div style="display: flex; justify-content: space-between; align-items: center;">
+                  <p class="article-card__excerpt">
+                    <%= post.bodySnippet %>
+                  </p>
+
+                  <% if (post.tags && post.tags.length > 0) { %>
+                    <div class="article-card__tags">
+                      <% post.tags.slice(0, 3).forEach(tag => { %>
+                        <a href="/posts?tag=<%= tag.slug %>" class="tech-badge" style="text-decoration: none; font-size: 0.7rem; padding: 0.15rem 0.5rem;">
+                          #<%= tag.name %>
+                        </a>
+                      <% }) %>
+                    </div>
+                  <% } %>
+                </div>
+
+                <div class="article-card__footer">
                   <% if (post.author) { %>
-                    <div style="display: flex; align-items: center; gap: 0.5rem;">
-                      <div style="width: 24px; height: 24px; border-radius: 50%; background: linear-gradient(135deg, var(--primary-indigo) 0%, #10b981 100%); color: white; display: flex; align-items: center; justify-content: center; font-size: 0.7rem; font-weight: 800; overflow: hidden;">
+                    <div style="display: flex; align-items: center; gap: 0.5rem; min-width: 0;">
+                      <div style="width: 24px; height: 24px; border-radius: 50%; background: linear-gradient(135deg, var(--primary-indigo) 0%, #10b981 100%); color: white; display: flex; align-items: center; justify-content: center; font-size: 0.7rem; font-weight: 800; overflow: hidden; flex-shrink: 0;">
                         <% if (post.author.avatarUrl) { %>
                           <img src="<%= post.author.avatarUrl %>" alt="Author" style="width: 100%; height: 100%; object-fit: cover;">
                         <% } else { %>
                           <%= (post.author.displayName || post.author.username).charAt(0).toUpperCase() %>
                         <% } %>
                       </div>
-                      <span style="font-size: 0.82rem; font-weight: 600; color: var(--text-main);"><%= post.author.displayName || post.author.username %></span>
+                      <span style="font-size: 0.82rem; font-weight: 600; color: var(--text-main); overflow: hidden; text-overflow: ellipsis; white-space: nowrap;"><%= post.author.displayName || post.author.username %></span>
                     </div>
                   <% } %>
 
-                  <a href="/post/<%= post.id %>" class="btn" style="padding: 0.45rem 1.1rem; font-size: 0.85rem;">
-                    Read Article &rarr;
-                  </a>
+                  <div style="display: flex; align-items: center; gap: 0.6rem; margin-left: auto;">
+                    <% if (typeof currentUser !== 'undefined' && currentUser) { %>
+                      <button 
+                        type="button" 
+                        class="card-bookmark-btn <%= post.isBookmarked ? 'is-bookmarked' : '' %>" 
+                        data-post-id="<%= post.id %>"
+                        title="<%= post.isBookmarked ? 'Remove Bookmark' : 'Bookmark Article' %>"
+                      >
+                        🔖
+                      </button>
+                    <% } %>
+
+                    <a href="/post/<%= post.id %>" class="article-card__read-link">
+                      <span>Read</span>
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="5" y1="12" x2="19" y2="12"></line>
+                        <polyline points="12 5 19 12 12 19"></polyline>
+                      </svg>
+                    </a>
+                  </div>
                 </div>
-              </div>
 
-            </article>
-          <% }) %>
-        </div>
-
-        <!-- Pagination Controls -->
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 2.5rem;">
-          <% if (current > 1) { %>
-            <a href="/posts?page=<%= current - 1 %><%= activeCategory ? '&category=' + activeCategory : '' %>" class="btn" style="background: var(--bg-subtle); border: 1px solid var(--border-light); color: var(--text-main); padding: 0.55rem 1.2rem; font-size: 0.88rem; box-shadow: none;">
-              &larr; Previous Page
-            </a>
-          <% } else { %>
-            <div></div>
-          <% } %>
-
-          <% if (nextPage) { %>
-            <a href="/posts?page=<%= nextPage %><%= activeCategory ? '&category=' + activeCategory : '' %>" class="btn" style="padding: 0.55rem 1.2rem; font-size: 0.88rem;">
-              Next Page &rarr;
-            </a>
+              </article>
+            <% }) %>
           <% } %>
         </div>
-      <% } %>
+      </div>
+
+      <!-- AJAX Pagination Controls -->
+      <div id="posts-pagination-container" style="display: flex; justify-content: space-between; align-items: center; margin-top: 2.5rem;">
+        <% if (current > 1) { %>
+          <button type="button" class="btn posts-page-btn" data-page="<%= current - 1 %>" style="background: var(--bg-subtle); border: 1px solid var(--border-light); color: var(--text-main); padding: 0.55rem 1.2rem; font-size: 0.88rem; box-shadow: none;">
+            &larr; Previous Page
+          </button>
+        <% } else { %>
+          <div></div>
+        <% } %>
+
+        <div style="font-family: var(--font-mono); font-size: 0.85rem; color: var(--text-muted);">
+          Page <%= current %> of <%= totalPages || 1 %>
+        </div>
+
+        <% if (nextPage) { %>
+          <button type="button" class="btn posts-page-btn" data-page="<%= nextPage %>" style="padding: 0.55rem 1.2rem; font-size: 0.88rem;">
+            Next Page &rarr;
+          </button>
+        <% } else { %>
+          <div></div>
+        <% } %>
+      </div>
 
     </main>
 
@@ -124,9 +325,14 @@
           </h3>
           <div style="display: flex; flex-wrap: wrap; gap: 0.5rem;">
             <% popularTags.forEach(tag => { %>
-              <a href="/tag/<%= tag.slug %>" class="tech-badge" style="text-decoration: none;">
+              <button 
+                type="button" 
+                class="tech-badge sidebar-tag-btn" 
+                data-tag-slug="<%= tag.slug %>" 
+                style="background: <%= activeTag === tag.slug ? 'var(--primary-indigo-light)' : 'var(--bg-subtle)' %>; color: <%= activeTag === tag.slug ? 'var(--primary-indigo)' : 'var(--text-main)' %>; border-color: <%= activeTag === tag.slug ? 'var(--border-accent)' : 'var(--border-light)' %>; cursor: pointer;"
+              >
                 #<%= tag.name %>
-              </a>
+              </button>
             <% }) %>
           </div>
         </div>
@@ -140,18 +346,23 @@
           </h3>
           <div style="display: flex; flex-direction: column; gap: 0.8rem;">
             <% topAuthors.forEach(author => { %>
-              <a href="/profile/<%= author.username %>" style="display: flex; align-items: center; gap: 0.75rem; text-decoration: none; padding: 0.4rem; border-radius: var(--radius-md); transition: background 0.2s;" onmouseover="this.style.background='var(--bg-subtle)'" onmouseout="this.style.background='transparent'">
-                <div style="width: 32px; height: 32px; border-radius: 50%; background: linear-gradient(135deg, var(--primary-indigo) 0%, #10b981 100%); color: white; display: flex; align-items: center; justify-content: center; font-size: 0.8rem; font-weight: 800; overflow: hidden; flex-shrink: 0;">
-                  <% if (author.avatarUrl) { %>
-                    <img src="<%= author.avatarUrl %>" alt="Avatar" style="width: 100%; height: 100%; object-fit: cover;">
-                  <% } else { %>
-                    <%= (author.displayName || author.username).charAt(0).toUpperCase() %>
-                  <% } %>
+              <a href="/profile/<%= author.username %>" style="display: flex; align-items: center; justify-content: space-between; text-decoration: none; padding: 0.4rem; border-radius: var(--radius-lg); transition: background 0.2s; min-width: 0;" onmouseover="this.style.background='var(--bg-subtle)'" onmouseout="this.style.background='transparent'">
+                <div style="display: flex; align-items: center; gap: 0.65rem; min-width: 0;">
+                  <div style="width: 32px; height: 32px; border-radius: 50%; background: linear-gradient(135deg, var(--primary-indigo) 0%, #10b981 100%); color: white; display: flex; align-items: center; justify-content: center; font-size: 0.8rem; font-weight: 800; overflow: hidden; flex-shrink: 0;">
+                    <% if (author.avatarUrl) { %>
+                      <img src="<%= author.avatarUrl %>" alt="Avatar" style="width: 100%; height: 100%; object-fit: cover;">
+                    <% } else { %>
+                      <%= (author.displayName || author.username).charAt(0).toUpperCase() %>
+                    <% } %>
+                  </div>
+                  <div style="flex: 1; min-width: 0;">
+                    <div style="font-size: 0.88rem; font-weight: 700; color: var(--text-main); overflow: hidden; text-overflow: ellipsis; white-space: nowrap;"><%= author.displayName || author.username %></div>
+                    <div style="font-size: 0.75rem; color: var(--text-muted); font-family: var(--font-mono); overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">@<%= author.username %></div>
+                  </div>
                 </div>
-                <div>
-                  <div style="font-size: 0.88rem; font-weight: 700; color: var(--text-main);"><%= author.displayName || author.username %></div>
-                  <div style="font-size: 0.75rem; color: var(--text-muted); font-family: var(--font-mono);">@<%= author.username %></div>
-                </div>
+                <span class="tech-badge" style="font-size: 0.72rem; padding: 0.15rem 0.5rem; font-family: var(--font-mono); flex-shrink: 0;">
+                  <%= author.articlesCount %> posts
+                </span>
               </a>
             <% }) %>
           </div>
@@ -163,3 +374,490 @@
   </div>
 
 </div>
+
+<!-- Client-Side Seamless AJAX & Layout Switching Script -->
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    // Current Filter State
+    let state = {
+      search: '<%= typeof activeSearch !== "undefined" ? activeSearch : "" %>',
+      category: '<%= typeof activeCategory !== "undefined" ? activeCategory : "all" %>',
+      tag: '<%= typeof activeTag !== "undefined" ? activeTag : "all" %>',
+      difficulty: '<%= typeof activeDifficulty !== "undefined" ? activeDifficulty : "all" %>',
+      sort: '<%= typeof activeSort !== "undefined" ? activeSort : "latest" %>',
+      page: <%= typeof current !== "undefined" ? current : 1 %>,
+      view: localStorage.getItem('devhub_posts_view') || 'grid'
+    };
+
+    // UI Elements
+    const searchInput = document.getElementById('posts-search-input');
+    const searchClearBtn = document.getElementById('posts-search-clear-btn');
+    const gridWrapper = document.getElementById('posts-grid-wrapper');
+    const streamGrid = document.getElementById('posts-stream-grid');
+    const paginationContainer = document.getElementById('posts-pagination-container');
+    const viewGridBtn = document.getElementById('view-grid-btn');
+    const viewListBtn = document.getElementById('view-list-btn');
+    const activeFiltersRibbon = document.getElementById('posts-active-filters-ribbon');
+    const activeChipsList = document.getElementById('posts-active-chips-list');
+    const clearAllFiltersBtn = document.getElementById('posts-clear-all-filters-btn');
+    const heroTotalCount = document.getElementById('hero-total-count');
+
+    // Restore view preference
+    if (state.view === 'list') {
+      setViewMode('list');
+    } else {
+      setViewMode('grid');
+    }
+
+    function setViewMode(mode) {
+      state.view = mode;
+      localStorage.setItem('devhub_posts_view', mode);
+      if (mode === 'list') {
+        gridWrapper.classList.remove('posts-view-grid');
+        gridWrapper.classList.add('posts-view-list');
+        viewListBtn.classList.add('active');
+        viewGridBtn.classList.remove('active');
+      } else {
+        gridWrapper.classList.remove('posts-view-list');
+        gridWrapper.classList.add('posts-view-grid');
+        viewGridBtn.classList.add('active');
+        viewListBtn.classList.remove('active');
+      }
+    }
+
+    if (viewGridBtn) viewGridBtn.addEventListener('click', () => setViewMode('grid'));
+    if (viewListBtn) viewListBtn.addEventListener('click', () => setViewMode('list'));
+
+    // Dropdown Handlers Helper
+    function setupCustomDropdown(wrapperId, hiddenId, labelId, btnId, menuId, onChange) {
+      const wrapper = document.getElementById(wrapperId);
+      const hidden = document.getElementById(hiddenId);
+      const label = document.getElementById(labelId);
+      const btn = document.getElementById(btnId);
+      const menu = document.getElementById(menuId);
+
+      if (!wrapper || !btn || !menu) return;
+
+      const toggleHandler = (e) => {
+        e.stopPropagation();
+        const isOpen = wrapper.classList.contains('open');
+        closeAllCustomDropdowns();
+        if (!isOpen) {
+          wrapper.classList.add('open');
+          btn.setAttribute('aria-expanded', 'true');
+        }
+      };
+
+      btn.addEventListener('click', toggleHandler);
+      btn.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          toggleHandler(e);
+        }
+      });
+
+      menu.querySelectorAll('.custom-dropdown__option, .custom-dropdown-item').forEach(item => {
+        item.addEventListener('click', (e) => {
+          e.stopPropagation();
+          const val = item.getAttribute('data-value');
+          const text = item.querySelector('span').innerText;
+
+          hidden.value = val;
+          label.innerText = text;
+
+          menu.querySelectorAll('.custom-dropdown__option, .custom-dropdown-item').forEach(i => i.classList.remove('selected'));
+          item.classList.add('selected');
+
+          wrapper.classList.remove('open');
+          btn.setAttribute('aria-expanded', 'false');
+
+          onChange(val);
+        });
+      });
+    }
+
+    function closeAllCustomDropdowns() {
+      document.querySelectorAll('.custom-dropdown').forEach(d => {
+        d.classList.remove('open');
+        const btn = d.querySelector('.custom-dropdown__trigger, .custom-dropdown-btn');
+        if (btn) btn.setAttribute('aria-expanded', 'false');
+      });
+    }
+
+    document.addEventListener('click', closeAllCustomDropdowns);
+
+    // Init Dropdowns
+    setupCustomDropdown(
+      'category-dropdown-wrapper',
+      'category-select-value',
+      'category-dropdown-label',
+      'category-dropdown-btn',
+      'category-dropdown-menu',
+      (val) => {
+        state.category = val;
+        state.page = 1;
+        fetchPosts();
+      }
+    );
+
+    setupCustomDropdown(
+      'difficulty-dropdown-wrapper',
+      'difficulty-select-value',
+      'difficulty-dropdown-label',
+      'difficulty-dropdown-btn',
+      'difficulty-dropdown-menu',
+      (val) => {
+        state.difficulty = val;
+        state.page = 1;
+        fetchPosts();
+      }
+    );
+
+    setupCustomDropdown(
+      'sort-dropdown-wrapper',
+      'sort-select-value',
+      'sort-dropdown-label',
+      'sort-dropdown-btn',
+      'sort-dropdown-menu',
+      (val) => {
+        state.sort = val;
+        state.page = 1;
+        fetchPosts();
+      }
+    );
+
+    // Search Input Debounce
+    let searchDebounceTimer = null;
+    if (searchInput) {
+      searchInput.addEventListener('input', (e) => {
+        const val = e.target.value;
+        if (searchClearBtn) {
+          searchClearBtn.style.display = val.trim() ? 'inline-block' : 'none';
+        }
+        clearTimeout(searchDebounceTimer);
+        searchDebounceTimer = setTimeout(() => {
+          state.search = val.trim();
+          state.page = 1;
+          fetchPosts();
+        }, 300);
+      });
+    }
+
+    if (searchClearBtn) {
+      searchClearBtn.addEventListener('click', () => {
+        searchInput.value = '';
+        searchClearBtn.style.display = 'none';
+        state.search = '';
+        state.page = 1;
+        fetchPosts();
+      });
+    }
+
+    // Sidebar tag buttons
+    document.querySelectorAll('.sidebar-tag-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const tagSlug = btn.getAttribute('data-tag-slug');
+        state.tag = state.tag === tagSlug ? 'all' : tagSlug;
+        state.page = 1;
+        fetchPosts();
+      });
+    });
+
+    // Clear All Filters
+    if (clearAllFiltersBtn) {
+      clearAllFiltersBtn.addEventListener('click', () => {
+        state.search = '';
+        state.category = 'all';
+        state.tag = 'all';
+        state.difficulty = 'all';
+        state.sort = 'latest';
+        state.page = 1;
+
+        if (searchInput) searchInput.value = '';
+        if (searchClearBtn) searchClearBtn.style.display = 'none';
+
+        document.getElementById('category-dropdown-label').innerText = 'All Categories';
+        document.getElementById('category-select-value').value = 'all';
+
+        document.getElementById('difficulty-dropdown-label').innerText = 'All Levels';
+        document.getElementById('difficulty-select-value').value = 'all';
+
+        document.getElementById('sort-dropdown-label').innerText = '⚡ Latest First';
+        document.getElementById('sort-select-value').value = 'latest';
+
+        fetchPosts();
+      });
+    }
+
+    // Render Active Filter Chips
+    function renderActiveFilterChips() {
+      let chips = [];
+      if (state.category && state.category !== 'all') {
+        chips.push({ key: 'category', label: `Category: #${state.category}` });
+      }
+      if (state.tag && state.tag !== 'all') {
+        chips.push({ key: 'tag', label: `Tag: #${state.tag}` });
+      }
+      if (state.difficulty && state.difficulty !== 'all') {
+        chips.push({ key: 'difficulty', label: `Level: ${state.difficulty}` });
+      }
+      if (state.sort && state.sort !== 'latest') {
+        chips.push({ key: 'sort', label: `Sort: ${state.sort === 'popular' ? 'Most Viewed' : 'Most Liked'}` });
+      }
+      if (state.search) {
+        chips.push({ key: 'search', label: `Search: "${state.search}"` });
+      }
+
+      if (chips.length > 0) {
+        activeFiltersRibbon.style.display = 'flex';
+        activeChipsList.innerHTML = chips.map(c => `
+          <span class="posts-filter-chip">
+            <span>${c.label}</span>
+            <button type="button" class="posts-filter-chip__remove" data-key="${c.key}">✕</button>
+          </span>
+        `).join('');
+
+        activeChipsList.querySelectorAll('.posts-filter-chip__remove').forEach(btn => {
+          btn.addEventListener('click', () => {
+            const key = btn.getAttribute('data-key');
+            if (key === 'category') {
+              state.category = 'all';
+              document.getElementById('category-dropdown-label').innerText = 'All Categories';
+              document.getElementById('category-select-value').value = 'all';
+            } else if (key === 'tag') {
+              state.tag = 'all';
+            } else if (key === 'difficulty') {
+              state.difficulty = 'all';
+              document.getElementById('difficulty-dropdown-label').innerText = 'All Levels';
+              document.getElementById('difficulty-select-value').value = 'all';
+            } else if (key === 'sort') {
+              state.sort = 'latest';
+              document.getElementById('sort-dropdown-label').innerText = '⚡ Latest First';
+              document.getElementById('sort-select-value').value = 'latest';
+            } else if (key === 'search') {
+              state.search = '';
+              if (searchInput) searchInput.value = '';
+              if (searchClearBtn) searchClearBtn.style.display = 'none';
+            }
+            state.page = 1;
+            fetchPosts();
+          });
+        });
+      } else {
+        activeFiltersRibbon.style.display = 'none';
+        activeChipsList.innerHTML = '';
+      }
+    }
+
+    // Main Fetch Function
+    async function fetchPosts() {
+      renderActiveFilterChips();
+
+      // Update URL query parameters seamlessly
+      const params = new URLSearchParams();
+      if (state.category && state.category !== 'all') params.set('category', state.category);
+      if (state.tag && state.tag !== 'all') params.set('tag', state.tag);
+      if (state.difficulty && state.difficulty !== 'all') params.set('difficulty', state.difficulty);
+      if (state.sort && state.sort !== 'latest') params.set('sort', state.sort);
+      if (state.search) params.set('search', state.search);
+      if (state.page > 1) params.set('page', state.page);
+
+      const queryString = params.toString();
+      const newUrl = window.location.pathname + (queryString ? '?' + queryString : '');
+      window.history.pushState(state, '', newUrl);
+
+      // Loading state
+      streamGrid.style.opacity = '0.4';
+
+      try {
+        const res = await fetch('/api/posts/filter?' + params.toString());
+        const result = await res.json();
+
+        if (result.success) {
+          renderArticles(result.data);
+          renderPagination(result.current, result.totalPages, result.nextPage, result.prevPage);
+          if (heroTotalCount) heroTotalCount.innerText = `${result.totalCount} Articles`;
+        }
+      } catch (err) {
+        console.error('Failed to fetch filtered posts:', err);
+      } finally {
+        streamGrid.style.opacity = '1';
+      }
+    }
+
+    // Render Articles HTML
+    function renderArticles(posts) {
+      if (!posts || posts.length === 0) {
+        streamGrid.innerHTML = `
+          <div style="grid-column: 1 / -1; background: var(--bg-surface); border: 1px dashed var(--border-light); padding: 4rem 2rem; border-radius: var(--radius-xl); text-align: center; color: var(--text-muted);">
+            <div style="font-size: 3rem; margin-bottom: 0.8rem;">📝</div>
+            <h3 style="font-size: 1.3rem; color: var(--text-main); margin-bottom: 0.4rem; font-weight: 700;">No Articles Found</h3>
+            <p style="margin: 0; font-size: 0.95rem;">No technical articles match your current search and filter criteria.</p>
+          </div>
+        `;
+        return;
+      }
+
+      streamGrid.innerHTML = posts.map(post => `
+        <article class="article-card" data-post-id="${post.id}">
+          <div class="article-card__media-wrapper">
+            ${post.category ? `<span class="article-card__badge-floating">${post.category.name}</span>` : ''}
+            ${post.featuredImage 
+              ? `<img src="${post.featuredImage}" alt="${post.title}" class="article-card__cover">`
+              : `<div class="article-card__placeholder"><span>&lt;DevHub / Article&gt;</span></div>`
+            }
+          </div>
+
+          <div class="article-card__body">
+            <div class="article-card__meta-top">
+              <span class="tech-badge" style="font-size: 0.7rem; padding: 0.12rem 0.5rem; font-family: var(--font-mono); ${post.difficultyLevel === 'Advanced' ? 'background: rgba(239, 68, 68, 0.15); color: #dc2626; border-color: rgba(239, 68, 68, 0.3);' : (post.difficultyLevel === 'Beginner' ? 'background: rgba(16, 185, 129, 0.15); color: #10b981; border-color: rgba(16, 185, 129, 0.3);' : 'background: var(--primary-indigo-light); color: var(--primary-indigo); border-color: var(--border-accent);')}">
+                ${post.difficultyLevel === 'Advanced' ? '🚀 Advanced' : (post.difficultyLevel === 'Beginner' ? '🌱 Beginner' : '⚡ Intermediate')}
+              </span>
+              <span>•</span>
+              <span>⏱ ${post.readingTime}</span>
+              <span>•</span>
+              <span>👁 ${(post.viewsCount || 0).toLocaleString()}</span>
+              <span>•</span>
+              <span>❤️ ${post.likesCount || 0}</span>
+            </div>
+
+            <h3 class="article-card__title">
+              <a href="/post/${post.id}">${post.title}</a>
+            </h3>
+
+            <p class="article-card__excerpt">
+              ${post.bodySnippet}
+            </p>
+
+            ${post.tags && post.tags.length > 0 ? `
+              <div class="article-card__tags">
+                ${post.tags.slice(0, 3).map(tag => `
+                  <button type="button" class="tech-badge filter-inline-tag-btn" data-tag-slug="${tag.slug}" style="text-decoration: none; font-size: 0.7rem; padding: 0.15rem 0.5rem; border: none; cursor: pointer;">
+                    #${tag.name}
+                  </button>
+                `).join('')}
+              </div>
+            ` : ''}
+          </div>
+
+          <div class="article-card__footer">
+            ${post.author ? `
+              <div style="display: flex; align-items: center; gap: 0.5rem; min-width: 0;">
+                <div style="width: 24px; height: 24px; border-radius: 50%; background: linear-gradient(135deg, var(--primary-indigo) 0%, #10b981 100%); color: white; display: flex; align-items: center; justify-content: center; font-size: 0.7rem; font-weight: 800; overflow: hidden; flex-shrink: 0;">
+                  ${post.author.avatarUrl ? `<img src="${post.author.avatarUrl}" alt="Author" style="width: 100%; height: 100%; object-fit: cover;">` : (post.author.displayName || post.author.username).charAt(0).toUpperCase()}
+                </div>
+                <span style="font-size: 0.82rem; font-weight: 600; color: var(--text-main); overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${post.author.displayName || post.author.username}</span>
+              </div>
+            ` : ''}
+
+            <div style="display: flex; align-items: center; gap: 0.6rem; margin-left: auto;">
+              <% if (typeof currentUser !== 'undefined' && currentUser) { %>
+                <button 
+                  type="button" 
+                  class="card-bookmark-btn ${post.isBookmarked ? 'is-bookmarked' : ''}" 
+                  data-post-id="${post.id}"
+                  title="${post.isBookmarked ? 'Remove Bookmark' : 'Bookmark Article'}"
+                >
+                  🔖
+                </button>
+              <% } %>
+
+              <a href="/post/${post.id}" class="article-card__read-link">
+                <span>Read</span>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                  <line x1="5" y1="12" x2="19" y2="12"></line>
+                  <polyline points="12 5 19 12 12 19"></polyline>
+                </svg>
+              </a>
+            </div>
+          </div>
+        </article>
+      `).join('');
+
+      bindCardActions();
+    }
+
+    // Render Pagination HTML
+    function renderPagination(current, totalPages, nextPage, prevPage) {
+      if (!paginationContainer) return;
+      if (!totalPages || totalPages <= 1) {
+        paginationContainer.style.display = 'none';
+        return;
+      }
+
+      paginationContainer.style.display = 'flex';
+      paginationContainer.innerHTML = `
+        ${prevPage ? `
+          <button type="button" class="btn posts-page-btn" data-page="${prevPage}" style="background: var(--bg-subtle); border: 1px solid var(--border-light); color: var(--text-main); padding: 0.55rem 1.2rem; font-size: 0.88rem; box-shadow: none;">
+            &larr; Previous Page
+          </button>
+        ` : '<div></div>'}
+
+        <div style="font-family: var(--font-mono); font-size: 0.85rem; color: var(--text-muted);">
+          Page ${current} of ${totalPages}
+        </div>
+
+        ${nextPage ? `
+          <button type="button" class="btn posts-page-btn" data-page="${nextPage}" style="padding: 0.55rem 1.2rem; font-size: 0.88rem;">
+            Next Page &rarr;
+          </button>
+        ` : '<div></div>'}
+      `;
+
+      paginationContainer.querySelectorAll('.posts-page-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const p = parseInt(btn.getAttribute('data-page'), 10);
+          state.page = p;
+          fetchPosts();
+          window.scrollTo({ top: 300, behavior: 'smooth' });
+        });
+      });
+    }
+
+    // Card Action Event Listeners (Bookmark toggle & inline tag clicks)
+    function bindCardActions() {
+      document.querySelectorAll('.card-bookmark-btn').forEach(btn => {
+        btn.addEventListener('click', async (e) => {
+          e.stopPropagation();
+          const postId = btn.getAttribute('data-post-id');
+          try {
+            const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content || '';
+            const res = await fetch(`/api/bookmarks/toggle/${postId}`, {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-Token': csrfToken
+              }
+            });
+            const data = await res.json();
+            if (data.success) {
+              if (data.bookmarked) {
+                btn.classList.add('is-bookmarked');
+                btn.title = 'Remove Bookmark';
+              } else {
+                btn.classList.remove('is-bookmarked');
+                btn.title = 'Bookmark Article';
+              }
+            }
+          } catch (err) {
+            console.error('Failed to toggle bookmark:', err);
+          }
+        });
+      });
+
+      document.querySelectorAll('.filter-inline-tag-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          const tagSlug = btn.getAttribute('data-tag-slug');
+          state.tag = tagSlug;
+          state.page = 1;
+          fetchPosts();
+        });
+      });
+    }
+
+    // Initial binding
+    bindCardActions();
+    renderActiveFilterChips();
+  });
+</script>

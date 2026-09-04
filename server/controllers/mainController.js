@@ -15,8 +15,8 @@ const logger = require('../config/logger');
 class MainController {
   getHomePage = catchAsync(async (req, res) => {
     const locals = {
-      title: 'DevHub — Engineering Knowledge Base & Developer Community',
-      description: 'The production-grade knowledge base for software engineers. Discover structured courses, technical articles, and interview Q&As.',
+      title: 'DevHub — Единая база знаний и инженерное сообщество',
+      description: 'Интерактивная база знаний для разработчиков: структурированные курсы, практические статьи и ответы на вопросы.',
       currentRoute: '/',
     };
 
@@ -26,12 +26,16 @@ class MainController {
     const totalPosts = await postService.getTotalCount();
     const totalCourses = await courseService.getCoursesCount();
     const totalViews = await postService.getTotalViews();
+    const categories = await categoryService.getAllCategoriesWithCounts();
+    const allFaqs = await faqService.getAllQuestions();
 
     res.render('home', {
       locals,
       latestPosts: latestPostsResult.data,
       popularPosts,
       courses: courses.slice(0, 3),
+      categories,
+      featuredFaqs: allFaqs.slice(0, 4),
       stats: {
         totalPosts,
         totalCourses,
@@ -42,30 +46,105 @@ class MainController {
   });
 
   getPostsPage = catchAsync(async (req, res) => {
-    const categorySlug = req.query.category || null;
+    const categorySlug = req.query.category || 'all';
+    const tagSlug = req.query.tag || 'all';
+    const difficulty = req.query.difficulty || 'all';
+    const sort = req.query.sort || 'latest';
+    const search = req.query.search || req.query.q || '';
+    const page = parseInt(req.query.page, 10) || 1;
+
     const locals = {
       title: 'Technical Articles & Architecture Posts | DevHub',
       description: 'Browse production-grade backend architecture articles, Express MVC guides, and performance tuning posts.',
       currentRoute: '/posts',
     };
 
-    const { data, current, nextPage } = await postService.getPaginatedPosts(req.query.page, 10, categorySlug);
+    const filterResult = await postService.getFilteredPosts({
+      page,
+      limit: 9,
+      search,
+      categorySlug,
+      tagSlug,
+      difficulty,
+      sort,
+    });
+
     const categories = await categoryService.getAllCategories();
-    const popularPosts = await postService.getPopularPosts(3);
     const popularTags = await tagService.getAllTags();
     const topAuthors = await postService.getTopAuthors(4);
+    const totalPostsCount = await postService.getTotalCount();
+    const totalViewsCount = await postService.getTotalViews();
+
+    let bookmarkedPostIds = [];
+    if (res.locals.currentUser) {
+      bookmarkedPostIds = await bookmarkService.getBookmarkedPostIds(res.locals.currentUser.id);
+    }
+
+    const dataWithBookmarks = filterResult.data.map(p => ({
+      ...p,
+      isBookmarked: bookmarkedPostIds.includes(p.id),
+    }));
 
     res.render('posts', {
       locals,
-      data,
-      current,
-      nextPage,
+      data: dataWithBookmarks,
+      totalCount: filterResult.totalCount,
+      totalPages: filterResult.totalPages,
+      current: filterResult.current,
+      nextPage: filterResult.nextPage,
+      prevPage: filterResult.prevPage,
       categories,
-      popularPosts,
-      popularTags: popularTags.slice(0, 8),
+      popularTags: popularTags.slice(0, 10),
       topAuthors,
+      totalPostsCount,
+      totalViewsCount,
       activeCategory: categorySlug,
+      activeTag: tagSlug,
+      activeDifficulty: difficulty,
+      activeSort: sort,
+      activeSearch: search,
+      bookmarkedPostIds,
       currentRoute: '/posts',
+    });
+  });
+
+  filterPostsApi = catchAsync(async (req, res) => {
+    const categorySlug = req.query.category || 'all';
+    const tagSlug = req.query.tag || 'all';
+    const difficulty = req.query.difficulty || 'all';
+    const sort = req.query.sort || 'latest';
+    const search = req.query.search || req.query.q || '';
+    const page = parseInt(req.query.page, 10) || 1;
+
+    const filterResult = await postService.getFilteredPosts({
+      page,
+      limit: 9,
+      search,
+      categorySlug,
+      tagSlug,
+      difficulty,
+      sort,
+    });
+
+    let bookmarkedPostIds = [];
+    if (res.locals.currentUser) {
+      bookmarkedPostIds = await bookmarkService.getBookmarkedPostIds(res.locals.currentUser.id);
+    }
+
+    const postsWithBookmarks = filterResult.data.map(p => ({
+      ...p,
+      isBookmarked: bookmarkedPostIds.includes(p.id),
+    }));
+
+    res.json({
+      success: true,
+      data: postsWithBookmarks,
+      totalCount: filterResult.totalCount,
+      totalPages: filterResult.totalPages,
+      current: filterResult.current,
+      nextPage: filterResult.nextPage,
+      prevPage: filterResult.prevPage,
+      bookmarkedPostIds,
     });
   });
 
@@ -92,9 +171,11 @@ class MainController {
       ? await likeService.isLiked(res.locals.currentUser.id, id)
       : false;
 
+    const relatedPosts = await postService.getRelatedPosts(id, data.categoryId || null, 3);
+
     const locals = {
       title: data.title,
-      description: 'Simple Blog created with NodeJs, Express & SQLite.',
+      description: data.bodySnippet || 'Technical article on DevHub.',
     };
 
     res.render('post', {
@@ -102,6 +183,7 @@ class MainController {
       data,
       isBookmarked,
       isLiked,
+      relatedPosts,
       currentRoute: `/post/${id}`,
       successMessage: req.query.commentAdded ? 'Thank you! Your comment has been submitted and is pending moderation.' : null,
     });

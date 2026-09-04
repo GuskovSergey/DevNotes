@@ -80,6 +80,21 @@ const validateProfileUpdate = [
     .trim()
     .isLength({ max: 500 })
     .withMessage('Bio must be less than 500 characters'),
+  body('githubUrl')
+    .optional({ checkFalsy: true })
+    .trim()
+    .isURL()
+    .withMessage('GitHub URL must be a valid web address (e.g. https://github.com/username)'),
+  body('twitterUrl')
+    .optional({ checkFalsy: true })
+    .trim()
+    .isURL()
+    .withMessage('Twitter/X URL must be a valid web address (e.g. https://twitter.com/username)'),
+  body('websiteUrl')
+    .optional({ checkFalsy: true })
+    .trim()
+    .isURL()
+    .withMessage('Personal Website URL must be a valid web address (e.g. https://yourdomain.dev)'),
   handleValidationErrors,
 ];
 

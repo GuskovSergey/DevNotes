@@ -69,7 +69,7 @@ class AuthService {
     });
   }
 
-  async updateProfile(id, { displayName, email, bio }) {
+  async updateProfile(id, { displayName, email, bio, githubUrl, twitterUrl, websiteUrl, avatarUrl, removeAvatar }) {
     const user = await User.findByPk(id);
     if (!user) {
       const error = new Error('User not found');
@@ -89,10 +89,15 @@ class AuthService {
 
     if (displayName) user.displayName = displayName;
     if (bio !== undefined) user.bio = bio;
-    if (githubUrl !== undefined) user.githubUrl = githubUrl;
-    if (twitterUrl !== undefined) user.twitterUrl = twitterUrl;
-    if (websiteUrl !== undefined) user.websiteUrl = websiteUrl;
-    if (avatarUrl !== undefined) user.avatarUrl = avatarUrl;
+    if (githubUrl !== undefined) user.githubUrl = githubUrl || null;
+    if (twitterUrl !== undefined) user.twitterUrl = twitterUrl || null;
+    if (websiteUrl !== undefined) user.websiteUrl = websiteUrl || null;
+
+    if (removeAvatar === true || removeAvatar === 'true' || removeAvatar === '1') {
+      user.avatarUrl = null;
+    } else if (avatarUrl !== undefined) {
+      user.avatarUrl = avatarUrl;
+    }
 
     await user.save();
     return user;

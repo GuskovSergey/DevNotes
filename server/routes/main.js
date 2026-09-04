@@ -14,6 +14,7 @@ router.get('/search', optionalAuthMiddleware, mainController.searchPosts);
 router.post('/search', optionalAuthMiddleware, validateSearch, mainController.searchPosts);
 router.get('/api/search', mainController.apiSearchPosts);
 router.get('/api/posts', mainController.apiGetPosts);
+router.get('/api/posts/filter', optionalAuthMiddleware, mainController.filterPostsApi);
 router.get('/feed.xml', mainController.getRssFeed);
 router.get('/rss.xml', mainController.getRssFeed);
 router.get('/about', optionalAuthMiddleware, mainController.getAboutPage);

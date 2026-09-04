@@ -1,21 +1,21 @@
 <div class="search-results-header">
   <a href="/" style="display: inline-flex; align-items: center; gap: 0.4rem; color: var(--text-muted); font-size: 0.9rem; font-weight: 600; text-decoration: none; margin-bottom: 1rem;">
     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
-    <span>Back to Articles</span>
+    <span>Назад к статьям</span>
   </a>
   <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem;">
     <div>
-      <h1 style="font-size: 2.1rem; margin-bottom: 0.4rem;">Search Results</h1>
+      <h1 style="font-size: 2.1rem; margin-bottom: 0.4rem;">Результаты поиска по базе знаний</h1>
       <p style="color: var(--text-muted); font-size: 1.05rem;">
         <% if (searchTerm) { %>
-          Results matching <strong style="color: var(--primary-indigo);">"<%= searchTerm %>"</strong>
+          По запросу <strong style="color: var(--primary-indigo);">"<%= searchTerm %>"</strong>
         <% } else { %>
-          Showing all published articles
+          Отображение всех опубликованных материалов
         <% } %>
       </p>
     </div>
     <span class="tech-badge" style="font-size: 0.85rem; padding: 0.35rem 0.9rem; background: var(--primary-indigo-light); color: var(--primary-indigo); border-color: var(--border-accent);">
-      <%= data.length %> <%= data.length === 1 ? 'article' : 'articles' %> found
+      Найдено: <%= data.length %>
     </span>
   </div>
 </div>

@@ -1,3 +1,14 @@
 <footer class="footer">
-  <p>&copy; <%= new Date().getFullYear(); %> <strong>NodeJs Blog</strong> • Crafting modern web applications with Express & SQLite</p>
+  <div class="footer__container" style="display: flex; flex-direction: column; gap: 1.2rem; align-items: center; text-align: center; padding: 2.5rem 1rem 2rem; border-top: 1px solid var(--border-light); margin-top: 4rem;">
+    <a href="/" class="header__logo" style="justify-content: center;">
+      <span class="header__logo-badge">&lt;/dev&gt;</span>
+      <span class="header__logo-text" style="font-size: 1.15rem; font-weight: 800;">DevHub</span>
+    </a>
+    <p style="max-width: 620px; color: var(--text-muted); font-size: 0.9rem; line-height: 1.6; margin: 0;">
+      DevHub — инженерная база знаний и архитектурный хаб. Практические статьи по бэкенду, архитектурные разборы, базы данных и структурированные курсы для инженеров.
+    </p>
+    <div style="font-size: 0.82rem; color: var(--text-dim); font-family: var(--font-mono); margin-top: 0.5rem;">
+      &copy; <%= new Date().getFullYear(); %> <strong>DevHub Engineering Knowledge Base</strong> • Разработано для разработчиков
+    </div>
+  </div>
 </footer>

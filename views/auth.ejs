@@ -1,181 +1,311 @@
-<div class="auth-card-wrapper">
+<div class="auth-page-container">
   
-  <!-- Logged in Banner Notice -->
-  <% if (typeof currentUser !== 'undefined' && currentUser) { %>
-    <div style="background: var(--primary-indigo-light); border: 1px solid var(--border-accent); color: var(--primary-indigo); padding: 1rem 1.2rem; border-radius: var(--radius-lg); margin-bottom: 1.5rem; font-size: 0.95rem; font-weight: 500; text-align: center; display: flex; flex-direction: column; gap: 0.5rem; align-items: center;">
-      <div>ℹ️ Currently signed in as <strong><%= currentUser.displayName || currentUser.username %></strong></div>
-      <div style="display: flex; gap: 0.5rem;">
-        <a href="/account" class="btn" style="padding: 0.35rem 0.85rem; font-size: 0.85rem;">My Account &rarr;</a>
-        <a href="/auth/logout" class="btn" style="padding: 0.35rem 0.85rem; font-size: 0.85rem; background: #fef2f2; border-color: #fecaca; color: #dc2626;">Sign Out</a>
-      </div>
-    </div>
-  <% } %>
-
-  <div class="auth-card">
-    
-    <!-- Header Logo & Title -->
-    <div class="auth-card__logo-area">
-      <a href="/" class="header__logo" style="justify-content: center; margin-bottom: 0.5rem;">
-        <span class="header__logo-badge">&lt;/&gt;</span>
-        <span class="header__logo-text">DevHub</span>
-      </a>
-      <p>Join our community of backend developers &amp; architects</p>
+  <!-- Left Column: Developer Showcase Hero -->
+  <div class="auth-showcase">
+    <div class="auth-showcase__badge">
+      <span class="auth-showcase__badge-dot"></span>
+      <span>Присоединяйтесь к 15,000+ пользователям</span>
     </div>
 
-    <!-- Auth Tabs Header -->
-    <div class="auth-tab-group">
-      <button type="button" id="tabLoginBtn" class="auth-tab-btn <%= activeTab === 'login' ? 'active' : '' %>">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"></path>
-          <polyline points="10 17 15 12 10 7"></polyline>
-          <line x1="15" y1="12" x2="3" y2="12"></line>
-        </svg>
-        <span>Sign In</span>
-      </button>
-      <button type="button" id="tabRegisterBtn" class="auth-tab-btn <%= activeTab === 'register' ? 'active' : '' %>">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
-          <circle cx="8.5" cy="7" r="4"></circle>
-          <line x1="20" y1="8" x2="20" y2="14"></line>
-          <line x1="23" y1="11" x2="17" y2="11"></line>
-        </svg>
-        <span>Create Account</span>
-      </button>
+    <h1 class="auth-showcase__title">
+      Единая <span class="gradient-text">База Знаний</span>
+    </h1>
+
+    <p class="auth-showcase__subtitle">
+      Доступ к обучающим курсам, проверенным статьям, ответам на вопросы и персональным закладкам.
+    </p>
+
+    <!-- Code Window Card Widget -->
+    <div class="auth-code-window">
+      <div class="auth-code-window__header">
+        <div class="auth-code-window__dots">
+          <span class="dot dot--red"></span>
+          <span class="dot dot--yellow"></span>
+          <span class="dot dot--green"></span>
+        </div>
+        <span class="auth-code-window__title">devhub-knowledge-base.ts</span>
+      </div>
+      <div class="auth-code-window__body">
+        <pre><code><span class="code-keyword">import</span> { KnowledgeBase } <span class="code-keyword">from</span> <span class="code-string">'@devhub/kb'</span>;
+
+<span class="code-comment">// Connect to DevHub Knowledge Base</span>
+<span class="code-keyword">const</span> kb = <span class="code-keyword">await</span> KnowledgeBase.<span class="code-func">open</span>({
+  user: <span class="code-string">'@you'</span>,
+  access: [<span class="code-string">'articles'</span>, <span class="code-string">'courses'</span>, <span class="code-string">'bookmarks'</span>, <span class="code-string">'faq'</span>],
+  sync: <span class="code-bool">true</span>
+});
+
+<span class="code-func">console</span>.<span class="code-func">log</span>(<span class="code-string">'🚀 Добро пожаловать в базу знаний DevHub!'</span>);</code></pre>
+      </div>
     </div>
 
-    <!-- Error Message Banner -->
-    <% if (typeof errorMessage !== 'undefined' && errorMessage) { %>
-      <div style="background: #fef2f2; border: 1px solid #fecaca; color: #dc2626; padding: 0.85rem 1.1rem; border-radius: var(--radius-lg); margin-bottom: 1.5rem; font-size: 0.9rem; text-align: center; font-weight: 500; display: flex; align-items: center; justify-content: center; gap: 0.5rem;">
-        <span>⚠️</span>
-        <span><%= errorMessage %></span>
-      </div>
-    <% } %>
-
-    <!-- Success Message Banner -->
-    <% if (typeof successMessage !== 'undefined' && successMessage) { %>
-      <div style="background: #ecfdf5; border: 1px solid #a7f3d0; color: #047857; padding: 0.85rem 1.1rem; border-radius: var(--radius-lg); margin-bottom: 1.5rem; font-size: 0.9rem; text-align: center; font-weight: 500; display: flex; align-items: center; justify-content: center; gap: 0.5rem;">
-        <span>✓</span>
-        <span><%= successMessage %></span>
-      </div>
-    <% } %>
-
-    <!-- TAB 1: Sign In Form -->
-    <form id="loginForm" action="/auth/login" method="POST" style="display: <%= activeTab === 'login' ? 'block' : 'none' %>;">
-      <input type="hidden" name="_csrf" value="<%= csrfToken %>">
-
-      <div class="auth-field">
-        <label for="loginUsername">Username or Email</label>
-        <div class="auth-input-wrapper">
-          <input type="text" id="loginUsername" name="username" placeholder="alexey or alexey@dev.com" required>
-          <span class="auth-input-icon">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-              <circle cx="12" cy="7" r="4"></circle>
-            </svg>
-          </span>
+    <!-- Feature Checklist Grid -->
+    <div class="auth-showcase__features">
+      <div class="auth-feature-item">
+        <div class="auth-feature-item__icon">⚡</div>
+        <div class="auth-feature-item__content">
+          <h4>Практические статьи и гайды</h4>
+          <p>Полезные материалы, проверенные руководства и решения задач.</p>
         </div>
       </div>
 
-      <div class="auth-field" style="margin-bottom: 1.8rem;">
-        <label for="loginPassword">Password</label>
-        <div class="auth-input-wrapper">
-          <input type="password" id="loginPassword" name="password" placeholder="Enter your password" required style="padding-right: 2.8rem;">
-          <span class="auth-input-icon">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
-              <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
-            </svg>
-          </span>
-          <button type="button" class="password-toggle-btn" data-target="loginPassword" aria-label="Toggle Password Visibility">
-            <svg class="eye-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
-              <circle cx="12" cy="12" r="3"></circle>
-            </svg>
-          </button>
+      <div class="auth-feature-item">
+        <div class="auth-feature-item__icon">💬</div>
+        <div class="auth-feature-item__content">
+          <h4>Обсуждения и ответы на вопросы</h4>
+          <p>Обсуждайте статьи с сообществом и находите решения в базе FAQ.</p>
         </div>
       </div>
 
-      <button type="submit" class="btn" style="width: 100%; padding: 0.85rem; font-size: 1rem; border-radius: var(--radius-lg);">
-        <span>Sign In to Account</span>
-        &rarr;
-      </button>
-    </form>
-
-    <!-- TAB 2: Create Account Form -->
-    <form id="registerForm" action="/auth/register" method="POST" style="display: <%= activeTab === 'register' ? 'block' : 'none' %>;">
-      <input type="hidden" name="_csrf" value="<%= csrfToken %>">
-
-      <div class="auth-field">
-        <label for="regDisplayName">Full Name / Display Name</label>
-        <div class="auth-input-wrapper">
-          <input type="text" id="regDisplayName" name="displayName" placeholder="Alexey Ivanov">
-          <span class="auth-input-icon">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"></path>
-              <line x1="7" y1="7" x2="7.01" y2="7"></line>
-            </svg>
-          </span>
+      <div class="auth-feature-item">
+        <div class="auth-feature-item__icon">🔖</div>
+        <div class="auth-feature-item__content">
+          <h4>Сохранение прогресса и Закладки</h4>
+          <p>Сохраняйте историю чтения и доступ к кабинету с любого устройства.</p>
         </div>
       </div>
+    </div>
 
-      <div class="auth-field">
-        <label for="regUsername">Username</label>
-        <div class="auth-input-wrapper">
-          <input type="text" id="regUsername" name="username" placeholder="alexey_dev" required>
-          <span class="auth-input-icon">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-              <circle cx="12" cy="7" r="4"></circle>
-            </svg>
-          </span>
-        </div>
+    <div class="auth-showcase__footer">
+      <div class="auth-avatars-group">
+        <span class="auth-avatar">👨‍💻</span>
+        <span class="auth-avatar">👩‍💻</span>
+        <span class="auth-avatar">⚡</span>
       </div>
+      <span>Интерактивная платформа базы знаний</span>
+    </div>
+  </div>
 
-      <div class="auth-field">
-        <label for="regEmail">Email Address</label>
-        <div class="auth-input-wrapper">
-          <input type="email" id="regEmail" name="email" placeholder="alexey@example.com" required>
-          <span class="auth-input-icon">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
-              <polyline points="22,6 12,13 2,6"></polyline>
-            </svg>
-          </span>
-        </div>
-      </div>
+  <!-- Right Column: Glassmorphic Auth Card -->
+  <div class="auth-card-wrapper">
 
-      <div class="auth-field">
-        <label for="regPassword">Password (min. 6 chars)</label>
-        <div class="auth-input-wrapper">
-          <input type="password" id="regPassword" name="password" placeholder="Create a strong password" required style="padding-right: 2.8rem;">
-          <span class="auth-input-icon">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
-              <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
-            </svg>
-          </span>
-          <button type="button" class="password-toggle-btn" data-target="regPassword" aria-label="Toggle Password Visibility">
-            <svg class="eye-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
-              <circle cx="12" cy="12" r="3"></circle>
-            </svg>
-          </button>
-        </div>
-        <!-- Live Strength Meter -->
-        <div class="password-strength-container">
-          <div class="password-strength-bar">
-            <div id="strengthFill" class="password-strength-fill"></div>
+    <!-- Logged in Notice Card -->
+    <% if (typeof currentUser !== 'undefined' && currentUser) { %>
+      <div class="auth-card auth-card--logged-in">
+        <div class="auth-logged-in-banner">
+          <div class="auth-logged-in-avatar">
+            <% if (currentUser.avatarUrl) { %>
+              <img src="<%= currentUser.avatarUrl %>" alt="Avatar">
+            <% } else { %>
+              <%= (currentUser.displayName || currentUser.username).charAt(0).toUpperCase() %>
+            <% } %>
           </div>
-          <span id="strengthText" class="password-strength-text">Password strength</span>
+          <h3>С возвращением, <%= currentUser.displayName || currentUser.username %>!</h3>
+          <p>Вы авторизованы как <code>@<%= currentUser.username %></code></p>
+
+          <div class="auth-logged-in-actions">
+            <a href="/account" class="btn btn-primary" style="flex: 1;">
+              <span>В Личный Кабинет</span>
+              &rarr;
+            </a>
+            <a href="/auth/logout" class="btn btn-secondary" style="background: rgba(239, 68, 68, 0.1); border-color: rgba(239, 68, 68, 0.25); color: #dc2626;">
+              <span>Выйти</span>
+            </a>
+          </div>
         </div>
       </div>
+    <% } else { %>
 
-      <button type="submit" class="btn" style="width: 100%; padding: 0.85rem; font-size: 1rem; border-radius: var(--radius-lg); margin-top: 1rem;">
-        <span>Create Free Account</span>
-        &rarr;
-      </button>
-    </form>
+      <div class="auth-card">
+        
+        <!-- Header Logo & Welcome Title -->
+        <div class="auth-card__logo-area">
+          <a href="/" class="header__logo" style="justify-content: center; margin-bottom: 0.5rem;">
+            <span class="header__logo-badge">&lt;/dev&gt;</span>
+            <span class="header__logo-text">DevHub</span>
+          </a>
+          <p id="authCardSubheading">Войдите в аккаунт или зарегистрируйтесь для доступа к базе знаний</p>
+        </div>
 
+        <!-- Auth Tabs Header -->
+        <div class="auth-tab-group">
+          <button type="button" id="tabLoginBtn" class="auth-tab-btn <%= activeTab === 'login' ? 'active' : '' %>">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"></path>
+              <polyline points="10 17 15 12 10 7"></polyline>
+              <line x1="15" y1="12" x2="3" y2="12"></line>
+            </svg>
+            <span>Sign In</span>
+          </button>
+          <button type="button" id="tabRegisterBtn" class="auth-tab-btn <%= activeTab === 'register' ? 'active' : '' %>">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+              <circle cx="8.5" cy="7" r="4"></circle>
+              <line x1="20" y1="8" x2="20" y2="14"></line>
+              <line x1="23" y1="11" x2="17" y2="11"></line>
+            </svg>
+            <span>Create Account</span>
+          </button>
+        </div>
+
+        <!-- Error Alert Banner -->
+        <% if (typeof errorMessage !== 'undefined' && errorMessage) { %>
+          <div class="auth-alert auth-alert--danger">
+            <span class="auth-alert__icon">⚠️</span>
+            <span><%= errorMessage %></span>
+          </div>
+        <% } %>
+
+        <!-- Success Alert Banner -->
+        <% if (typeof successMessage !== 'undefined' && successMessage) { %>
+          <div class="auth-alert auth-alert--success">
+            <span class="auth-alert__icon">✓</span>
+            <span><%= successMessage %></span>
+          </div>
+        <% } %>
+
+        <!-- TAB 1: Sign In Form -->
+        <form id="loginForm" action="/auth/login" method="POST" class="auth-form" style="display: <%= activeTab === 'login' ? 'block' : 'none' %>;">
+          <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+
+          <div class="auth-field">
+            <label for="loginUsername">Username or Email</label>
+            <div class="auth-input-wrapper">
+              <input type="text" id="loginUsername" name="username" placeholder="alexey or alexey@dev.com" required autocomplete="username">
+              <span class="auth-input-icon">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                  <circle cx="12" cy="7" r="4"></circle>
+                </svg>
+              </span>
+            </div>
+          </div>
+
+          <div class="auth-field">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.45rem;">
+              <label for="loginPassword" style="margin-bottom: 0;">Password</label>
+              <a href="#" class="auth-link-sm" onclick="alert('Please contact system admin to reset password.'); return false;">Forgot?</a>
+            </div>
+            <div class="auth-input-wrapper">
+              <input type="password" id="loginPassword" name="password" placeholder="Enter your password" required autocomplete="current-password" style="padding-right: 2.8rem;">
+              <span class="auth-input-icon">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                  <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                </svg>
+              </span>
+              <button type="button" class="password-toggle-btn" data-target="loginPassword" aria-label="Toggle Password Visibility">
+                <svg class="eye-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                  <circle cx="12" cy="12" r="3"></circle>
+                </svg>
+              </button>
+            </div>
+          </div>
+
+          <div class="auth-options-row">
+            <label class="custom-checkbox-label">
+              <input type="checkbox" name="remember" checked>
+              <span class="custom-checkbox-box"></span>
+              <span>Keep me signed in</span>
+            </label>
+          </div>
+
+          <button type="submit" class="auth-submit-btn">
+            <span>Sign In to Account</span>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="5" y1="12" x2="19" y2="12"></line>
+              <polyline points="12 5 19 12 12 19"></polyline>
+            </svg>
+          </button>
+        </form>
+
+        <!-- TAB 2: Create Account Form -->
+        <form id="registerForm" action="/auth/register" method="POST" class="auth-form" style="display: <%= activeTab === 'register' ? 'block' : 'none' %>;">
+          <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+
+          <div class="auth-field">
+            <label for="regDisplayName">Full Name / Display Name</label>
+            <div class="auth-input-wrapper">
+              <input type="text" id="regDisplayName" name="displayName" placeholder="Alexey Ivanov" autocomplete="name">
+              <span class="auth-input-icon">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"></path>
+                  <line x1="7" y1="7" x2="7.01" y2="7"></line>
+                </svg>
+              </span>
+            </div>
+          </div>
+
+          <div class="auth-field">
+            <label for="regUsername">Username</label>
+            <div class="auth-input-wrapper">
+              <input type="text" id="regUsername" name="username" placeholder="alexey_dev" required autocomplete="username">
+              <span class="auth-input-icon">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                  <circle cx="12" cy="7" r="4"></circle>
+                </svg>
+              </span>
+            </div>
+          </div>
+
+          <div class="auth-field">
+            <label for="regEmail">Email Address</label>
+            <div class="auth-input-wrapper">
+              <input type="email" id="regEmail" name="email" placeholder="alexey@example.com" required autocomplete="email">
+              <span class="auth-input-icon">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
+                  <polyline points="22,6 12,13 2,6"></polyline>
+                </svg>
+              </span>
+            </div>
+          </div>
+
+          <div class="auth-field">
+            <label for="regPassword">Password</label>
+            <div class="auth-input-wrapper">
+              <input type="password" id="regPassword" name="password" placeholder="Create a strong password" required autocomplete="new-password" style="padding-right: 2.8rem;">
+              <span class="auth-input-icon">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                  <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                </svg>
+              </span>
+              <button type="button" class="password-toggle-btn" data-target="regPassword" aria-label="Toggle Password Visibility">
+                <svg class="eye-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                  <circle cx="12" cy="12" r="3"></circle>
+                </svg>
+              </button>
+            </div>
+
+            <!-- Live Password Strength Meter & Interactive Checklist -->
+            <div class="password-strength-container">
+              <div class="password-strength-bar">
+                <div id="strengthFill" class="password-strength-fill"></div>
+              </div>
+              <div class="password-strength-header">
+                <span id="strengthText" class="password-strength-text">Password strength</span>
+              </div>
+              <div class="password-reqs-checklist">
+                <span id="reqLength" class="req-badge">Min 6 chars</span>
+                <span id="reqUpper" class="req-badge">Uppercase letter</span>
+                <span id="reqSymbol" class="req-badge">Number or symbol</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="auth-options-row">
+            <label class="custom-checkbox-label">
+              <input type="checkbox" name="terms" required checked>
+              <span class="custom-checkbox-box"></span>
+              <span>I agree to the Terms &amp; Privacy Policy</span>
+            </label>
+          </div>
+
+          <button type="submit" class="auth-submit-btn auth-submit-btn--register">
+            <span>Create Free Account</span>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="5" y1="12" x2="19" y2="12"></line>
+              <polyline points="12 5 19 12 12 19"></polyline>
+            </svg>
+          </button>
+        </form>
+
+      </div>
+    <% } %>
   </div>
 </div>
 
@@ -188,15 +318,15 @@
 
     function switchTab(tab) {
       if (tab === 'register') {
-        loginForm.style.display = 'none';
-        registerForm.style.display = 'block';
-        tabLoginBtn.classList.remove('active');
-        tabRegisterBtn.classList.add('active');
+        if (loginForm) loginForm.style.display = 'none';
+        if (registerForm) registerForm.style.display = 'block';
+        tabLoginBtn?.classList.remove('active');
+        tabRegisterBtn?.classList.add('active');
       } else {
-        registerForm.style.display = 'none';
-        loginForm.style.display = 'block';
-        tabRegisterBtn.classList.remove('active');
-        tabLoginBtn.classList.add('active');
+        if (registerForm) registerForm.style.display = 'none';
+        if (loginForm) loginForm.style.display = 'block';
+        tabRegisterBtn?.classList.remove('active');
+        tabLoginBtn?.classList.add('active');
       }
     }
 
@@ -230,42 +360,82 @@
       });
     });
 
-    // Real-time password strength meter for registration
+    // Real-time password strength meter & requirement checklist
     const regPassword = document.getElementById('regPassword');
     const strengthFill = document.getElementById('strengthFill');
     const strengthText = document.getElementById('strengthText');
+    const reqLength = document.getElementById('reqLength');
+    const reqUpper = document.getElementById('reqUpper');
+    const reqSymbol = document.getElementById('reqSymbol');
 
     regPassword?.addEventListener('input', () => {
       const val = regPassword.value;
+      
+      const hasMinLength = val.length >= 6;
+      const hasUpper = /[A-Z]/.test(val);
+      const hasSymbol = /[0-9]|[^A-Za-z0-9]/.test(val);
+
+      // Update checklist pills
+      if (reqLength) reqLength.classList.toggle('req-badge--met', hasMinLength);
+      if (reqUpper) reqUpper.classList.toggle('req-badge--met', hasUpper);
+      if (reqSymbol) reqSymbol.classList.toggle('req-badge--met', hasSymbol);
+
       if (!val) {
-        strengthFill.style.width = '0%';
-        strengthText.textContent = 'Password strength';
+        if (strengthFill) strengthFill.style.width = '0%';
+        if (strengthText) {
+          strengthText.textContent = 'Password strength';
+          strengthText.style.color = 'var(--text-muted)';
+        }
         return;
       }
 
       let score = 0;
-      if (val.length >= 6) score++;
+      if (hasMinLength) score++;
       if (val.length >= 10) score++;
-      if (/[A-Z]/.test(val)) score++;
-      if (/[0-9]/.test(val)) score++;
-      if (/[^A-Za-z0-9]/.test(val)) score++;
+      if (hasUpper) score++;
+      if (hasSymbol) score++;
 
       if (score <= 1) {
-        strengthFill.style.width = '25%';
-        strengthFill.style.backgroundColor = '#ef4444';
-        strengthText.textContent = 'Weak password';
-        strengthText.style.color = '#ef4444';
+        if (strengthFill) {
+          strengthFill.style.width = '25%';
+          strengthFill.style.backgroundColor = '#ef4444';
+        }
+        if (strengthText) {
+          strengthText.textContent = 'Weak password';
+          strengthText.style.color = '#ef4444';
+        }
       } else if (score === 2 || score === 3) {
-        strengthFill.style.width = '65%';
-        strengthFill.style.backgroundColor = '#f59e0b';
-        strengthText.textContent = 'Medium strength';
-        strengthText.style.color = '#f59e0b';
+        if (strengthFill) {
+          strengthFill.style.width = '65%';
+          strengthFill.style.backgroundColor = '#f59e0b';
+        }
+        if (strengthText) {
+          strengthText.textContent = 'Medium strength';
+          strengthText.style.color = '#f59e0b';
+        }
       } else {
-        strengthFill.style.width = '100%';
-        strengthFill.style.backgroundColor = '#10b981';
-        strengthText.textContent = 'Strong password';
-        strengthText.style.color = '#10b981';
+        if (strengthFill) {
+          strengthFill.style.width = '100%';
+          strengthFill.style.backgroundColor = '#10b981';
+        }
+        if (strengthText) {
+          strengthText.textContent = 'Strong password';
+          strengthText.style.color = '#10b981';
+        }
       }
+    });
+
+    // Form Submit Loading Feedback
+    [loginForm, registerForm].forEach(form => {
+      form?.addEventListener('submit', function() {
+        const submitBtn = this.querySelector('button[type="submit"]');
+        if (submitBtn) {
+          submitBtn.disabled = true;
+          submitBtn.style.opacity = '0.75';
+          const btnText = submitBtn.querySelector('span');
+          if (btnText) btnText.textContent = 'Processing...';
+        }
+      });
     });
   });
 </script>

@@ -168,7 +168,7 @@ class UserController {
   });
 
   handleUpdateProfile = catchAsync(async (req, res) => {
-    const { displayName, email, bio, githubUrl, twitterUrl, websiteUrl, oldPassword, newPassword } = req.body;
+    const { displayName, email, bio, githubUrl, twitterUrl, websiteUrl, oldPassword, newPassword, removeAvatar } = req.body;
     const avatarUrl = req.file ? `/uploads/${req.file.filename}` : undefined;
 
     if (req.validationErrors && req.validationErrors.length > 0) {
@@ -189,6 +189,7 @@ class UserController {
         twitterUrl,
         websiteUrl,
         avatarUrl,
+        removeAvatar,
       });
 
       // Handle optional password change inside unified settings form
@@ -616,36 +617,28 @@ class UserController {
   });
 
   getLikedPostsPage = catchAsync(async (req, res) => {
-    const user = await authService.getUserById(req.userId);
-    const likedPosts = await likeService.getUserLikedPosts(req.userId);
-
-    const locals = {
-      title: 'Liked Articles',
-      description: 'View all articles you have liked on DevHub.',
-    };
-
-    res.render('my/likes', {
-      locals,
-      user,
-      activeTab: 'likes',
-      posts: likedPosts,
-    });
+    return res.redirect('/my/history?tab=likes');
   });
 
   getReadingHistoryPage = catchAsync(async (req, res) => {
     const user = await authService.getUserById(req.userId);
     const history = await readingHistoryService.getUserHistory(req.userId);
+    const likedPosts = await likeService.getUserLikedPosts(req.userId);
+
+    const activeSubTab = req.query.tab === 'likes' ? 'likes' : 'history';
 
     const locals = {
-      title: 'Reading History',
-      description: 'View articles you have recently read on DevHub.',
+      title: 'Reading Activity & Liked Articles | DevHub',
+      description: 'View your recently read articles and liked posts on DevHub.',
     };
 
-    res.render('my/history', {
+    res.render('account/history', {
       locals,
       user,
       activeTab: 'history',
-      history,
+      activeSubTab,
+      history: history || [],
+      likedPosts: likedPosts || [],
     });
   });
 
