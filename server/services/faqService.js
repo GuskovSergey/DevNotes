@@ -317,6 +317,50 @@ class FaqService {
     await question.destroy();
     return true;
   }
+
+  /**
+   * Admin: Get all FAQ categories with question counts
+   */
+  async getFaqCategoriesWithCounts() {
+    const questions = await InterviewQuestion.findAll({
+      attributes: ['category'],
+      raw: true,
+    });
+    const countsMap = {};
+    questions.forEach(q => {
+      const cat = q.category || 'Общее';
+      countsMap[cat] = (countsMap[cat] || 0) + 1;
+    });
+
+    return Object.keys(countsMap).sort().map(name => ({
+      name,
+      questionsCount: countsMap[name],
+    }));
+  }
+
+  /**
+   * Admin: Rename FAQ category across all questions
+   */
+  async renameFaqCategory(oldName, newName) {
+    if (!oldName || !newName) return false;
+    await InterviewQuestion.update(
+      { category: newName.trim() },
+      { where: { category: oldName.trim() } }
+    );
+    return true;
+  }
+
+  /**
+   * Admin: Delete FAQ category (reassign questions to 'Общее')
+   */
+  async deleteFaqCategory(categoryName) {
+    if (!categoryName) return false;
+    await InterviewQuestion.update(
+      { category: 'Общее' },
+      { where: { category: categoryName.trim() } }
+    );
+    return true;
+  }
 }
 
 module.exports = new FaqService();

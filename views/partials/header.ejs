@@ -1,8 +1,18 @@
 <header class="header">
-  <!-- Brand Logo with Gradient Code Badge -->
-  <a href="/" class="header__logo">
-    <span class="header__logo-badge">&lt;/dev&gt;</span>
-    <span class="header__logo-text">DevHub</span>
+  <!-- Brand Logo with Knowledge Book & Code SVG Emblem -->
+  <a href="/" class="header__logo" title="DevHub — Единая база знаний">
+    <div class="header__logo-icon">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
+        <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
+        <path d="M9 9.5l-2 2 2 2"></path>
+        <path d="M15 9.5l2 2-2 2"></path>
+      </svg>
+    </div>
+    <div class="header__logo-brand">
+      <span class="header__logo-text">Dev<span class="header__logo-accent">Hub</span></span>
+      <span class="header__logo-tag">База знаний</span>
+    </div>
   </a>
 
   <!-- Navigation Links -->
@@ -10,22 +20,22 @@
     <ul>
       <li>
         <a href="/" class="<%= (typeof currentRoute !== 'undefined' && currentRoute === '/') ? 'active' : '' %>">
-          <span>🏠 Home</span>
+          <span>🏠 Главная</span>
         </a>
       </li>
       <li>
         <a href="/posts" class="<%= (typeof currentRoute !== 'undefined' && currentRoute === '/posts') ? 'active' : '' %>">
-          <span>📝 Posts</span>
+          <span>📝 Статьи</span>
         </a>
       </li>
       <li>
         <a href="/courses" class="<%= (typeof currentRoute !== 'undefined' && currentRoute === '/courses') ? 'active' : '' %>">
-          <span>📚 Courses</span>
+          <span>📚 Курсы</span>
         </a>
       </li>
       <li>
         <a href="/faq" class="<%= (typeof currentRoute !== 'undefined' && currentRoute === '/faq') ? 'active' : '' %>">
-          <span>💡 FAQ</span>
+          <span>💡 Вопросы FAQ</span>
         </a>
       </li>
     </ul>
@@ -34,8 +44,8 @@
   <!-- Right Actions: Search, Theme Toggle & User Auth Dropdown -->
   <div class="header__right-actions">
     
-    <!-- Command Palette Style Search Button (Icon Only Capsule) -->
-    <button class="searchBtn searchBtn--icon-only" aria-expanded="false" title="Search articles & guides (⌘K)" aria-label="Search articles (⌘K)">
+    <!-- Command Palette Style Search Button (Icon Only Capsule - UNCHANGED) -->
+    <button class="searchBtn searchBtn--icon-only" aria-expanded="false" title="Поиск статей и материалов (⌘K)" aria-label="Поиск по базе знаний (⌘K)">
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
         <circle cx="11" cy="11" r="8"></circle>
         <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
@@ -43,14 +53,14 @@
     </button>
 
     <!-- Theme Toggle Switcher Button -->
-    <button id="themeToggleBtn" class="theme-toggle-btn" aria-label="Toggle Theme" title="Toggle Light/Dark Theme">
+    <button id="themeToggleBtn" class="theme-toggle-btn" aria-label="Переключить тему" title="Переключить тему (Светлая / Тёмная)">
       🌙
     </button>
 
     <% if (typeof currentUser !== 'undefined' && currentUser) { %>
       <!-- Notifications Bell Dropdown / Modal Popover -->
       <div class="header-dropdown" id="notifications-dropdown">
-        <button type="button" class="header-notif-btn dropdown-trigger" aria-expanded="false" aria-haspopup="true" title="Notifications" aria-label="Notifications">
+        <button type="button" class="header-notif-btn dropdown-trigger" aria-expanded="false" aria-haspopup="true" title="Уведомления" aria-label="Уведомления">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
             <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
             <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
@@ -63,20 +73,20 @@
         <div class="dropdown-menu notif-popover-menu">
           <div class="notif-popover-header">
             <div style="display: flex; align-items: center; gap: 0.5rem;">
-              <span style="font-weight: 700; color: var(--text-main); font-size: 0.95rem;">Notifications</span>
+              <span style="font-weight: 700; color: var(--text-main); font-size: 0.95rem;">Уведомления</span>
               <% if (typeof unreadNotificationsCount !== 'undefined' && unreadNotificationsCount > 0) { %>
-                <span class="tech-badge" id="notif-popover-badge" style="font-size: 0.7rem; padding: 0.1rem 0.4rem; background: #ef4444; color: white;"><%= unreadNotificationsCount %> unread</span>
+                <span class="tech-badge" id="notif-popover-badge" style="font-size: 0.7rem; padding: 0.1rem 0.4rem; background: #ef4444; color: white;"><%= unreadNotificationsCount %> новых</span>
               <% } %>
             </div>
-            <button id="mark-all-read-btn" type="button" style="background: none; border: none; color: var(--primary-indigo); font-size: 0.78rem; font-weight: 600; cursor: pointer; padding: 0;">Mark all read</button>
+            <button id="mark-all-read-btn" type="button" style="background: none; border: none; color: var(--primary-indigo); font-size: 0.78rem; font-weight: 600; cursor: pointer; padding: 0;">Прочитать все</button>
           </div>
 
           <div class="notif-popover-body" id="notif-popover-list">
-            <div style="padding: 1.5rem; text-align: center; color: var(--text-muted); font-size: 0.85rem;">Loading notifications...</div>
+            <div style="padding: 1.5rem; text-align: center; color: var(--text-muted); font-size: 0.85rem;">Загрузка уведомлений...</div>
           </div>
 
           <div class="notif-popover-footer">
-            <a href="/my/notifications" style="color: var(--primary-indigo); font-size: 0.82rem; font-weight: 600; text-decoration: none;">View all notifications &rarr;</a>
+            <a href="/my/notifications" style="color: var(--primary-indigo); font-size: 0.82rem; font-weight: 600; text-decoration: none;">Все уведомления &rarr;</a>
           </div>
         </div>
       </div>
@@ -86,7 +96,7 @@
         <button type="button" class="admin-link-btn dropdown-trigger" style="display: inline-flex; align-items: center; gap: 0.55rem; height: 40px; background: var(--bg-surface); border: 1px solid var(--border-light); color: var(--text-main); font-weight: 600; padding: 0 0.85rem 0 0.35rem; border-radius: var(--radius-full);" aria-expanded="false" aria-haspopup="true">
           <span style="width: 30px; height: 30px; border-radius: 50%; background: linear-gradient(135deg, var(--primary-indigo) 0%, #10b981 100%); color: white; display: inline-flex; align-items: center; justify-content: center; font-size: 0.82rem; font-weight: 800; overflow: hidden; flex-shrink: 0;">
             <% if (currentUser.avatarUrl) { %>
-              <img src="<%= currentUser.avatarUrl %>" alt="Avatar" style="width: 100%; height: 100%; object-fit: cover;">
+              <img src="<%= currentUser.avatarUrl %>" alt="Аватар" style="width: 100%; height: 100%; object-fit: cover;">
             <% } else { %>
               <%= (currentUser.displayName || currentUser.username).charAt(0).toUpperCase() %>
             <% } %>
@@ -104,9 +114,9 @@
             <div class="dropdown-header-email">@<%= currentUser.username %></div>
             <div style="margin-top: 0.35rem;">
               <% if (currentUser.role === 'admin') { %>
-                <span class="tech-badge" style="font-size: 0.68rem; padding: 0.1rem 0.45rem; background: #fffbe6; color: #d46b08; border-color: #ffe58f;">🛡️ Administrator</span>
+                <span class="tech-badge" style="font-size: 0.68rem; padding: 0.1rem 0.45rem; background: #fffbe6; color: #d46b08; border-color: #ffe58f;">🛡️ Администратор</span>
               <% } else { %>
-                <span class="tech-badge" style="font-size: 0.68rem; padding: 0.1rem 0.45rem; background: var(--primary-indigo-light); color: var(--primary-indigo);">⚡ Developer</span>
+                <span class="tech-badge" style="font-size: 0.68rem; padding: 0.1rem 0.45rem; background: var(--primary-indigo-light); color: var(--primary-indigo);">⚡ Разработчик</span>
               <% } %>
             </div>
           </div>
@@ -115,38 +125,38 @@
 
           <a href="/account" class="dropdown-item">
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
-            <span>Cabinet</span>
+            <span>Личный кабинет</span>
           </a>
 
           <a href="/my/bookmarks" class="dropdown-item">
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path></svg>
-            <span>Bookmarks</span>
+            <span>Закладки</span>
           </a>
 
           <a href="/account/edit" class="dropdown-item">
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
-            <span>Settings</span>
+            <span>Настройки</span>
           </a>
 
           <div class="dropdown-divider"></div>
 
           <a href="/auth/logout" class="dropdown-item dropdown-item--danger">
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
-            <span>Sign Out</span>
+            <span>Выйти</span>
           </a>
         </div>
       </div>
 
     <% } else { %>
-      <!-- Guest User Action Icon Buttons -->
-      <a href="/auth" class="header-icon-btn header-icon-btn--signin" title="Sign In" aria-label="Sign In">
+      <!-- Guest User Action Icon Buttons (UNCHANGED as requested) -->
+      <a href="/auth" class="header-icon-btn header-icon-btn--signin" title="Войти" aria-label="Войти">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
           <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"></path>
           <polyline points="10 17 15 12 10 7"></polyline>
           <line x1="15" y1="12" x2="3" y2="12"></line>
         </svg>
       </a>
-      <a href="/auth?tab=register" class="header-icon-btn header-icon-btn--register" title="Create Account / Register" aria-label="Create Account">
+      <a href="/auth?tab=register" class="header-icon-btn header-icon-btn--register" title="Регистрация" aria-label="Создать аккаунт">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
           <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
           <circle cx="8.5" cy="7" r="4"></circle>
@@ -201,13 +211,13 @@
           renderNotifications(data.notifications);
         }
       } catch (err) {
-        if (notifList) notifList.innerHTML = '<div style="padding: 1.2rem; text-align: center; color: var(--text-muted);">Failed to load notifications</div>';
+        if (notifList) notifList.innerHTML = '<div style="padding: 1.2rem; text-align: center; color: var(--text-muted);">Не удалось загрузить уведомления</div>';
       }
     }
 
     function renderNotifications(items) {
       if (!items || items.length === 0) {
-        notifList.innerHTML = '<div style="padding: 2rem 1.2rem; text-align: center; color: var(--text-muted); font-size: 0.88rem;">No notifications yet 🔔</div>';
+        notifList.innerHTML = '<div style="padding: 2rem 1.2rem; text-align: center; color: var(--text-muted); font-size: 0.88rem;">Уведомлений пока нет 🔔</div>';
         return;
       }
       notifList.innerHTML = items.map(n => `

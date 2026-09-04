@@ -77,6 +77,11 @@ router.post('/admin/categories', adminAuthMiddleware, doubleCsrfProtection, admi
 router.post('/admin/categories/:id/edit', adminAuthMiddleware, doubleCsrfProtection, adminController.handleEditCategory);
 router.post('/admin/categories/:id/delete', adminAuthMiddleware, doubleCsrfProtection, adminController.handleDeleteCategory);
 
+// FAQ Category CRUD
+router.post('/admin/faq-categories', adminAuthMiddleware, doubleCsrfProtection, adminController.handleAddFaqCategory);
+router.post('/admin/faq-categories/edit', adminAuthMiddleware, doubleCsrfProtection, adminController.handleEditFaqCategory);
+router.post('/admin/faq-categories/delete', adminAuthMiddleware, doubleCsrfProtection, adminController.handleDeleteFaqCategory);
+
 // Tag CRUD
 router.post('/admin/tags', adminAuthMiddleware, doubleCsrfProtection, adminController.handleAddTag);
 router.post('/admin/tags/:id/edit', adminAuthMiddleware, doubleCsrfProtection, adminController.handleEditTag);

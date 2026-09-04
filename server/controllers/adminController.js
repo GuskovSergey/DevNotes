@@ -606,16 +606,18 @@ class AdminController {
 
   getOptionsPage = catchAsync(async (req, res) => {
     const categories = await categoryService.getAllCategoriesWithCounts();
+    const faqCategories = await faqService.getFaqCategoriesWithCounts();
     const tags = await tagService.getAllTagsWithCounts();
     const pendingCommentsCount = await commentService.getPendingCount();
     const pendingPostsCount = await postService.getPendingCount();
     const pendingCoursesCount = await courseService.getPendingCoursesCount();
 
-    const activeSubTab = req.query.tab === 'tags' ? 'tags' : 'categories';
+    const activeSubTab = req.query.tab === 'tags' ? 'tags' : (req.query.tab === 'faq' ? 'faq' : 'categories');
 
     res.render('admin/options', {
       locals: { title: 'Options & Taxonomy Management | DevHub Admin' },
       categories,
+      faqCategories,
       tags,
       activeSubTab,
       activeTab: 'options',
@@ -643,6 +645,36 @@ class AdminController {
     const { id } = req.params;
     await categoryService.deleteCategory(id);
     res.redirect('/admin/categories?tab=categories');
+  });
+
+  handleAddFaqCategory = catchAsync(async (req, res) => {
+    const { name } = req.body;
+    if (name && name.trim()) {
+      await faqService.createQuestion({
+        question: `Часто задаваемый вопрос по теме "${name.trim()}"`,
+        answer: 'Ответ на вопрос базы знаний по умолчанию.',
+        category: name.trim(),
+        difficulty: 'Mid',
+        isPublished: true,
+      });
+    }
+    res.redirect('/admin/categories?tab=faq');
+  });
+
+  handleEditFaqCategory = catchAsync(async (req, res) => {
+    const { oldName, newName } = req.body;
+    if (oldName && newName) {
+      await faqService.renameFaqCategory(oldName, newName);
+    }
+    res.redirect('/admin/categories?tab=faq');
+  });
+
+  handleDeleteFaqCategory = catchAsync(async (req, res) => {
+    const { categoryName } = req.body;
+    if (categoryName) {
+      await faqService.deleteFaqCategory(categoryName);
+    }
+    res.redirect('/admin/categories?tab=faq');
   });
 
   handleAddTag = catchAsync(async (req, res) => {
