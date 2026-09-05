@@ -1,4 +1,4 @@
-const { Category, Post } = require('../models');
+const { Category, Post, Course } = require('../models');
 
 class CategoryService {
   async getAllCategories() {
@@ -63,6 +63,12 @@ class CategoryService {
       error.statusCode = 404;
       throw error;
     }
+
+    await Post.update({ categoryId: null }, { where: { categoryId: id } });
+    if (Course) {
+      await Course.update({ categoryId: null }, { where: { categoryId: id } });
+    }
+
     await category.destroy();
     return true;
   }

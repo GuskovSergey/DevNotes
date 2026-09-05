@@ -29,25 +29,30 @@
       <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.4rem;">
         <div>
           <label for="category" style="display: block; font-weight: 700; color: var(--text-main); margin-bottom: 0.5rem; font-size: 0.95rem;">
-            Topic / Category *
+            Категория / Тема *
           </label>
           <select name="category" id="category" required style="width: 100%; padding: 0.8rem 1rem; border-radius: var(--radius-lg); border: 1px solid var(--border-light); background: var(--bg-subtle); color: var(--text-main); font-size: 0.92rem; outline: none; transition: border-color 0.2s ease;">
-            <option value="Node.js Core">Node.js Core</option>
-            <option value="Databases & SQL">Databases &amp; SQL</option>
-            <option value="System Architecture">System Architecture</option>
-            <option value="Security & Web">Security &amp; Web</option>
-            <option value="Express & Frameworks">Express &amp; Frameworks</option>
+            <% if (typeof categories !== 'undefined' && categories && categories.length > 0) { %>
+              <% categories.forEach(cat => { %>
+                <option value="<%= cat %>"><%= cat %></option>
+              <% }) %>
+            <% } else { %>
+              <option value="Общее">Общее</option>
+              <option value="Node.js Core">Node.js Core</option>
+              <option value="Databases &amp; SQL">Databases &amp; SQL</option>
+              <option value="System Architecture">System Architecture</option>
+            <% } %>
           </select>
         </div>
 
         <div>
           <label for="difficulty" style="display: block; font-weight: 700; color: var(--text-main); margin-bottom: 0.5rem; font-size: 0.95rem;">
-            Target Level *
+            Уровень сложности *
           </label>
           <select name="difficulty" id="difficulty" required style="width: 100%; padding: 0.8rem 1rem; border-radius: var(--radius-lg); border: 1px solid var(--border-light); background: var(--bg-subtle); color: var(--text-main); font-size: 0.92rem; outline: none; transition: border-color 0.2s ease;">
-            <option value="Junior">🌱 Junior</option>
-            <option value="Mid" selected>⚡ Mid</option>
-            <option value="Senior">🚀 Senior</option>
+            <option value="Junior">🌱 Начальный (Junior)</option>
+            <option value="Mid" selected>⚡ Средний (Mid)</option>
+            <option value="Senior">🚀 Продвинутый (Senior)</option>
           </select>
         </div>
       </div>

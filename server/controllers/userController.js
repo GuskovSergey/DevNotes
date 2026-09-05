@@ -729,14 +729,16 @@ class UserController {
 
   getAskQuestionPage = catchAsync(async (req, res) => {
     const user = await authService.getUserById(req.userId);
+    const categories = await faqService.getCategories();
     const locals = {
-      title: 'Ask a Technical Question | DevHub',
-      description: 'Submit an interview question or technical query for moderation.',
+      title: 'Задать технический вопрос | DevHub',
+      description: 'Отправьте вопрос базы знаний или проблему на модерацию.',
     };
 
     res.render('my/ask-question', {
       locals,
       user,
+      categories,
       activeTab: 'my-questions',
     });
   });

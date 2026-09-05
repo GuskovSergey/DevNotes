@@ -58,15 +58,14 @@ class FaqService {
   }
 
   /**
-   * Get unique available categories for filter tabs
+   * Get unique available categories for filter tabs & user cabinet options
    */
   async getCategories() {
     const categories = await InterviewQuestion.findAll({
       attributes: ['category'],
       group: ['category'],
-      where: { isPublished: true, status: 'approved' },
     });
-    return categories.map(c => c.category);
+    return categories.map(c => c.category).filter(Boolean);
   }
 
   /**
